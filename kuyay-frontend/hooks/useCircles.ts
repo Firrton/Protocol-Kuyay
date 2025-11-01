@@ -329,6 +329,104 @@ export function useCircleDetails(circleAddress: string | undefined) {
 }
 
 /**
+ * Hook para depositar garantía en un círculo
+ * Primer paso antes de poder hacer pagos
+ */
+export function useDepositGuarantee() {
+  const { writeContract, data: hash, isPending, error, reset } = useWriteContract();
+  const [depositStep, setDepositStep] = useState<"idle" | "approving" | "depositing">("idle");
+  const [pendingDeposit, setPendingDeposit] = useState<{ circleAddress: string; amount: bigint } | null>(null);
+
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({
+      hash,
+    });
+
+  const executeDeposit = useCallback(async (circleAddress: string) => {
+    if (!CONTRACTS_DEPLOYED.circleFactory) {
+      throw new Error("Contracts not deployed yet");
+    }
+
+    try {
+      console.log("💰 Executing deposit to:", circleAddress);
+      setDepositStep("depositing");
+
+      writeContract({
+        address: circleAddress as `0x${string}`,
+        abi: CIRCLE_ABI,
+        functionName: "depositGuarantee",
+        gas: 300000n,
+      });
+    } catch (err) {
+      console.error("❌ Error depositing guarantee:", err);
+      setDepositStep("idle");
+      throw err;
+    }
+  }, [writeContract]);
+
+  // Cuando se confirma la aprobación, proceder con el depósito
+  useEffect(() => {
+    if (isConfirmed && depositStep === "approving" && pendingDeposit) {
+      console.log("✅ Approval confirmed! Proceeding to deposit in 2s...");
+      setTimeout(() => {
+        executeDeposit(pendingDeposit.circleAddress);
+      }, 2000);
+    }
+  }, [isConfirmed, depositStep, pendingDeposit, executeDeposit]);
+
+  const depositGuarantee = async (circleAddress: string, amount: number) => {
+    if (!CONTRACTS_DEPLOYED.circleFactory) {
+      alert("Contracts not deployed yet");
+      return;
+    }
+
+    try {
+      const amountInWei = parseUnits(amount.toString(), 6);
+
+      setPendingDeposit({ circleAddress, amount: amountInWei });
+      setDepositStep("approving");
+
+      // Paso 1: Aprobar USDC
+      writeContract({
+        address: CONTRACTS.arbitrumSepolia.usdc as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: "approve",
+        args: [circleAddress as `0x${string}`, amountInWei],
+        gas: 100000n,
+      });
+    } catch (err) {
+      console.error("Error initiating deposit:", err);
+      setDepositStep("idle");
+      setPendingDeposit(null);
+      throw err;
+    }
+  };
+
+  // Reset cuando se completa
+  useEffect(() => {
+    if (isConfirmed && depositStep === "depositing") {
+      console.log("✅ Deposit confirmed! Resetting...");
+      setTimeout(() => {
+        setDepositStep("idle");
+        setPendingDeposit(null);
+        reset();
+      }, 3000);
+    }
+  }, [isConfirmed, depositStep, reset]);
+
+  return {
+    depositGuarantee,
+    isPending,
+    isConfirming,
+    isConfirmed,
+    error,
+    hash,
+    depositStep,
+    isProcessing: depositStep !== "idle" || isPending || isConfirming,
+  };
+}
+
+/**
  * Hook para hacer un pago en un círculo
  * Maneja el flujo completo: aprobar USDC → hacer pago
  */

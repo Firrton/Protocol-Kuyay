@@ -50,6 +50,8 @@ export default function PaymentButton({
   useEffect(() => {
     console.log("✅ Confirmation check:", { 
       isConfirmed, 
+      isConfirming,
+      isPending,
       paymentStep, 
       paymentHash, 
       currentHash: hash, 
@@ -60,8 +62,7 @@ export default function PaymentButton({
     // Solo cerrar cuando:
     // 1. La transacción está confirmada
     // 2. Estamos en el paso de pagar
-    // 3. El paymentHash coincide con el hash actual (o no hay paymentHash guardado pero hay hash)
-    if (isConfirmed && paymentStep === "paying" && (hash === paymentHash || (!paymentHash && hash))) {
+    if (isConfirmed && paymentStep === "paying") {
       console.log("🎉 Payment CONFIRMED! Hash:", hash);
 
       // Cambiar a estado de éxito
@@ -82,7 +83,7 @@ export default function PaymentButton({
         setShowSuccess(false);
       }, 5000);
     }
-  }, [isConfirmed, paymentStep, paymentHash, hash, overlayStep, onPaymentSuccess]);
+  }, [isConfirmed, isConfirming, isPending, paymentStep, hash, overlayStep, onPaymentSuccess]);
 
   // Mostrar overlay cuando se está procesando
   useEffect(() => {

@@ -28,24 +28,40 @@ export default function PaymentButton({
     console.log("🔄 PaymentStep changed:", paymentStep, "hash:", hash);
     if (paymentStep === "approving") {
       setOverlayStep("approving");
-    } else if (paymentStep === "paying" && hash) {
-      // Cuando empieza a pagar, guardar el hash de esta transacción
-      console.log("💰 Payment transaction started with hash:", hash);
-      setPaymentHash(hash);
+    } else if (paymentStep === "paying") {
       setOverlayStep("paying");
+      // Guardar hash cuando cambia a paying
+      if (hash) {
+        console.log("💰 Payment transaction started with hash:", hash);
+        setPaymentHash(hash);
+      }
     }
   }, [paymentStep, hash]);
 
+  // Guardar hash cuando aparece durante el paying
+  useEffect(() => {
+    if (paymentStep === "paying" && hash && !paymentHash) {
+      console.log("💰 Late payment hash capture:", hash);
+      setPaymentHash(hash);
+    }
+  }, [hash, paymentStep, paymentHash]);
+
   // Detectar cuando se confirma el PAGO (no la aprobación)
   useEffect(() => {
-    console.log("✅ Confirmation check:", { isConfirmed, paymentHash, currentHash: hash, overlayStep });
+    console.log("✅ Confirmation check:", { 
+      isConfirmed, 
+      paymentStep, 
+      paymentHash, 
+      currentHash: hash, 
+      overlayStep,
+      hashMatch: hash === paymentHash
+    });
 
     // Solo cerrar cuando:
     // 1. La transacción está confirmada
-    // 2. Tenemos un hash de pago guardado
-    // 3. El hash actual coincide con el hash del pago
-    // 4. Estamos en el paso de pagar
-    if (isConfirmed && paymentHash && hash === paymentHash && overlayStep === "paying") {
+    // 2. Estamos en el paso de pagar
+    // 3. El paymentHash coincide con el hash actual (o no hay paymentHash guardado pero hay hash)
+    if (isConfirmed && paymentStep === "paying" && (hash === paymentHash || (!paymentHash && hash))) {
       console.log("🎉 Payment CONFIRMED! Hash:", hash);
 
       // Cambiar a estado de éxito
@@ -66,7 +82,7 @@ export default function PaymentButton({
         setShowSuccess(false);
       }, 5000);
     }
-  }, [isConfirmed, paymentHash, hash, overlayStep, onPaymentSuccess]);
+  }, [isConfirmed, paymentStep, paymentHash, hash, overlayStep, onPaymentSuccess]);
 
   // Mostrar overlay cuando se está procesando
   useEffect(() => {

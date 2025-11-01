@@ -2,7 +2,7 @@
 
 ### **Pasanakus Descentralizados con Simulación de Riesgo Monte Carlo**
 
-> *Ancestral Andean finance meets cutting-edge blockchain technology*
+> *Las finanzas ancestrales andinas encuentran la tecnología blockchain de vanguardia*
 
 [![Arbitrum](https://img.shields.io/badge/Arbitrum-Stylus-blue)](https://arbitrum.io)
 [![Rust](https://img.shields.io/badge/Rust-WASM-orange)](https://www.rust-lang.org/)
@@ -22,49 +22,49 @@ Los sistemas de crédito rotativo (Pasanakus) han existido por siglos en los And
 La solución es **simulación Monte Carlo** con miles de iteraciones. Pero esto es:
 
 ```
-❌ IMPOSIBLE en Solidity → 5,000,000+ gas (OOG error)
-❌ IMPOSIBLE offchain → Requiere trust en APIs centralizadas
-❌ IMPOSIBLE con optimistic rollups → Gas sigue siendo prohibitivo
-✅ POSIBLE con Arbitrum Stylus → 150,000 gas (97% savings)
+❌ IMPOSIBLE en Solidity → 5,000,000+ gas (error OOG)
+❌ IMPOSIBLE offchain → Requiere confianza en APIs centralizadas
+❌ IMPOSIBLE con rollups optimistas → El gas sigue siendo prohibitivo
+✅ POSIBLE con Arbitrum Stylus → 150,000 gas (ahorro del 97%)
 ```
 
 ---
 
-## 🚀 **La Innovación: Multi-VM Architecture**
+## 🚀 **La Innovación: Arquitectura Multi-VM**
 
 Kuyay es el **primer protocolo DeFi** que usa una arquitectura híbrida Solidity + Rust/WASM para resolver un problema matemático real:
 
 ```
 ┌─────────────────────────────────────────────────┐
-│         KUYAY PROTOCOL ARCHITECTURE             │
+│         ARQUITECTURA KUYAY PROTOCOL             │
 ├─────────────────────────────────────────────────┤
 │                                                 │
-│  🔵 SOLIDITY LAYER (Trust & Composability)     │
-│  ├─ Circle.sol          → Lifecycle management │
-│  ├─ CircleFactory.sol   → Circle deployment    │
-│  ├─ AguayoSBT.sol       → Reputation system    │
-│  ├─ KuyayVault.sol      → Liquidity provider   │
-│  └─ Chainlink VRF       → Verifiable randomness│
+│  🔵 CAPA SOLIDITY (Confianza & Composabilidad) │
+│  ├─ Circle.sol          → Gestión del ciclo    │
+│  ├─ CircleFactory.sol   → Despliegue de Circles│
+│  ├─ AguayoSBT.sol       → Sistema de reputación│
+│  ├─ KuyayVault.sol      → Proveedor de liquidez│
+│  └─ Chainlink VRF       → Aleatoriedad verificable│
 │                                                 │
-│  ⚡ STYLUS LAYER (Performance & Computation)   │
-│  ├─ CircleSimulator.rs  → Monte Carlo engine   │
-│  │   └─ 1,000+ simulations in 150k gas         │
-│  └─ RiskOracle.rs       → Group risk analysis  │
-│      └─ Complex leverage calculations          │
+│  ⚡ CAPA STYLUS (Rendimiento & Computación)    │
+│  ├─ CircleSimulator.rs  → Motor Monte Carlo    │
+│  │   └─ 1,000+ simulaciones en 150k gas        │
+│  └─ RiskOracle.rs       → Análisis de riesgo   │
+│      └─ Cálculos complejos de apalancamiento   │
 │                                                 │
 └─────────────────────────────────────────────────┘
 ```
 
-### **Why This Architecture?**
+### **¿Por qué esta Arquitectura?**
 
-| Task | Best Tool | Reason |
+| Tarea | Mejor Herramienta | Razón |
 |------|-----------|--------|
-| Token transfers | Solidity | Battle-tested ERC20 |
-| VRF integration | Solidity | Chainlink compatibility |
-| Factory patterns | Solidity | OpenZeppelin standards |
-| Monte Carlo (1000 runs) | **Stylus** | **97% cheaper gas** |
-| Statistical analysis | **Stylus** | **Native math operations** |
-| Risk calculations | **Stylus** | **Memory efficiency** |
+| Transferencias de tokens | Solidity | ERC20 probado en batalla |
+| Integración VRF | Solidity | Compatibilidad con Chainlink |
+| Patrones Factory | Solidity | Estándares OpenZeppelin |
+| Monte Carlo (1000 ejecuciones) | **Stylus** | **97% más barato en gas** |
+| Análisis estadístico | **Stylus** | **Operaciones matemáticas nativas** |
+| Cálculos de riesgo | **Stylus** | **Eficiencia de memoria** |
 
 ---
 
@@ -76,7 +76,7 @@ Una simulación Monte Carlo requiere:
 
 1. **Loop sobre N simulaciones** (típicamente 1,000+)
 2. Para cada simulación:
-   - Loop sobre M rounds (12 rounds)
+   - Loop sobre M rondas (12 rondas)
    - Loop sobre K miembros (hasta 50)
    - Generar números pseudo-aleatorios
    - Calcular defaults probabilísticos
@@ -86,11 +86,11 @@ Una simulación Monte Carlo requiere:
 
 **En Solidity:**
 ```solidity
-// ❌ IMPOSIBLE - Out of Gas
-for (uint i = 0; i < 1000; i++) {        // 1,000 iterations
-    for (uint r = 0; r < 12; r++) {      // × 12 rounds
-        for (uint m = 0; m < 50; m++) {  // × 50 members
-            // Gas explodes: 600,000,000+ gas
+// ❌ IMPOSIBLE - Sin Gas (OOG)
+for (uint i = 0; i < 1000; i++) {        // 1,000 iteraciones
+    for (uint r = 0; r < 12; r++) {      // × 12 rondas
+        for (uint m = 0; m < 50; m++) {  // × 50 miembros
+            // El gas explota: 600,000,000+ gas
         }
     }
 }
@@ -99,8 +99,8 @@ for (uint i = 0; i < 1000; i++) {        // 1,000 iterations
 **Con Stylus:**
 ```rust
 // ✅ POSIBLE - 150,000 gas
-for sim in 0..num_simulations {          // Rust native loops
-    for round in 0..num_rounds {         // WASM speed
+for sim in 0..num_simulations {          // Loops nativos de Rust
+    for round in 0..num_rounds {         // Velocidad WASM
         for member_idx in 0..num_members {
             // ~150k gas total 🚀
         }
@@ -117,14 +117,14 @@ pub fn simulate_circle(
     cuota_amount: U256,
     num_rounds: u8,
     avg_default_probability: u32,
-    num_simulations: u16,              // 1000+ simulations!
+    num_simulations: u16,              // ¡1000+ simulaciones!
 ) -> Result<(u32, U256, u32, U256, U256), Vec<u8>> {
     
     let mut successes = 0u32;
     let mut total_return = U256::ZERO;
     let mut results = Vec::new();
 
-    // Run Monte Carlo simulations
+    // Ejecutar simulaciones Monte Carlo
     for sim in 0..num_simulations {
         let outcome = self.run_single_simulation(
             num_members,
@@ -142,8 +142,8 @@ pub fn simulate_circle(
         results.push(outcome.final_payout);
     }
 
-    // Calculate statistics
-    results.sort();  // O(n log n) sorting in Rust
+    // Calcular estadísticas
+    results.sort();  // Ordenamiento O(n log n) en Rust
     
     let success_rate = (successes * 10000) / (num_simulations as u32);
     let expected_return = total_return / U256::from(num_simulations);
@@ -156,29 +156,29 @@ pub fn simulate_circle(
 
 ---
 
-## 📊 **Gas Comparison: The Numbers Don't Lie**
+## 📊 **Comparación de Gas: Los Números No Mienten**
 
-| Operation | Solidity | Stylus | Savings |
+| Operación | Solidity | Stylus | Ahorro |
 |-----------|----------|--------|---------|
-| 100 Monte Carlo sims | >5,000,000 ⛽ | 150,000 ⛽ | **97%** ✨ |
-| 1,000 simulations | **OUT OF GAS** ❌ | 500,000 ⛽ | **∞%** 🚀 |
-| Risk analysis (10 members) | 200,000 ⛽ | 35,000 ⛽ | **82.5%** 📉 |
-| Leverage calculation | 150,000 ⛽ | 25,000 ⛽ | **83.3%** 💎 |
+| 100 sims Monte Carlo | >5,000,000 ⛽ | 150,000 ⛽ | **97%** ✨ |
+| 1,000 simulaciones | **SIN GAS (OOG)** ❌ | 500,000 ⛽ | **∞%** 🚀 |
+| Análisis de riesgo (10 miembros) | 200,000 ⛽ | 35,000 ⛽ | **82.5%** 📉 |
+| Cálculo de apalancamiento | 150,000 ⛽ | 25,000 ⛽ | **83.3%** 💎 |
 
-**Real Cost Impact:**
+**Impacto en Costos Reales:**
 ```
-Creating a Circle with risk assessment:
+Crear un Circle con evaluación de riesgo:
 
-Solidity-only approach:
+Enfoque solo Solidity:
 - Gas: ~800,000 gas
-- Cost at 0.5 gwei: ~$2.50 USD
-- Limited to <10 members
+- Costo a 0.5 gwei: ~$2.50 USD
+- Limitado a <10 miembros
 
-Kuyay (Stylus hybrid):
+Kuyay (híbrido Stylus):
 - Gas: ~300,000 gas
-- Cost at 0.5 gwei: ~$0.45 USD
-- Supports up to 50 members
-- INCLUDES full Monte Carlo simulation ✨
+- Costo a 0.5 gwei: ~$0.45 USD
+- Soporta hasta 50 miembros
+- INCLUYE simulación Monte Carlo completa ✨
 ```
 
 ---
@@ -199,17 +199,17 @@ El **Pasanaku** (del quechua *pasa* = entregar + *naku* = entre nosotros) es un 
 ```
 Grupo de N miembros + Cuota mensual
 
-Ronda 1: Todos aportan → Sorteo → Ganador recibe el pot
-Ronda 2: Todos aportan → Sorteo → Ganador recibe el pot
+Ronda 1: Todos aportan → Sorteo → Ganador recibe el pozo
+Ronda 2: Todos aportan → Sorteo → Ganador recibe el pozo
    ⋮
-Ronda N: Todos aportan → Sorteo → Último ganador recibe el pot
+Ronda N: Todos aportan → Sorteo → Último ganador recibe el pozo
 
 Resultado: Todos reciben exactamente lo que aportaron
           pero con liquidez anticipada para el ganador
 ```
 
 **El problema sin blockchain:**
-- ❌ Requiere confianza total en organizador
+- ❌ Requiere confianza total en el organizador
 - ❌ Sin garantías de pago
 - ❌ Alta tasa de defaults (20-30% en algunos casos)
 - ❌ Sin reputación transferible
@@ -255,13 +255,13 @@ Kuyay digitaliza esta metáfora:
 └─────────────────────────────────────┘
 ```
 
-**Non-transferible (SBT):** La reputación se construye, no se compra.
+**No-transferible (SBT):** La reputación se construye, no se compra.
 
 ---
 
 ## 🔧 **Arquitectura Técnica Profunda**
 
-### **1. Circle Lifecycle**
+### **1. Ciclo de Vida del Circle**
 
 ```
 ┌──────────────┐
@@ -273,10 +273,10 @@ Kuyay digitaliza esta metáfora:
 │   ACTIVE     │  Rondas de pago + sorteos VRF
 │              │
 │  ┌─────────┐ │
-│  │ Round 1 │ │ → Pagos → VRF → Ganador
+│  │ Ronda 1 │ │ → Pagos → VRF → Ganador
 │  └─────────┘ │
 │  ┌─────────┐ │
-│  │ Round 2 │ │ → Pagos → VRF → Ganador
+│  │ Ronda 2 │ │ → Pagos → VRF → Ganador
 │  └─────────┘ │
 │      ⋮       │
 └──────┬───────┘
@@ -287,34 +287,34 @@ Kuyay digitaliza esta metáfora:
 └──────────────┘
 ```
 
-### **2. Dual-Mode System**
+### **2. Sistema de Doble Modo**
 
-**SAVINGS MODE:**
+**MODO AHORRO:**
 ```
 Garantía: $100 USDC por miembro
 Cuota: $10 USDC mensual
 Miembros: 10
 
-Total pool: 10 × $10 = $100 USDC por ronda
+Pozo total: 10 × $10 = $100 USDC por ronda
 Ganador recibe: $100 USDC
-Leverage: 1x (sin préstamo)
-Risk: Bajo
+Apalancamiento: 1x (sin préstamo)
+Riesgo: Bajo
 ```
 
-**CREDIT MODE:**
+**MODO CRÉDITO:**
 ```
 Garantía: $100 USDC por miembro
 Cuota: $10 USDC mensual
 Miembros: 10
-Leverage: 2x (basado en reputación grupal)
+Apalancamiento: 2x (basado en reputación grupal)
 
-Total pool: (10 × $10) + protocol loan = $200 USDC
+Pozo total: (10 × $10) + préstamo del protocolo = $200 USDC
 Ganador recibe: $200 USDC 🚀
-Protocol repayment: Se paga gradualmente
-Risk: Moderado (requiere Aguayo Nivel 1+)
+Repago al protocolo: Se paga gradualmente
+Riesgo: Moderado (requiere Aguayo Nivel 1+)
 ```
 
-### **3. VRF Draw System**
+### **3. Sistema de Sorteo VRF**
 
 ```solidity
 // Sorteo verificable con Chainlink VRF v2.5
@@ -335,51 +335,51 @@ function _startRoundDraw() internal returns (uint256) {
     return requestId;
 }
 
-// Weighted draw (Credit mode): Mayor nivel = Mayor probabilidad
+// Sorteo ponderado (modo Crédito): Mayor nivel = Mayor probabilidad
 function _selectWeightedWinner(uint256 randomSeed) 
     internal view returns (address) 
 {
     address[] memory eligible = _getEligibleMembers();
     uint256[] memory weights = riskOracle.getWeightedProbabilities(eligible);
     
-    // Weight = 10 + aguayo_level
+    // Peso = 10 + nivel_aguayo
     // Nivel 0: peso 10
     // Nivel 5: peso 15 (50% más probabilidad)
     
     uint256 randomWeight = randomSeed % totalWeight;
-    // Select winner based on cumulative weights...
+    // Seleccionar ganador basado en pesos acumulativos...
 }
 ```
 
-### **4. Risk Oracle Architecture**
+### **4. Arquitectura del Risk Oracle**
 
 ```rust
 pub struct RiskOracle {
     aguayo_sbt: Address,
     leverage_tiers: StorageVec<LeverageTier>,
     
-    // Tier system
-    // Level 1-2: 1.5x leverage, 12% APR
-    // Level 3-4: 3x leverage, 10% APR
-    // Level 5+:   5x leverage, 8% APR
+    // Sistema de niveles
+    // Nivel 1-2: 1.5x apalancamiento, 12% APR
+    // Nivel 3-4: 3x apalancamiento, 10% APR
+    // Nivel 5+:   5x apalancamiento, 8% APR
 }
 
 pub fn get_leverage_level(&self, members: Vec<Address>) 
     -> Result<(U256, U256), Vec<u8>> 
 {
-    // 1. Calculate average Aguayo level of group
+    // 1. Calcular nivel promedio de Aguayo del grupo
     let (avg_level, stained_count) = self.get_group_stats(members)?;
     
-    // 2. Find matching leverage tier
+    // 2. Encontrar nivel de apalancamiento correspondiente
     let (multiplier, interest_rate) = 
         self.get_tier_for_average_level(avg_level)?;
     
-    // 3. Apply stain penalty
-    // Each stained member:
-    //   - Reduces leverage by 10%
-    //   - Increases interest by 2%
+    // 3. Aplicar penalización por manchas
+    // Cada miembro manchado:
+    //   - Reduce apalancamiento en 10%
+    //   - Aumenta interés en 2%
     
-    // 4. Cap at max leverage (5x)
+    // 4. Limitar al apalancamiento máximo (5x)
     
     Ok((multiplier, interest_rate))
 }
@@ -387,24 +387,24 @@ pub fn get_leverage_level(&self, members: Vec<Address>)
 
 ---
 
-## 🧮 **Monte Carlo: The Math Behind It**
+## 🧮 **Monte Carlo: Las Matemáticas Detrás**
 
-### **Problem Statement**
+### **Definición del Problema**
 
-Given:
-- `N` members in a circle
-- `M` rounds (typically N rounds)
-- `C` cuota per round per member
-- `P` average default probability (0-100%)
-- Catastrophic failure threshold: 30% defaults in any round
+Dado:
+- `N` miembros en un círculo
+- `M` rondas (típicamente N rondas)
+- `C` cuota por ronda por miembro
+- `P` probabilidad promedio de default (0-100%)
+- Umbral de falla catastrófica: 30% defaults en cualquier ronda
 
-Calculate:
-- Success probability
-- Expected return per member
-- Best case (95th percentile)
-- Worst case (5th percentile)
+Calcular:
+- Probabilidad de éxito
+- Retorno esperado por miembro
+- Mejor caso (percentil 95)
+- Peor caso (percentil 5)
 
-### **Simulation Algorithm**
+### **Algoritmo de Simulación**
 
 ```rust
 fn run_single_simulation(&self, ...) -> SimulationOutcome {
@@ -414,12 +414,12 @@ fn run_single_simulation(&self, ...) -> SimulationOutcome {
     for round in 0..num_rounds {
         let mut round_payments = 0;
         
-        // Simulate each member's payment decision
+        // Simular decisión de pago de cada miembro
         for member_idx in 0..num_members {
-            // Generate pseudo-random number
+            // Generar número pseudo-aleatorio
             let random_value = self.pseudo_random(round, member_idx, seed);
             
-            // Member pays if random_value > default_probability
+            // Miembro paga si random_value > probabilidad_default
             if random_value > avg_default_prob {
                 round_payments += 1;
             } else {
@@ -427,12 +427,15 @@ fn run_single_simulation(&self, ...) -> SimulationOutcome {
             }
         }
         
-        // Check catastrophic failure threshold
+        // ═══════════════════════════════════════
+        // VERIFICAR FALLA CATASTRÓFICA
+        // Si >30% hacen default en CUALQUIER ronda, el círculo falla
+        // ═══════════════════════════════════════
         let defaults_this_round = num_members - round_payments;
         let threshold = (num_members * 30) / 100;  // 30%
         
         if defaults_this_round > threshold {
-            // Circle fails catastrophically
+            // El círculo falla catastróficamente
             return SimulationOutcome {
                 success: false,
                 final_payout: U256::ZERO,
@@ -440,11 +443,13 @@ fn run_single_simulation(&self, ...) -> SimulationOutcome {
             };
         }
         
-        // Collect payments
+        // Recolectar pagos
         total_collected += cuota * U256::from(round_payments);
     }
     
-    // Calculate final payout per member
+    // ═══════════════════════════════════════
+    // CALCULAR PAGO FINAL
+    // ═══════════════════════════════════════
     let final_payout = total_collected / U256::from(num_members);
     
     SimulationOutcome {
@@ -455,22 +460,22 @@ fn run_single_simulation(&self, ...) -> SimulationOutcome {
 }
 ```
 
-### **Pseudo-Random Number Generator**
+### **Generador de Números Pseudo-Aleatorios**
 
-We use a **Linear Congruential Generator (LCG)** for deterministic randomness:
+Usamos un **Generador Congruencial Lineal (LCG)** para aleatoriedad determinística:
 
 ```rust
 fn pseudo_random(&self, round: u8, member: u8, seed: u16) -> u32 {
-    // LCG parameters (POSIX standard)
+    // Parámetros LCG (estándar POSIX)
     let a = 1103515245u32;
     let c = 12345u32;
     let m = 2147483648u32;  // 2^31
     
-    // Entropy sources:
-    // - simulation_count: Global state (changes each run)
-    // - round: Different per round
-    // - member: Different per member
-    // - seed: Simulation index
+    // Fuentes de entropía:
+    // - simulation_count: Estado global (cambia cada ejecución)
+    // - round: Diferente por ronda
+    // - member: Diferente por miembro
+    // - seed: Índice de simulación
     let entropy = self.simulation_count.get().to::<u32>();
     let combined = entropy
         .wrapping_add(round as u32)
@@ -479,31 +484,31 @@ fn pseudo_random(&self, round: u8, member: u8, seed: u16) -> u32 {
     
     let result = (a.wrapping_mul(combined).wrapping_add(c)) % m;
     
-    // Map to 0-10000 (basis points)
+    // Mapear a rango 0-10000 (puntos base)
     (result % 10000) as u32
 }
 ```
 
-### **Statistical Analysis**
+### **Análisis Estadístico**
 
 ```rust
-// After running N simulations:
-let mut results: Vec<U256> = /* simulation results */;
+// Después de ejecutar N simulaciones:
+let mut results: Vec<U256> = /* resultados de simulación */;
 
-// Sort for percentile calculation
-results.sort();  // O(n log n) - Fast in Rust, EXPENSIVE in Solidity
+// Ordenar para cálculo de percentiles
+results.sort();  // O(n log n) - Rápido en Rust, COSTOSO en Solidity
 
-// Success rate (basis points: 0-10000)
+// Tasa de éxito (puntos base: 0-10000)
 let success_rate = (successes * 10000) / num_simulations;
 
-// Expected return (mean)
+// Retorno esperado (media)
 let expected_return = total_return / U256::from(num_simulations);
 
 // Percentiles
 let p95_idx = (num_simulations * 95) / 100;
 let p5_idx = (num_simulations * 5) / 100;
-let best_case = results[p95_idx];   // 95th percentile
-let worst_case = results[p5_idx];   // 5th percentile
+let best_case = results[p95_idx];   // Percentil 95
+let worst_case = results[p5_idx];   // Percentil 5
 ```
 
 ---
@@ -512,100 +517,100 @@ let worst_case = results[p5_idx];   // 5th percentile
 
 ### **Arbitrum Sepolia Testnet**
 
-| Contrato | Dirección | Tecnología | Gas Cost |
-|----------|-----------|------------|----------|
+| Contrato | Dirección | Tecnología | Costo Gas |
+|----------|-----------|------------|-----------|
 | **CircleSimulator** | `0x319570972527b9e3c989902311b9f808fe3553a4` | Stylus (Rust/WASM) | ~150k gas |
 | **RiskOracle** | `0xc9ca3c1ceaf97012daae2f270f65d957113da3be` | Stylus (Rust/WASM) | ~35k gas |
-| **AguayoSBT** | `0x8b48577F4252c19214d4C0c3240D1465606BDdAa` | Solidity | Standard |
-| **CircleFactory** | `0x9D4CA17641F9c3A6959058c51dD1C73d3c58CbbF` | Solidity | Standard |
-| **KuyayVault** | `0xA63a6865c78ac03CC44ecDd9a113744DCFA72dF6` | Solidity | Standard |
+| **AguayoSBT** | `0x8b48577F4252c19214d4C0c3240D1465606BDdAa` | Solidity | Estándar |
+| **CircleFactory** | `0x9D4CA17641F9c3A6959058c51dD1C73d3c58CbbF` | Solidity | Estándar |
+| **KuyayVault** | `0xA63a6865c78ac03CC44ecDd9a113744DCFA72dF6` | Solidity | Estándar |
 | **USDC Testnet** | `0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d` | ERC20 | - |
 
 ---
 
-## 🚀 **Quick Start**
+## 🚀 **Inicio Rápido**
 
-### **1. Installation**
+### **1. Instalación**
 
 ```bash
-# Clone repository
-git clone https://github.com/yourusername/kuyay-protocol.git
+# Clonar repositorio
+git clone https://github.com/tuusuario/kuyay-protocol.git
 cd kuyay-protocol
 
-# Install frontend dependencies
+# Instalar dependencias del frontend
 cd kuyay-frontend
 npm install
 
-# Configure environment
+# Configurar entorno
 cp .env.example .env.local
-# Add your NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
+# Agregar tu NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
 ```
 
-### **2. Run Frontend**
+### **2. Ejecutar Frontend**
 
 ```bash
 npm run dev
-# Open http://localhost:3000
+# Abrir http://localhost:3000
 ```
 
-### **3. Get Testnet Tokens**
+### **3. Obtener Tokens de Testnet**
 
 **USDC:**
-- Visit: https://faucet.circle.com/
-- Select "Arbitrum Sepolia"
-- Request 10 USDC
+- Visitar: https://faucet.circle.com/
+- Seleccionar "Arbitrum Sepolia"
+- Solicitar 10 USDC
 
-**ETH (for gas):**
-- Visit: https://faucet.quicknode.com/arbitrum/sepolia
-- Request testnet ETH
+**ETH (para gas):**
+- Visitar: https://faucet.quicknode.com/arbitrum/sepolia
+- Solicitar ETH de testnet
 
-### **4. Use the Platform**
+### **4. Usar la Plataforma**
 
-1. **Mint Aguayo SBT** → Get your reputation token
-2. **Create Circle** → Configure guarantee, cuota, invite members
-3. **Monte Carlo Preview** → See risk analysis BEFORE committing
-4. **Deposit Guarantee** → Lock funds (all members must deposit)
-5. **Make Payments** → Each payment adds a "thread" to your Aguayo
-6. **Win Draw** → Receive the pot
-7. **Complete Circle** → Get guarantee back + level up your Aguayo
+1. **Mintear Aguayo SBT** → Obtén tu token de reputación
+2. **Crear Circle** → Configurar garantía, cuota, invitar miembros
+3. **Vista Previa Monte Carlo** → Ver análisis de riesgo ANTES de comprometer
+4. **Depositar Garantía** → Bloquear fondos (todos los miembros deben depositar)
+5. **Hacer Pagos** → Cada pago agrega un "hilo" a tu Aguayo
+6. **Ganar Sorteo** → Recibir el pozo
+7. **Completar Circle** → Recuperar garantía + subir nivel de Aguayo
 
 ---
 
-## 🏗️ **For Developers**
+## 🏗️ **Para Desarrolladores**
 
-### **Building Stylus Contracts**
+### **Compilar Contratos Stylus**
 
 ```bash
 cd stylus-contracts/circle-simulator
 
-# Install Rust toolchain
+# Instalar toolchain de Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 rustup target add wasm32-unknown-unknown
 
-# Install cargo-stylus
+# Instalar cargo-stylus
 cargo install cargo-stylus
 
-# Build
+# Compilar
 cargo stylus build
 
-# Check WASM size
+# Verificar tamaño WASM
 cargo stylus check
 
-# Deploy (requires ETH on Arbitrum Sepolia)
+# Desplegar (requiere ETH en Arbitrum Sepolia)
 cargo stylus deploy \
   --private-key $PRIVATE_KEY \
   --endpoint https://sepolia-rollup.arbitrum.io/rpc
 ```
 
-### **Testing Monte Carlo**
+### **Probar Monte Carlo**
 
 ```bash
 cd stylus-contracts/circle-simulator
 
-# Run Rust tests
+# Ejecutar tests de Rust
 cargo test --release
 
-# Expected output:
+# Salida esperada:
 # running 17 tests
 # test tests::test_initialization ... ok
 # test tests::test_zero_default_probability ... ok
@@ -614,7 +619,7 @@ cargo test --release
 # test result: ok. 17 passed; 0 failed
 ```
 
-### **Integration with Frontend**
+### **Integración con Frontend**
 
 ```typescript
 import { useQuickSimulate } from '@/hooks/useCircleSimulator';
@@ -628,14 +633,14 @@ function CreateCircleForm() {
 
   return (
     <div>
-      <h3>Risk Analysis</h3>
-      <p>Success Rate: {result?.successRate}%</p>
-      <p>Expected Return: ${result?.expectedReturnFormatted}</p>
+      <h3>Análisis de Riesgo</h3>
+      <p>Tasa de Éxito: {result?.successRate}%</p>
+      <p>Retorno Esperado: ${result?.expectedReturnFormatted}</p>
       
       {result?.successRate > 80 ? (
-        <Badge color="green">Low Risk ✓</Badge>
+        <Badge color="green">Riesgo Bajo ✓</Badge>
       ) : (
-        <Badge color="red">High Risk ⚠</Badge>
+        <Badge color="red">Riesgo Alto ⚠</Badge>
       )}
     </div>
   );
@@ -644,91 +649,93 @@ function CreateCircleForm() {
 
 ---
 
-## 📚 **Technical Documentation**
+## 📚 **Documentación Técnica**
 
-- [Monte Carlo Verification Guide](stylus-contracts/MONTE_CARLO_VERIFICATION.md)
-- [Stylus Optimization Guide](stylus-contracts/STYLUS_OPTIMIZATION_GUIDE.md)
-- [Deployment Summary](stylus-contracts/DEPLOYMENT_SUMMARY.md)
-- [Migration Plan](stylus-contracts/MIGRATION_PLAN.md)
-
----
-
-## 🎯 **Why Kuyay Matters**
-
-### **1. Technical Innovation**
-- First DeFi protocol to use Monte Carlo simulation onchain
-- Demonstrates real-world use case for Arbitrum Stylus
-- Proves hybrid Solidity + Rust architecture is viable
-
-### **2. Financial Inclusion**
-- 1.4 billion people lack access to banking
-- Pasanakus are used by millions in Latin America
-- Kuyay makes them safe, transparent, and scalable
-
-### **3. Cultural Preservation**
-- Respects ancestral Andean financial systems
-- Aguayo metaphor preserves cultural identity
-- Builds bridges between tradition and technology
-
-### **4. Composable DeFi Primitive**
-- Other protocols can use CircleSimulator for risk analysis
-- RiskOracle can evaluate any group-based credit system
-- Aguayo SBT can be used as universal reputation layer
+- [Guía de Verificación Monte Carlo](stylus-contracts/MONTE_CARLO_VERIFICATION.md)
+- [Guía de Optimización Stylus](stylus-contracts/STYLUS_OPTIMIZATION_GUIDE.md)
+- [Resumen de Despliegue](stylus-contracts/DEPLOYMENT_SUMMARY.md)
+- [Plan de Migración](stylus-contracts/MIGRATION_PLAN.md)
+- [Arquitectura Profunda](ARCHITECTURE.md) - Análisis técnico completo
+- [Breakthrough Monte Carlo](MONTE_CARLO_BREAKTHROUGH.md) - Paper técnico
 
 ---
 
-## 🔬 **Research & Papers**
+## 🎯 **Por Qué Importa Kuyay**
 
-This project implements concepts from:
+### **1. Innovación Técnica**
+- Primer protocolo DeFi en usar simulación Monte Carlo onchain
+- Demuestra caso de uso real para Arbitrum Stylus
+- Prueba que la arquitectura híbrida Solidity + Rust es viable
 
-- **Monte Carlo Methods in Finance** (Glasserman, 2003)
-- **Peer-to-Peer Lending and Credit Risk** (Serrano-Cinca et al., 2015)
-- **ROSCAs in Developing Economies** (Besley et al., 1993)
-- **Arbitrum Stylus Technical Whitepaper** (Offchain Labs, 2024)
+### **2. Inclusión Financiera**
+- 1.4 mil millones de personas carecen de acceso bancario
+- Los Pasanakus son usados por millones en Latinoamérica
+- Kuyay los hace seguros, transparentes y escalables
 
----
+### **3. Preservación Cultural**
+- Respeta sistemas financieros ancestrales andinos
+- La metáfora del Aguayo preserva identidad cultural
+- Construye puentes entre tradición y tecnología
 
-## 🤝 **Contributing**
-
-We welcome contributions! Areas of interest:
-
-- **Advanced PRNG**: Implement Xorshift or ChaCha20 for better randomness
-- **Variance Calculation**: Complete the variance metric in SimulationResult
-- **Circuit Breaker**: Add emergency pause mechanism to Circle.sol
-- **Mobile UI**: Optimize frontend for mobile devices
-- **L2 Bridges**: Integration with other L2s for cross-chain Pasanakus
-
----
-
-## 📄 **License**
-
-MIT License - see [LICENSE](LICENSE) for details
+### **4. Primitiva DeFi Componible**
+- Otros protocolos pueden usar CircleSimulator para análisis de riesgo
+- RiskOracle puede evaluar cualquier sistema de crédito grupal
+- Aguayo SBT puede usarse como capa universal de reputación
 
 ---
 
-## 🙏 **Acknowledgments**
+## 🔬 **Investigación & Papers**
 
-- **Arbitrum Foundation** - For Stylus technology
-- **Chainlink Labs** - For VRF integration
-- **OpenZeppelin** - For secure contract libraries
-- **Andean Communities** - For centuries of Pasanaku tradition
+Este proyecto implementa conceptos de:
+
+- **Métodos Monte Carlo en Finanzas** (Glasserman, 2003)
+- **Préstamos P2P y Riesgo de Crédito** (Serrano-Cinca et al., 2015)
+- **ROSCAs en Economías en Desarrollo** (Besley et al., 1993)
+- **Whitepaper Técnico de Arbitrum Stylus** (Offchain Labs, 2024)
 
 ---
 
-## 📞 **Contact & Links**
+## 🤝 **Contribuir**
 
-- **Website:** [kuyay.finance](https://kuyay.finance) *(coming soon)*
+¡Bienvenidas las contribuciones! Áreas de interés:
+
+- **PRNG Avanzado**: Implementar Xorshift o ChaCha20 para mejor aleatoriedad
+- **Cálculo de Varianza**: Completar la métrica de varianza en SimulationResult
+- **Circuit Breaker**: Agregar mecanismo de pausa de emergencia a Circle.sol
+- **UI Móvil**: Optimizar frontend para dispositivos móviles
+- **Puentes L2**: Integración con otras L2s para Pasanakus cross-chain
+
+---
+
+## 📄 **Licencia**
+
+Licencia MIT - ver [LICENSE](LICENSE) para detalles
+
+---
+
+## 🙏 **Agradecimientos**
+
+- **Arbitrum Foundation** - Por la tecnología Stylus
+- **Chainlink Labs** - Por la integración VRF
+- **OpenZeppelin** - Por librerías de contratos seguros
+- **Comunidades Andinas** - Por siglos de tradición Pasanaku
+
+---
+
+## 📞 **Contacto & Enlaces**
+
+- **Website:** [kuyay.finance](https://kuyay.finance) *(próximamente)*
 - **Twitter:** [@KuyayProtocol](https://twitter.com/KuyayProtocol)
-- **Discord:** [Join Community](https://discord.gg/kuyay)
-- **Documentation:** [docs.kuyay.finance](https://docs.kuyay.finance)
+- **Discord:** [Unirse a la Comunidad](https://discord.gg/kuyay)
+- **Documentación:** [docs.kuyay.finance](https://docs.kuyay.finance)
 
 ---
 
 <div align="center">
 
-**Built with ❤️ for ETH México 2025**
+**Construido con ❤️ para ETH México 2025**
 
-*Democratizing access to trustless credit through Andean wisdom and cutting-edge technology*
+*Democratizando el acceso a crédito sin confianza a través de la sabiduría andina y tecnología de vanguardia*
 
 ⛰️ 🇧🇴 🚀
 

@@ -1,7 +1,7 @@
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useReadContracts } from "wagmi";
 import { CONTRACTS, CONTRACTS_DEPLOYED } from "@/lib/contracts/addresses";
 import { parseUnits } from "viem";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ERC20_ABI, CIRCLE_ABI, CIRCLE_FACTORY_ABI } from "@/lib/contracts/abis";
 
 /**
@@ -337,26 +337,15 @@ export function useMakePayment() {
   const { writeContract, data: hash, isPending, error, reset } = useWriteContract();
   const [paymentStep, setPaymentStep] = useState<"idle" | "approving" | "paying">("idle");
   const [pendingPayment, setPendingPayment] = useState<{ circleAddress: string; amount: bigint } | null>(null);
+  const [approvalHash, setApprovalHash] = useState<string | undefined>(undefined);
+  const [paymentHash, setPaymentHash] = useState<string | undefined>(undefined);
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
       hash,
     });
 
-  // Cuando se confirma la aprobación, proceder con el pago
-  useEffect(() => {
-    console.log("🔍 Approval check:", { isConfirmed, paymentStep, hasPendingPayment: !!pendingPayment });
-
-    if (isConfirmed && paymentStep === "approving" && pendingPayment) {
-      console.log("✅ Approval confirmed! Proceeding to payment in 2s...");
-      // Esperar un momento para que la aprobación se registre
-      setTimeout(() => {
-        executePayment(pendingPayment.circleAddress);
-      }, 2000);
-    }
-  }, [isConfirmed, paymentStep, pendingPayment]);
-
-  const executePayment = async (circleAddress: string) => {
+  const executePayment = useCallback(async (circleAddress: string) => {
     if (!CONTRACTS_DEPLOYED.circleFactory) {
       throw new Error("Contracts not deployed yet");
     }
@@ -369,14 +358,46 @@ export function useMakePayment() {
         address: circleAddress as `0x${string}`,
         abi: CIRCLE_ABI,
         functionName: "makeRoundPayment",
-        gas: 500000n, // Gas limit explícito para evitar estimaciones incorrectas
+        gas: 800000n, // ⬆️ Gas aumentado para makeRoundPayment + updateAguayo + posible VRF
       });
     } catch (err) {
       console.error("❌ Error making payment:", err);
       setPaymentStep("idle");
       throw err;
     }
-  };
+  }, [writeContract]);
+
+  // Guardar hash cuando se genera
+  useEffect(() => {
+    if (hash) {
+      if (paymentStep === "approving") {
+        console.log("📝 Approval hash:", hash);
+        setApprovalHash(hash);
+      } else if (paymentStep === "paying") {
+        console.log("📝 Payment hash:", hash);
+        setPaymentHash(hash);
+      }
+    }
+  }, [hash, paymentStep]);
+
+  // Cuando se confirma la aprobación, proceder con el pago
+  useEffect(() => {
+    console.log("🔍 Approval check:", { 
+      isConfirmed, 
+      paymentStep, 
+      hasPendingPayment: !!pendingPayment,
+      currentHash: hash,
+      approvalHash 
+    });
+
+    if (isConfirmed && paymentStep === "approving" && pendingPayment && hash === approvalHash) {
+      console.log("✅ Approval confirmed! Proceeding to payment in 2s...");
+      // Esperar un momento para que la aprobación se registre en blockchain
+      setTimeout(() => {
+        executePayment(pendingPayment.circleAddress);
+      }, 2000);
+    }
+  }, [isConfirmed, paymentStep, pendingPayment, hash, approvalHash, executePayment]);
 
   const makePayment = async (circleAddress: string, amount: number) => {
     if (!CONTRACTS_DEPLOYED.circleFactory) {
@@ -388,6 +409,10 @@ export function useMakePayment() {
 
     try {
       const amountInWei = parseUnits(amount.toString(), 6); // USDC tiene 6 decimales
+
+      // Reset hashes
+      setApprovalHash(undefined);
+      setPaymentHash(undefined);
 
       setPendingPayment({ circleAddress, amount: amountInWei });
       setPaymentStep("approving");
@@ -408,21 +433,28 @@ export function useMakePayment() {
     }
   };
 
-  // Reset cuando se completa todo
+  // Reset cuando se completa el pago
   useEffect(() => {
-    console.log("🔄 Reset check:", { isConfirmed, paymentStep });
+    console.log("🔄 Reset check:", { 
+      isConfirmed, 
+      paymentStep,
+      currentHash: hash,
+      paymentHash
+    });
 
-    if (isConfirmed && paymentStep === "paying") {
+    if (isConfirmed && paymentStep === "paying" && hash === paymentHash) {
       console.log("✅ Payment confirmed! Resetting in 3s...");
       // Pago completado
       setTimeout(() => {
         console.log("🔄 Resetting payment state to idle");
         setPaymentStep("idle");
         setPendingPayment(null);
+        setApprovalHash(undefined);
+        setPaymentHash(undefined);
         reset();
       }, 3000);
     }
-  }, [isConfirmed, paymentStep, reset]);
+  }, [isConfirmed, paymentStep, hash, paymentHash, reset]);
 
   return {
     makePayment,

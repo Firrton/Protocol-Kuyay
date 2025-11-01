@@ -4076,3 +4076,217 @@ export type AguayoMetadata = {
   lastActivityTimestamp: bigint;
   isStained: boolean;
 };
+
+// ⚡ STYLUS CONTRACTS ABIs (Rust/WASM on Arbitrum)
+// Generated from Stylus SDK - Deployed 2025-11-01
+
+/**
+ * CircleSimulator ABI
+ * Monte Carlo simulation engine for predicting circle outcomes
+ */
+export const CIRCLE_SIMULATOR_ABI = [
+  {
+    type: "function",
+    name: "initialize",
+    inputs: [],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "simulateCircle",
+    inputs: [
+      { name: "num_members", type: "uint8", internalType: "uint8" },
+      { name: "cuota_amount", type: "uint256", internalType: "uint256" },
+      { name: "num_rounds", type: "uint8", internalType: "uint8" },
+      { name: "avg_default_probability", type: "uint32", internalType: "uint32" },
+      { name: "num_simulations", type: "uint16", internalType: "uint16" },
+    ],
+    outputs: [
+      { name: "success_rate", type: "uint32", internalType: "uint32" },
+      { name: "expected_return", type: "uint256", internalType: "uint256" },
+      { name: "successes", type: "uint32", internalType: "uint32" },
+      { name: "best_case", type: "uint256", internalType: "uint256" },
+      { name: "worst_case", type: "uint256", internalType: "uint256" },
+    ],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "quickSimulate",
+    inputs: [
+      { name: "num_members", type: "uint8", internalType: "uint8" },
+      { name: "cuota_amount", type: "uint256", internalType: "uint256" },
+      { name: "avg_default_prob", type: "uint32", internalType: "uint32" },
+    ],
+    outputs: [
+      { name: "success_rate", type: "uint32", internalType: "uint32" },
+      { name: "expected_return", type: "uint256", internalType: "uint256" },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "owner",
+    inputs: [],
+    outputs: [{ name: "", type: "address", internalType: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "simulationCount",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "lastGasUsed",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "view",
+  },
+] as const;
+
+/**
+ * RiskOracle ABI
+ * Dynamic risk assessment and leverage calculation engine
+ */
+export const RISK_ORACLE_ABI = [
+  {
+    type: "function",
+    name: "initialize",
+    inputs: [{ name: "aguayo_sbt_address", type: "address", internalType: "address" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "areAllMembersEligible",
+    inputs: [{ name: "members", type: "address[]", internalType: "address[]" }],
+    outputs: [{ name: "", type: "bool", internalType: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getLeverageLevel",
+    inputs: [{ name: "members", type: "address[]", internalType: "address[]" }],
+    outputs: [
+      { name: "multiplier", type: "uint256", internalType: "uint256" },
+      { name: "interest_rate", type: "uint256", internalType: "uint256" },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getWeightedProbabilities",
+    inputs: [{ name: "members", type: "address[]", internalType: "address[]" }],
+    outputs: [{ name: "", type: "uint256[]", internalType: "uint256[]" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "isMemberEligible",
+    inputs: [
+      { name: "member", type: "address", internalType: "address" },
+      { name: "is_credit_mode", type: "bool", internalType: "bool" },
+    ],
+    outputs: [{ name: "", type: "bool", internalType: "bool" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getLeverageTierCount",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getLeverageTier",
+    inputs: [{ name: "tier_id", type: "uint256", internalType: "uint256" }],
+    outputs: [
+      { name: "min_level", type: "uint8", internalType: "uint8" },
+      { name: "multiplier", type: "uint256", internalType: "uint256" },
+      { name: "interest_rate", type: "uint256", internalType: "uint256" },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "owner",
+    inputs: [],
+    outputs: [{ name: "", type: "address", internalType: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "aguayoSbt",
+    inputs: [],
+    outputs: [{ name: "", type: "address", internalType: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "minLevelForCredit",
+    inputs: [],
+    outputs: [{ name: "", type: "uint8", internalType: "uint8" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "maxLeverageMultiplier",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "baseInterestRateBps",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "riskPremiumPerStainBps",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getGroupStats",
+    inputs: [{ name: "members", type: "address[]", internalType: "address[]" }],
+    outputs: [
+      { name: "avg_level", type: "uint8", internalType: "uint8" },
+      { name: "total_stains", type: "uint256", internalType: "uint256" },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getTierForAverageLevel",
+    inputs: [{ name: "avg_level", type: "uint8", internalType: "uint8" }],
+    outputs: [
+      { name: "multiplier", type: "uint256", internalType: "uint256" },
+      { name: "interest_rate", type: "uint256", internalType: "uint256" },
+    ],
+    stateMutability: "view",
+  },
+] as const;
+
+// Type exports for Stylus contracts
+export type SimulationResult = {
+  successRate: number; // 0-10000 (0-100%)
+  expectedReturn: bigint;
+  successes: number;
+  bestCase: bigint;
+  worstCase: bigint;
+};
+
+export type LeverageTier = {
+  minLevel: number;
+  multiplier: bigint;
+  interestRate: bigint;
+};

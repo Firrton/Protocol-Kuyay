@@ -10,10 +10,11 @@ import { useDemo } from "@/lib/demo";
 import MintAguayoCard from "@/components/MintAguayoCard";
 import MintAguayoButton from "@/components/MintAguayoButton";
 import CreateAylluModal from "@/components/CreateAylluModal";
-import PaymentButton from "@/components/PaymentButton";
+import CircleCard from "@/components/CircleCard";
 import DemoController from "@/components/demo/DemoController";
 import SoloModePanel from "@/components/demo/SoloModePanel";
 import DemoStepBanner from "@/components/demo/DemoStepBanner";
+import MonteCarloDemo from "@/components/MonteCarloDemo";
 
 // Importar hooks reales
 import { useUserCirclesWithDetails } from "@/hooks/useCircles";
@@ -226,14 +227,7 @@ export default function Dashboard() {
 
   // Mostrar loading inicial para evitar error de hidratación
   if (!mounted) {
-    return (
-      <main className="min-h-screen flex items-center justify-center bg-profundo">
-        <div className="text-center space-y-6 max-w-md px-6">
-          <div className="text-6xl">🦙</div>
-          <p className="text-gris">Cargando...</p>
-        </div>
-      </main>
-    );
+    return null; // Retornar null para evitar hydration mismatch
   }
 
   // Si está cargando Aguayo, mostrar loading
@@ -422,238 +416,42 @@ export default function Dashboard() {
             {/* Solo Mode Panel - Muestra los miembros simulados */}
             <SoloModePanel />
 
-            {/* Botón Crear Nuevo Ayllu */}
-            <div
-              onClick={() => setShowCreateModal(true)}
-              className="bg-gradient-to-r from-ceremonial/10 via-ocre/10 to-dorado/10 border-2 border-dashed border-ocre/50 rounded-2xl p-6 hover:border-ocre hover:bg-ocre/5 transition-all cursor-pointer group"
-            >
-              <div className="text-center space-y-3">
-                <div className="text-5xl group-hover:scale-110 transition-transform">✨</div>
-                <h2 className="text-2xl font-display font-bold text-gradient">
-                  Crear Nuevo Ayllu
-                </h2>
-                <p className="text-gris">
-                  Inicia un círculo de ahorro o crédito con tu comunidad
-                </p>
+            {/* Demo de Monte Carlo */}
+            <MonteCarloDemo />
+
+            {/* Botón Crear Nuevo Ayllu con Monte Carlo */}
+            <Link href="/create-circle">
+              <div className="bg-gradient-to-r from-ceremonial/10 via-ocre/10 to-dorado/10 border-2 border-dashed border-ocre/50 rounded-2xl p-6 hover:border-ocre hover:bg-ocre/5 transition-all cursor-pointer group">
+                <div className="text-center space-y-3">
+                  <div className="text-5xl group-hover:scale-110 transition-transform">🔮</div>
+                  <h2 className="text-2xl font-display font-bold text-gradient">
+                    Crear Nuevo Ayllu
+                  </h2>
+                  <p className="text-gris">
+                    Con análisis de riesgo y simulación Monte Carlo
+                  </p>
+                  <div className="inline-flex items-center gap-2 bg-pachamama/10 border border-pachamama/30 rounded-full px-3 py-1 text-xs text-pachamama font-bold">
+                    <span>⚡</span>
+                    Powered by Stylus
+                  </div>
+                </div>
               </div>
-            </div>
+            </Link>
 
             {/* Lista de Círculos */}
             {circles.map((circle) => (
-              <div
+              <CircleCard
                 key={circle.address}
-                className={`bg-gradient-to-br from-profundo to-tierra/5 border-2 rounded-2xl transition-all ${
-                  circle.mode === "CREDIT"
-                    ? "border-dorado/30 hover:border-dorado hover:shadow-xl hover:shadow-dorado/20"
-                    : "border-pachamama/30 hover:border-pachamama hover:shadow-xl hover:shadow-pachamama/20"
-                }`}
-              >
-                {/* Vista Colapsada */}
-                <div className="p-6">
-                  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                    {/* Info Principal */}
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className={`w-16 h-16 rounded-xl flex items-center justify-center text-3xl border-2 ${
-                        circle.mode === "CREDIT"
-                          ? "bg-gradient-to-br from-dorado/20 to-ceremonial/20 border-dorado"
-                          : "bg-gradient-to-br from-pachamama/20 to-ocre/20 border-pachamama"
-                      }`}>
-                        {circle.mode === "CREDIT" ? "🚀" : "💰"}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <h3 className="text-2xl font-display font-bold text-white">
-                            {circle.name}
-                          </h3>
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            circle.mode === "CREDIT"
-                              ? "bg-dorado/20 text-dorado border border-dorado/50"
-                              : "bg-pachamama/20 text-pachamama border border-pachamama/50"
-                          }`}>
-                            {circle.mode === "CREDIT" ? `CRÉDITO ${circle.leverage}` : "AHORRO"}
-                          </span>
-                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-profundo/50 text-gris border border-tierra">
-                            {circle.status}
-                          </span>
-                        </div>
-                        <p className="text-gris text-sm mt-1">
-                          👥 {circle.memberCount} miembros • Round {circle.currentRound}/{circle.totalRounds}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Stats Rápidas */}
-                    <div className="flex gap-4 flex-wrap">
-                      <div className="text-center">
-                        <div className="text-2xl font-display font-bold text-dorado">
-                          ${circle.currentPot.toLocaleString()}
-                        </div>
-                        <div className="text-xs text-gris">Pozo Actual</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Barra de Progreso */}
-                  <div className="mt-4">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-gris">Progreso del Ayllu</span>
-                      <span className="text-ocre font-bold">
-                        {Math.round((circle.currentRound / circle.totalRounds) * 100)}%
-                      </span>
-                    </div>
-                    <div className="h-3 bg-profundo rounded-full overflow-hidden border border-tierra">
-                      <div
-                        className={`h-full transition-all ${
-                          circle.mode === "CREDIT"
-                            ? "bg-gradient-to-r from-dorado to-ceremonial"
-                            : "bg-gradient-to-r from-pachamama to-ocre"
-                        }`}
-                        style={{ width: `${(circle.currentRound / circle.totalRounds) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Estado de Pago */}
-                  <div className={`mt-4 rounded-xl p-4 border-2 ${
-                    circle.hasUserPaid
-                      ? "bg-pachamama/10 border-pachamama/30"
-                      : "bg-ceremonial/10 border-ceremonial/50"
-                  }`}>
-                    <div className="flex items-center justify-between gap-4 flex-wrap">
-                      <div className="flex items-center gap-3">
-                        <span className="text-3xl">
-                          {circle.hasUserPaid ? "✅" : "⏰"}
-                        </span>
-                        <div>
-                          <div className={`font-display font-bold ${
-                            circle.hasUserPaid ? "text-pachamama" : "text-ceremonial"
-                          }`}>
-                            {circle.hasUserPaid ? "Pago Completado" : "Pago Pendiente"}
-                          </div>
-                          <div className="text-sm text-gris">
-                            {circle.hasUserPaid
-                              ? "Esperando al resto del grupo"
-                              : `Vence: ${circle.nextPaymentDue.toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" })}`}
-                          </div>
-                        </div>
-                      </div>
-                      {!circle.hasUserPaid && (
-                        <PaymentButton
-                          circleAddress={circle.address}
-                          circleName={circle.name}
-                          amount={circle.cuotaAmount}
-                          onPaymentSuccess={() => {
-                            // Actualizar estado del círculo después del pago
-                            console.log("Pago exitoso, actualizando dashboard...");
-                            // En producción, esto refetcheará los datos del círculo
-                          }}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Botón Ver Detalles */}
-                  <button
-                    onClick={() => setExpandedCircle(expandedCircle === circle.address ? null : circle.address)}
-                    className="w-full mt-4 text-ocre font-display font-bold hover:text-white transition-colors flex items-center justify-center gap-2"
-                  >
-                    {expandedCircle === circle.address ? "Cerrar Detalles ▲" : "Ver Detalles ▼"}
-                  </button>
-                </div>
-
-                {/* Vista Expandida */}
-                {expandedCircle === circle.address && (
-                  <div className="border-t border-tierra p-6 space-y-6 bg-profundo/30">
-                    {/* Información Detallada */}
-                    <div>
-                      <h4 className="text-lg font-display font-bold text-white mb-3">
-                        📊 Información del Círculo
-                      </h4>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div className="bg-profundo/50 rounded-xl p-4 border border-tierra">
-                          <div className="text-sm text-gris mb-1">Cuota Mensual</div>
-                          <div className="text-2xl font-display font-bold text-white">
-                            ${circle.cuotaAmount}
-                          </div>
-                        </div>
-                        <div className="bg-profundo/50 rounded-xl p-4 border border-tierra">
-                          <div className="text-sm text-gris mb-1">Garantía</div>
-                          <div className="text-2xl font-display font-bold text-white">
-                            ${circle.guaranteeAmount}
-                          </div>
-                        </div>
-                        {circle.mode === "CREDIT" && circle.protocolLoan && (
-                          <>
-                            <div className="bg-profundo/50 rounded-xl p-4 border border-dorado">
-                              <div className="text-sm text-gris mb-1">Préstamo Vault</div>
-                              <div className="text-2xl font-display font-bold text-dorado">
-                                ${circle.protocolLoan.toLocaleString()}
-                              </div>
-                            </div>
-                            <div className="bg-profundo/50 rounded-xl p-4 border border-dorado">
-                              <div className="text-sm text-gris mb-1">Apalancamiento</div>
-                              <div className="text-2xl font-display font-bold text-dorado">
-                                {circle.leverage}
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Estado de Pagos de Miembros */}
-                    <div>
-                      <h4 className="text-lg font-display font-bold text-white mb-3">
-                        👥 Estado de Pagos del Grupo
-                      </h4>
-                      <div className="space-y-2">
-                        {circle.members?.map((member, idx) => (
-                          <div
-                            key={idx}
-                            className={`flex items-center justify-between p-3 rounded-lg border ${
-                              member.hasPaid
-                                ? "bg-pachamama/10 border-pachamama/30"
-                                : "bg-tierra/10 border-tierra"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className="text-2xl">
-                                {member.hasPaid ? "✅" : "⏳"}
-                              </span>
-                              <div>
-                                <div className="font-mono text-white text-sm">
-                                  {member.address}
-                                  {member.address === "0x742d...8f3e" && " (Tú)"}
-                                </div>
-                                <div className="text-xs text-gris">
-                                  Aguayo Nivel {member.aguayoLevel}
-                                </div>
-                              </div>
-                            </div>
-                            <div className={`px-3 py-1 rounded-full text-xs font-bold ${
-                              member.hasPaid
-                                ? "bg-pachamama/20 text-pachamama"
-                                : "bg-gris/20 text-gris"
-                            }`}>
-                              {member.hasPaid ? "Pagado" : "Pendiente"}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Botones de Acción */}
-                    <div className="flex gap-3">
-                      <button className="flex-1 border-2 border-ocre text-ocre px-6 py-3 rounded-lg font-display font-bold hover:bg-ocre hover:text-profundo transition-all">
-                        Ver Contrato 📄
-                      </button>
-                      <button className="flex-1 border-2 border-tierra text-gris px-6 py-3 rounded-lg font-display font-bold hover:bg-tierra hover:text-profundo transition-all">
-                        Compartir 🔗
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
+                circle={circle}
+                isExpanded={expandedCircle === circle.address}
+                onToggleExpand={() => setExpandedCircle(expandedCircle === circle.address ? null : circle.address)}
+                onPaymentSuccess={() => {
+                  console.log("Pago/Garantía exitoso, actualizando dashboard...");
+                  setTimeout(() => {
+                    refetchCircles();
+                  }, 3000);
+                }}
+              />
             ))}
 
             {/* Empty State */}
@@ -664,14 +462,14 @@ export default function Dashboard() {
                   Aún no tienes Ayllus
                 </h3>
                 <p className="text-gris mb-6">
-                  Crea tu primer círculo y comienza a tejer tu futuro financiero
+                  Crea tu primer círculo con análisis de riesgo inteligente
                 </p>
-                <button
-                  onClick={() => setShowCreateModal(true)}
-                  className="bg-gradient-to-r from-ceremonial to-ocre text-white px-8 py-3 rounded-lg font-display font-bold hover:scale-105 transition-transform"
+                <Link
+                  href="/create-circle"
+                  className="inline-block bg-gradient-to-r from-ceremonial to-ocre text-white px-8 py-3 rounded-lg font-display font-bold hover:scale-105 transition-transform"
                 >
-                  Crear Mi Primer Ayllu
-                </button>
+                  🔮 Crear Mi Primer Ayllu
+                </Link>
               </div>
             )}
           </div>

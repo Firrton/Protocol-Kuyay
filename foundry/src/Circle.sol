@@ -240,7 +240,8 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
 
         emit RoundPaymentMade(msg.sender, currentRound, cuotaAmount);
 
-        if (paymentsThisRound == members.length) {
+        // MODIFICADO PARA TESTING: Solo requiere 2 pagos en lugar de todos
+        if (paymentsThisRound >= 2) {
             paymentsThisRound = 0;
             drawCanBeStartedManually = true;
 

@@ -440,22 +440,25 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                title: "🏔️ Seguro como el Illimani",
-                subtitle: "Protección Blockchain",
-                description: "Tu dinero está guardado en contratos inteligentes - como una caja fuerte digital que nadie puede abrir sin permiso. Cada regla está escrita en código y verificada por miles de computadoras. Nadie, ni siquiera nosotros, puede tocar tus fondos.",
-                highlight: "Contratos transparentes"
+                title: "⚡ Rápido como el Rayo",
+                subtitle: "Powered by Stylus",
+                description: "Usamos Arbitrum Stylus (Rust/WASM) - tecnología de próxima generación que es 97% más eficiente que Solidity tradicional. Las transacciones cuestan centavos y se ejecutan en milisegundos. Simulaciones Monte Carlo imposibles en otros protocolos.",
+                highlight: "97% menos gas que Solidity",
+                icon: "⚡"
               },
               {
-                title: "☀️ Rápido como el Chasqui",
-                subtitle: "Tiempo Real",
-                description: "Cuando te toque recibir, el dinero llega a tu billetera en segundos, no días. Los sorteos se hacen automáticamente cada mes. No hay esperas, no hay papeleos, no hay excusas.",
-                highlight: "Retiros en menos de 2 minutos"
+                title: "🧮 Inteligente como el Yachay",
+                subtitle: "Simulación Monte Carlo On-Chain",
+                description: "Antes de crear un círculo, nuestro motor de Rust simula miles de escenarios en segundos - directamente en la blockchain. Conoces el riesgo real y la probabilidad de éxito antes de comprometerte. Tecnología imposible en Solidity puro.",
+                highlight: "Análisis de riesgo en tiempo real",
+                icon: "🧮"
               },
               {
-                title: "⭐ Justo como la Chakana",
-                subtitle: "Sorteos Verificables",
-                description: "Usamos tecnología VRF (números aleatorios verificables) - es como lanzar dados que todos pueden ver y nadie puede trucar. Cada sorteo es transparente: puedes verificar que fue 100% al azar y que nadie hizo trampa.",
-                highlight: "Aleatorios imposibles de manipular"
+                title: "🎯 Justo como la Chakana",
+                subtitle: "Leverage Dinámico",
+                description: "Tu nivel de Aguayo determina tu apalancamiento automáticamente (1x-5x). El Risk Oracle evalúa tu grupo en la blockchain usando Stylus, calculando tasas de interés justas basadas en historial real. Todo transparente, todo verificable.",
+                highlight: "Tasas personalizadas en tiempo real",
+                icon: "🎯"
               },
             ].map((feature, index) => (
               <div
@@ -511,6 +514,136 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Nueva Sección: Powered by Stylus */}
+      <section className="py-20 px-6 bg-gradient-to-b from-tierra/10 to-profundo relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-10 w-32 h-32 bg-pachamama/30 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-40 h-40 bg-dorado/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-3 bg-profundo/80 border-2 border-pachamama/50 rounded-full px-6 py-2 mb-6">
+              <span className="text-2xl">⚡</span>
+              <span className="text-pachamama font-display font-bold">Powered by Stylus</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">
+              La Tecnología que nos hace <span className="text-gradient">Diferentes</span>
+            </h2>
+            <p className="text-gris text-lg max-w-3xl mx-auto">
+              Usamos Arbitrum Stylus - la evolución de los smart contracts. Rust + WASM en blockchain.
+            </p>
+          </div>
+
+          {/* Comparación: Solidity vs Stylus */}
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            {/* Solidity Tradicional */}
+            <div className="bg-profundo/50 border-2 border-tierra/30 rounded-2xl p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full bg-tierra/30 flex items-center justify-center text-2xl">
+                  🐌
+                </div>
+                <div>
+                  <h4 className="text-xl font-display font-bold text-white">Solidity Tradicional</h4>
+                  <p className="text-sm text-gris">Lo que usan otros protocolos</p>
+                </div>
+              </div>
+              <div className="space-y-3 text-gris text-sm">
+                <div className="flex items-start gap-2">
+                  <span className="text-ceremonial">❌</span>
+                  <span>Simulaciones Monte Carlo: Imposibles (demasiado gas)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-ceremonial">❌</span>
+                  <span>Gas por transacción: $5-$20 en promedio</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-ceremonial">❌</span>
+                  <span>Cálculos complejos: Lentos y costosos</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-ceremonial">❌</span>
+                  <span>Análisis de riesgo: Off-chain o simplificado</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Stylus */}
+            <div className="bg-gradient-to-br from-pachamama/20 to-dorado/20 border-2 border-pachamama rounded-2xl p-8 shadow-xl shadow-pachamama/20">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pachamama to-dorado flex items-center justify-center text-2xl">
+                  ⚡
+                </div>
+                <div>
+                  <h4 className="text-xl font-display font-bold text-pachamama">Kuyay + Stylus</h4>
+                  <p className="text-sm text-dorado">Next-gen smart contracts</p>
+                </div>
+              </div>
+              <div className="space-y-3 text-white text-sm">
+                <div className="flex items-start gap-2">
+                  <span className="text-pachamama">✅</span>
+                  <span><strong>Monte Carlo on-chain:</strong> 1000 simulaciones en segundos</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-pachamama">✅</span>
+                  <span><strong>Gas ultra-bajo:</strong> $0.10-$0.50 (97% más barato)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-pachamama">✅</span>
+                  <span><strong>Rust/WASM:</strong> Velocidad cercana a código nativo</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-pachamama">✅</span>
+                  <span><strong>Risk Oracle:</strong> Evaluación completa on-chain</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Features técnicos en cards */}
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-profundo/80 border border-pachamama/30 rounded-xl p-6 hover:border-pachamama transition-all">
+              <div className="text-3xl mb-3">🧮</div>
+              <h5 className="text-lg font-display font-bold text-white mb-2">Monte Carlo Engine</h5>
+              <p className="text-sm text-gris leading-relaxed">
+                Motor de simulación probabilística escrito en Rust. Calcula tasa de éxito, mejor/peor caso,
+                y retorno esperado antes de crear un círculo.
+              </p>
+            </div>
+
+            <div className="bg-profundo/80 border border-dorado/30 rounded-xl p-6 hover:border-dorado transition-all">
+              <div className="text-3xl mb-3">🎯</div>
+              <h5 className="text-lg font-display font-bold text-white mb-2">Risk Oracle</h5>
+              <p className="text-sm text-gris leading-relaxed">
+                Evalúa elegibilidad, calcula leverage dinámico (1x-5x) y tasas de interés justas
+                basadas en niveles de Aguayo SBT. Todo on-chain.
+              </p>
+            </div>
+
+            <div className="bg-profundo/80 border border-ceremonial/30 rounded-xl p-6 hover:border-ceremonial transition-all">
+              <div className="text-3xl mb-3">⚡</div>
+              <h5 className="text-lg font-display font-bold text-white mb-2">Gas Savings</h5>
+              <p className="text-sm text-gris leading-relaxed">
+                97% menos gas que Solidity equivalente. Lo que costaría $10 en Solidity,
+                te cuesta $0.30 con Stylus. Más accesible para todos.
+              </p>
+            </div>
+          </div>
+
+          {/* Badge final */}
+          <div className="mt-12 text-center">
+            <div className="inline-block bg-gradient-to-r from-pachamama/20 to-dorado/20 border border-pachamama/50 rounded-xl px-8 py-4">
+              <p className="text-white font-display font-bold mb-2">
+                🚀 Pioneros en DeFi con Stylus
+              </p>
+              <p className="text-sm text-gris">
+                Uno de los primeros protocolos en usar Rust/WASM para análisis financiero on-chain
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Sección: Construyendo Comunidad */}
       <section className="py-20 px-6 bg-profundo">
         <div className="max-w-6xl mx-auto">
@@ -546,20 +679,20 @@ export default function Home() {
 
             {/* Derecha: Innovación */}
             <div className="bg-gradient-to-br from-pachamama/10 to-dorado/10 border-2 border-pachamama/30 rounded-2xl p-8">
-              <div className="text-4xl mb-4 text-center">💫</div>
-              <h4 className="text-2xl font-display font-bold text-pachamama mb-4 text-center">Tecnología Moderna</h4>
+              <div className="text-4xl mb-4 text-center">⚡</div>
+              <h4 className="text-2xl font-display font-bold text-pachamama mb-4 text-center">Tecnología de Próxima Generación</h4>
               <div className="space-y-3 text-gris">
                 <p className="leading-relaxed">
-                  <strong className="text-pachamama">Blockchain</strong> nos permite llevar esta tradición a todo el mundo,
-                  sin fronteras, sin intermediarios, sin exclusión.
+                  <strong className="text-pachamama">Arbitrum Stylus</strong> nos permite usar Rust/WASM en blockchain -
+                  97% más eficiente que Solidity. Simulaciones Monte Carlo que antes eran imposibles.
                 </p>
                 <p className="leading-relaxed">
-                  <strong className="text-dorado">Smart Contracts</strong> automatizan las reglas del juego.
-                  Nadie puede romperlas. La confianza está en el código, no en instituciones.
+                  <strong className="text-dorado">Risk Oracle On-Chain</strong> evalúa a tu grupo en tiempo real,
+                  calculando leverage y tasas justas basadas en historial verificable. Todo transparente, todo en Rust.
                 </p>
                 <p className="leading-relaxed text-sm bg-dorado/10 border border-dorado/30 rounded-lg p-3">
-                  💡 <strong className="text-dorado">Visión:</strong> Crear una red global de ayllus digitales donde
-                  cualquier persona pueda acceder a apalancamiento comunitario, sin importar dónde esté.
+                  ⚡ <strong className="text-dorado">Innovación:</strong> Somos de los primeros protocolos DeFi en usar
+                  Stylus para análisis de riesgo on-chain. La velocidad y eficiencia de Rust + la seguridad de Ethereum.
                 </p>
               </div>
             </div>
@@ -676,6 +809,19 @@ export default function Home() {
                 </p>
               </div>
 
+              {/* Badge de Stylus */}
+              <div className="bg-gradient-to-r from-pachamama/20 to-dorado/20 border-2 border-pachamama/40 rounded-xl p-4">
+                <div className="flex items-center justify-center gap-3 mb-3">
+                  <span className="text-3xl">⚡</span>
+                  <h5 className="text-xl font-display font-bold text-pachamama">Powered by Stylus</h5>
+                </div>
+                <p className="text-sm text-white text-center leading-relaxed">
+                  Antes de unirte a un círculo, nuestro <strong className="text-dorado">motor de simulación Monte Carlo</strong> (escrito en Rust)
+                  calcula la probabilidad de éxito en segundos - directamente en la blockchain.
+                  <strong className="text-pachamama"> 97% más barato que Solidity tradicional.</strong>
+                </p>
+              </div>
+
               {/* MODO 1: SAVINGS */}
               <div className="bg-tierra/10 border-2 border-tierra/50 rounded-xl p-6">
                 <div className="flex items-center gap-3 mb-5">
@@ -736,6 +882,13 @@ export default function Home() {
                     </p>
                   </div>
 
+                  <div className="bg-profundo/50 rounded-lg p-4 bg-pachamama/5 border border-pachamama/30">
+                    <p className="text-base text-white">
+                      🎯 <strong className="text-pachamama">Risk Oracle (Stylus):</strong> Tu leverage se calcula automáticamente según tu nivel de Aguayo.
+                      Nuestro contrato de Rust evalúa tu historial on-chain en tiempo real.
+                    </p>
+                  </div>
+
                   <div className="bg-profundo/50 rounded-lg p-4">
                     <p className="text-base text-white">
                       🚀 <strong>Qué es el apalancamiento:</strong> El protocolo presta dinero extra según tu nivel de confianza
@@ -769,11 +922,20 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Footer */}
-              <div className="mt-6 pt-4 border-t border-tierra/30">
+              {/* Footer con info de Stylus */}
+              <div className="mt-6 pt-4 border-t border-tierra/30 space-y-4">
                 <p className="text-base md:text-lg text-center text-gris">
                   💡 <strong>Resumen:</strong> Empieza con SAVINGS, construye tu reputación y desbloquea CREDIT para acceder a mayor capital con el apoyo de la pachamama.
                 </p>
+
+                {/* Ventajas tecnológicas */}
+                <div className="bg-gradient-to-r from-pachamama/10 to-dorado/10 border border-pachamama/30 rounded-lg p-4">
+                  <p className="text-sm text-white text-center leading-relaxed">
+                    ⚡ <strong className="text-pachamama">Ventaja Tecnológica:</strong> Gracias a Arbitrum Stylus (Rust/WASM),
+                    simulamos miles de escenarios antes de que te unas, calculamos tu leverage justo en tiempo real,
+                    y todo cuesta <strong className="text-dorado">97% menos gas</strong> que otros protocolos DeFi.
+                  </p>
+                </div>
               </div>
 
               {/* Botón de cerrar */}

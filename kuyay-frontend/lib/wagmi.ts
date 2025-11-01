@@ -1,15 +1,15 @@
-import { http, createConfig } from 'wagmi'
+import { http } from 'wagmi'
 import { arbitrumSepolia } from 'wagmi/chains'
-import { injected } from 'wagmi/connectors'
+import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 
-export const config = createConfig({
+export const config = getDefaultConfig({
+  appName: 'Kuyay Protocol',
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '0000000000000000000000000000000000000000',
   chains: [arbitrumSepolia],
-  connectors: [
-    injected(), // MetaMask
-  ],
   transports: {
     [arbitrumSepolia.id]: http(),
   },
+  ssr: true,
 })
 
 declare module 'wagmi' {

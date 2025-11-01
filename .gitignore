@@ -1,0 +1,84 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# Testing
+coverage/
+*.log
+
+# Next.js
+.next/
+out/
+build/
+
+# Production
+dist/
+
+# Misc
+.DS_Store
+*.pem
+.AppleDouble
+.LSOverride
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Local env files (DO NOT COMMIT THESE!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# Typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+
+# ========================================
+# IMPORTANT: Private Keys and Secrets
+# ========================================
+# NEVER commit private keys or secret keys
+*.key
+*.pem
+wallets/
+private-keys/
+secrets/
+
+# ========================================
+# Foundry / Forge
+# ========================================
+cache/
+out/
+broadcast/
+lib/
+
+# ========================================
+# Rust / Cargo (Stylus contracts)
+# ========================================
+**/target/
+**/*.rs.bk
+Cargo.lock
+
+# ========================================
+# Temporary docs (archived)
+# ========================================
+# Keep these locally but don't commit
+*.tmp
+*.bak

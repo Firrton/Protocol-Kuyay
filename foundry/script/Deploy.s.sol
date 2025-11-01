@@ -122,4 +122,3 @@ contract DeployKuyay is Script {
         console.log("\n Copy the addresses above to update your frontend!");
     }
 }
-fd

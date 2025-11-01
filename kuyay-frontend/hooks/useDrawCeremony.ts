@@ -62,31 +62,8 @@ export function useDrawCeremony(circleAddress: `0x${string}`) {
     functionName: "canStartDraw",
   });
 
-  // Escuchar evento MemberCheckedIn
-  useWatchContractEvent({
-    address: circleAddress,
-    abi: CIRCLE_ABI,
-    eventName: "MemberCheckedIn",
-    onLogs: () => {
-      console.log("Nuevo miembro hizo check-in");
-      refetchPresentMembers();
-      refetchCanStart();
-    },
-  });
-
-  // Escuchar evento DrawRequested (sorteo iniciado)
-  useWatchContractEvent({
-    address: circleAddress,
-    abi: CIRCLE_ABI,
-    eventName: "DrawRequested",
-    onLogs: (logs) => {
-      console.log("Sorteo iniciado, esperando Chainlink VRF...", logs);
-      setIsDrawing(true);
-      setWinner(null);
-    },
-  });
-
-  // Escuchar evento WinnerSelected (ganador seleccionado)
+  // Solo escuchar evento WinnerSelected para reducir llamadas RPC
+  // Los demás se pueden actualizar con refetch manual
   useWatchContractEvent({
     address: circleAddress,
     abi: CIRCLE_ABI,
@@ -97,7 +74,14 @@ export function useDrawCeremony(circleAddress: `0x${string}`) {
       console.log("¡Ganador seleccionado!", { winner: winnerAddress, amount });
       setWinner(winnerAddress);
       setIsDrawing(false);
+      // Actualizar todo después de que hay ganador
+      refetchPresentMembers();
+      refetchCanStart();
+      refetchPresence();
     },
+    // Configurar para reducir polling
+    poll: true,
+    pollingInterval: 5000, // Solo cada 5 segundos
   });
 
   // Refetch presencia cuando se confirma check-in

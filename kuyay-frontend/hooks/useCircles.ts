@@ -1,7 +1,7 @@
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useReadContracts } from "wagmi";
 import { CONTRACTS, CONTRACTS_DEPLOYED } from "@/lib/contracts/addresses";
 import { parseUnits } from "viem";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ERC20_ABI, CIRCLE_ABI, CIRCLE_FACTORY_ABI } from "@/lib/contracts/abis";
 
 /**
@@ -329,6 +329,104 @@ export function useCircleDetails(circleAddress: string | undefined) {
 }
 
 /**
+ * Hook para depositar garantía en un círculo
+ * Primer paso antes de poder hacer pagos
+ */
+export function useDepositGuarantee() {
+  const { writeContract, data: hash, isPending, error, reset } = useWriteContract();
+  const [depositStep, setDepositStep] = useState<"idle" | "approving" | "depositing">("idle");
+  const [pendingDeposit, setPendingDeposit] = useState<{ circleAddress: string; amount: bigint } | null>(null);
+
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({
+      hash,
+    });
+
+  const executeDeposit = useCallback(async (circleAddress: string) => {
+    if (!CONTRACTS_DEPLOYED.circleFactory) {
+      throw new Error("Contracts not deployed yet");
+    }
+
+    try {
+      console.log("💰 Executing deposit to:", circleAddress);
+      setDepositStep("depositing");
+
+      writeContract({
+        address: circleAddress as `0x${string}`,
+        abi: CIRCLE_ABI,
+        functionName: "depositGuarantee",
+        gas: 300000n,
+      });
+    } catch (err) {
+      console.error("❌ Error depositing guarantee:", err);
+      setDepositStep("idle");
+      throw err;
+    }
+  }, [writeContract]);
+
+  // Cuando se confirma la aprobación, proceder con el depósito
+  useEffect(() => {
+    if (isConfirmed && depositStep === "approving" && pendingDeposit) {
+      console.log("✅ Approval confirmed! Proceeding to deposit in 2s...");
+      setTimeout(() => {
+        executeDeposit(pendingDeposit.circleAddress);
+      }, 2000);
+    }
+  }, [isConfirmed, depositStep, pendingDeposit, executeDeposit]);
+
+  const depositGuarantee = async (circleAddress: string, amount: number) => {
+    if (!CONTRACTS_DEPLOYED.circleFactory) {
+      alert("Contracts not deployed yet");
+      return;
+    }
+
+    try {
+      const amountInWei = parseUnits(amount.toString(), 6);
+
+      setPendingDeposit({ circleAddress, amount: amountInWei });
+      setDepositStep("approving");
+
+      // Paso 1: Aprobar USDC
+      writeContract({
+        address: CONTRACTS.arbitrumSepolia.usdc as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: "approve",
+        args: [circleAddress as `0x${string}`, amountInWei],
+        gas: 100000n,
+      });
+    } catch (err) {
+      console.error("Error initiating deposit:", err);
+      setDepositStep("idle");
+      setPendingDeposit(null);
+      throw err;
+    }
+  };
+
+  // Reset cuando se completa
+  useEffect(() => {
+    if (isConfirmed && depositStep === "depositing") {
+      console.log("✅ Deposit confirmed! Resetting...");
+      setTimeout(() => {
+        setDepositStep("idle");
+        setPendingDeposit(null);
+        reset();
+      }, 3000);
+    }
+  }, [isConfirmed, depositStep, reset]);
+
+  return {
+    depositGuarantee,
+    isPending,
+    isConfirming,
+    isConfirmed,
+    error,
+    hash,
+    depositStep,
+    isProcessing: depositStep !== "idle" || isPending || isConfirming,
+  };
+}
+
+/**
  * Hook para hacer un pago en un círculo
  * Maneja el flujo completo: aprobar USDC → hacer pago
  */
@@ -337,26 +435,15 @@ export function useMakePayment() {
   const { writeContract, data: hash, isPending, error, reset } = useWriteContract();
   const [paymentStep, setPaymentStep] = useState<"idle" | "approving" | "paying">("idle");
   const [pendingPayment, setPendingPayment] = useState<{ circleAddress: string; amount: bigint } | null>(null);
+  const [approvalHash, setApprovalHash] = useState<string | undefined>(undefined);
+  const [paymentHash, setPaymentHash] = useState<string | undefined>(undefined);
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
       hash,
     });
 
-  // Cuando se confirma la aprobación, proceder con el pago
-  useEffect(() => {
-    console.log("🔍 Approval check:", { isConfirmed, paymentStep, hasPendingPayment: !!pendingPayment });
-
-    if (isConfirmed && paymentStep === "approving" && pendingPayment) {
-      console.log("✅ Approval confirmed! Proceeding to payment in 2s...");
-      // Esperar un momento para que la aprobación se registre
-      setTimeout(() => {
-        executePayment(pendingPayment.circleAddress);
-      }, 2000);
-    }
-  }, [isConfirmed, paymentStep, pendingPayment]);
-
-  const executePayment = async (circleAddress: string) => {
+  const executePayment = useCallback(async (circleAddress: string) => {
     if (!CONTRACTS_DEPLOYED.circleFactory) {
       throw new Error("Contracts not deployed yet");
     }
@@ -369,14 +456,46 @@ export function useMakePayment() {
         address: circleAddress as `0x${string}`,
         abi: CIRCLE_ABI,
         functionName: "makeRoundPayment",
-        gas: 500000n, // Gas limit explícito para evitar estimaciones incorrectas
+        gas: 800000n, // ⬆️ Gas aumentado para makeRoundPayment + updateAguayo + posible VRF
       });
     } catch (err) {
       console.error("❌ Error making payment:", err);
       setPaymentStep("idle");
       throw err;
     }
-  };
+  }, [writeContract]);
+
+  // Guardar hash cuando se genera
+  useEffect(() => {
+    if (hash) {
+      if (paymentStep === "approving") {
+        console.log("📝 Approval hash:", hash);
+        setApprovalHash(hash);
+      } else if (paymentStep === "paying") {
+        console.log("📝 Payment hash:", hash);
+        setPaymentHash(hash);
+      }
+    }
+  }, [hash, paymentStep]);
+
+  // Cuando se confirma la aprobación, proceder con el pago
+  useEffect(() => {
+    console.log("🔍 Approval check:", { 
+      isConfirmed, 
+      paymentStep, 
+      hasPendingPayment: !!pendingPayment,
+      currentHash: hash,
+      approvalHash 
+    });
+
+    if (isConfirmed && paymentStep === "approving" && pendingPayment && hash === approvalHash) {
+      console.log("✅ Approval confirmed! Proceeding to payment in 2s...");
+      // Esperar un momento para que la aprobación se registre en blockchain
+      setTimeout(() => {
+        executePayment(pendingPayment.circleAddress);
+      }, 2000);
+    }
+  }, [isConfirmed, paymentStep, pendingPayment, hash, approvalHash, executePayment]);
 
   const makePayment = async (circleAddress: string, amount: number) => {
     if (!CONTRACTS_DEPLOYED.circleFactory) {
@@ -388,6 +507,10 @@ export function useMakePayment() {
 
     try {
       const amountInWei = parseUnits(amount.toString(), 6); // USDC tiene 6 decimales
+
+      // Reset hashes
+      setApprovalHash(undefined);
+      setPaymentHash(undefined);
 
       setPendingPayment({ circleAddress, amount: amountInWei });
       setPaymentStep("approving");
@@ -408,21 +531,28 @@ export function useMakePayment() {
     }
   };
 
-  // Reset cuando se completa todo
+  // Reset cuando se completa el pago
   useEffect(() => {
-    console.log("🔄 Reset check:", { isConfirmed, paymentStep });
+    console.log("🔄 Reset check:", { 
+      isConfirmed, 
+      paymentStep,
+      currentHash: hash,
+      paymentHash
+    });
 
-    if (isConfirmed && paymentStep === "paying") {
+    if (isConfirmed && paymentStep === "paying" && hash === paymentHash) {
       console.log("✅ Payment confirmed! Resetting in 3s...");
       // Pago completado
       setTimeout(() => {
         console.log("🔄 Resetting payment state to idle");
         setPaymentStep("idle");
         setPendingPayment(null);
+        setApprovalHash(undefined);
+        setPaymentHash(undefined);
         reset();
       }, 3000);
     }
-  }, [isConfirmed, paymentStep, reset]);
+  }, [isConfirmed, paymentStep, hash, paymentHash, reset]);
 
   return {
     makePayment,

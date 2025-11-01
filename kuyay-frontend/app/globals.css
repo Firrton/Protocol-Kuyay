@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  /* Colores Primarios - Inspirados en Aguayos */
+  --color-ceremonial: #C41E3A;
+  --color-ocre: #F4A460;
+  --color-pachamama: #2C5F2D;
+  --color-profundo: #1A1A2E;
+
+  /* Colores Secundarios */
+  --color-dorado: #FFD700;
+  --color-tierra: #8B4513;
+  --color-gris: #E8E8E8;
+
+  /* Colores de Estado */
+  --color-exito: #00C851;
+  --color-peligro: #FF4444;
+  --color-warning: #FFBB33;
+  --color-info: #33B5E5;
+
+  /* Fuentes */
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Syne', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+body {
+  /* Fondo base oscuro - tono medio */
+  background-color: #1A1A2E;
+
+  /* Patrón Whipala/Aguayo Andino - más visible pero equilibrado */
+  background-image:
+    /* Diagonal suave para profundidad */
+    repeating-linear-gradient(
+      45deg,
+      rgba(196, 30, 58, 0.04) 0px,
+      rgba(196, 30, 58, 0.04) 30px,
+      transparent 30px,
+      transparent 60px
+    ),
+    /* Horizontal - Colores principales de la Whipala */
+    repeating-linear-gradient(
+      90deg,
+      rgba(196, 30, 58, 0.06) 0px,        /* Rojo ceremonial */
+      rgba(196, 30, 58, 0.06) 35px,
+      rgba(255, 107, 53, 0.055) 35px,     /* Naranja */
+      rgba(255, 107, 53, 0.055) 70px,
+      rgba(255, 217, 61, 0.05) 70px,      /* Amarillo dorado */
+      rgba(255, 217, 61, 0.05) 105px,
+      rgba(44, 95, 45, 0.055) 105px,      /* Verde Pachamama */
+      rgba(44, 95, 45, 0.055) 140px,
+      rgba(51, 181, 229, 0.04) 140px,     /* Azul cielo */
+      rgba(51, 181, 229, 0.04) 175px,
+      rgba(138, 69, 151, 0.045) 175px,    /* Violeta/morado andino */
+      rgba(138, 69, 151, 0.045) 210px,
+      rgba(244, 164, 96, 0.05) 210px,     /* Ocre tierra */
+      rgba(244, 164, 96, 0.05) 245px
+    ),
+    /* Vertical - Franjas complementarias */
+    repeating-linear-gradient(
+      0deg,
+      rgba(196, 30, 58, 0.045) 0px,
+      rgba(196, 30, 58, 0.045) 50px,
+      rgba(244, 164, 96, 0.04) 50px,      /* Ocre */
+      rgba(244, 164, 96, 0.04) 100px,
+      rgba(255, 215, 0, 0.038) 100px,     /* Dorado */
+      rgba(255, 215, 0, 0.038) 150px,
+      rgba(44, 95, 45, 0.042) 150px,      /* Verde */
+      rgba(44, 95, 45, 0.042) 200px,
+      rgba(138, 69, 151, 0.035) 200px,    /* Violeta */
+      rgba(138, 69, 151, 0.035) 250px
+    );
+
+  color: white;
+  font-family: var(--font-sans);
+}
+
+.text-gradient {
+  background: linear-gradient(to right, var(--color-ceremonial), var(--color-ocre), var(--color-dorado));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.aguayo-pattern {
+  background-image:
+    repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(196, 30, 58, 0.15) 10px, rgba(196, 30, 58, 0.15) 20px),
+    repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(244, 164, 96, 0.15) 10px, rgba(244, 164, 96, 0.15) 20px),
+    repeating-linear-gradient(0deg, transparent, transparent 10px, rgba(255, 215, 0, 0.08) 10px, rgba(255, 215, 0, 0.08) 20px);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(196, 30, 58, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(244, 164, 96, 0.8);
+  }
+}
+
+@keyframes pulse-border {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(244, 164, 96, 0.7), 0 0 30px rgba(244, 164, 96, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(244, 164, 96, 0), 0 0 50px rgba(244, 164, 96, 0.8);
+    transform: scale(1.02);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-pulse-border {
+  animation: pulse-border 2s ease-in-out infinite;
+}

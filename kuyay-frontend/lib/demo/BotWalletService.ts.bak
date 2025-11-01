@@ -1,0 +1,298 @@
+/**
+ * BotWalletService - Maneja wallets de NPCs para el modo demo blockchain
+ *
+ * IMPORTANTE: Este archivo contiene private keys de wallets de TESTNET
+ * NUNCA usar en mainnet o con fondos reales
+ */
+
+import { createWalletClient, http, parseUnits, type Address, type WalletClient } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { arbitrumSepolia } from 'viem/chains';
+import { CONTRACTS } from '@/lib/contracts/addresses';
+import { ERC20_ABI, CIRCLE_ABI, AGUAYO_SBT_ABI } from '@/lib/contracts/abis';
+
+export interface BotWallet {
+  address: Address;
+  name: string;
+  client: WalletClient;
+}
+
+export class BotWalletService {
+  private bots: BotWallet[] = [];
+
+  /**
+   * Generar wallets de bots
+   * PASO 1: Ejecutar esto primero para generar las wallets
+   */
+  generateBotWallets() {
+    const botNames = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve'];
+
+    console.log('\n🤖 GENERANDO WALLETS DE BOTS PARA TESTNET\n');
+    console.log('⚠️  IMPORTANTE: Estas son wallets de TESTNET SOLAMENTE\n');
+
+    const generatedWallets = [];
+
+    for (let i = 0; i < 5; i++) {
+      // Generar private key aleatoria
+      const randomBytes = new Uint8Array(32);
+      crypto.getRandomValues(randomBytes);
+      const privateKey = `0x${Array.from(randomBytes).map(b => b.toString(16).padStart(2, '0')).join('')}` as `0x${string}`;
+
+      const account = privateKeyToAccount(privateKey);
+
+      generatedWallets.push({
+        name: botNames[i],
+        address: account.address,
+        privateKey: privateKey,
+      });
+
+      console.log(`${botNames[i]}:`);
+      console.log(`  Address: ${account.address}`);
+      console.log(`  Private Key: ${privateKey}`);
+      console.log('');
+    }
+
+    console.log('✅ Wallets generadas!');
+    console.log('\n📋 SIGUIENTE PASO:');
+    console.log('1. Copia estas direcciones');
+    console.log('2. Ve a conseguir ETH y USDC de testnet (siguiente paso)\n');
+
+    return generatedWallets;
+  }
+
+  /**
+   * Inicializar bots con private keys
+   * Estas private keys son para TESTNET SOLAMENTE
+   */
+  async initializeBots(privateKeys: { name: string; privateKey: `0x${string}` }[]) {
+    this.bots = [];
+
+    for (const { name, privateKey } of privateKeys) {
+      const account = privateKeyToAccount(privateKey);
+
+      const walletClient = createWalletClient({
+        account,
+        chain: arbitrumSepolia,
+        transport: http(),
+      });
+
+      this.bots.push({
+        address: account.address,
+        name,
+        client: walletClient,
+      });
+    }
+
+    console.log(`✅ Inicializados ${this.bots.length} bots`);
+    return this.bots;
+  }
+
+  /**
+   * Obtener todas las wallets de bots
+   */
+  getBots(): BotWallet[] {
+    return this.bots;
+  }
+
+  /**
+   * Obtener direcciones de los bots
+   */
+  getBotAddresses(): Address[] {
+    return this.bots.map(bot => bot.address);
+  }
+
+  /**
+   * Verificar balances de los bots
+   */
+  async checkBotBalances() {
+    console.log('\n💰 VERIFICANDO BALANCES DE BOTS\n');
+
+    for (const bot of this.bots) {
+      try {
+        // Verificar balance de ETH (para gas)
+        const ethBalance = await bot.client.getBalance({ address: bot.address });
+
+        // Verificar balance de USDC
+        const usdcBalance = await bot.client.readContract({
+          address: CONTRACTS.arbitrumSepolia.usdc as Address,
+          abi: ERC20_ABI,
+          functionName: 'balanceOf',
+          args: [bot.address],
+        });
+
+        console.log(`${bot.name} (${bot.address}):`);
+        console.log(`  ETH: ${Number(ethBalance) / 1e18} ETH`);
+        console.log(`  USDC: ${Number(usdcBalance) / 1e6} USDC`);
+        console.log('');
+      } catch (error) {
+        console.error(`Error verificando balance de ${bot.name}:`, error);
+      }
+    }
+  }
+
+  /**
+   * Bot mintea su Aguayo
+   */
+  async botMintAguayo(botIndex: number): Promise<{ success: boolean; hash?: string }> {
+    const bot = this.bots[botIndex];
+    if (!bot) throw new Error(`Bot ${botIndex} no encontrado`);
+
+    try {
+      console.log(`🧵 ${bot.name} minteando Aguayo...`);
+
+      const hash = await bot.client.writeContract({
+        address: CONTRACTS.arbitrumSepolia.aguayoSBT as Address,
+        abi: AGUAYO_SBT_ABI,
+        functionName: 'mintAguayo',
+      });
+
+      console.log(`✅ ${bot.name} minteo Aguayo - TX: ${hash}`);
+      return { success: true, hash };
+    } catch (error) {
+      console.error(`❌ Error ${bot.name} minteando Aguayo:`, error);
+      return { success: false };
+    }
+  }
+
+  /**
+   * Bot aprueba USDC para un círculo
+   */
+  async botApproveUSDC(
+    botIndex: number,
+    circleAddress: Address,
+    amount: number
+  ): Promise<{ success: boolean; hash?: string }> {
+    const bot = this.bots[botIndex];
+    if (!bot) throw new Error(`Bot ${botIndex} no encontrado`);
+
+    try {
+      console.log(`💰 ${bot.name} aprobando ${amount} USDC...`);
+
+      const amountInWei = parseUnits(amount.toString(), 6);
+
+      const hash = await bot.client.writeContract({
+        address: CONTRACTS.arbitrumSepolia.usdc as Address,
+        abi: ERC20_ABI,
+        functionName: 'approve',
+        args: [circleAddress, amountInWei],
+      });
+
+      console.log(`✅ ${bot.name} aprobó USDC - TX: ${hash}`);
+      return { success: true, hash };
+    } catch (error) {
+      console.error(`❌ Error ${bot.name} aprobando USDC:`, error);
+      return { success: false };
+    }
+  }
+
+  /**
+   * Bot hace un pago en el círculo
+   */
+  async botMakePayment(
+    botIndex: number,
+    circleAddress: Address
+  ): Promise<{ success: boolean; hash?: string }> {
+    const bot = this.bots[botIndex];
+    if (!bot) throw new Error(`Bot ${botIndex} no encontrado`);
+
+    try {
+      console.log(`💸 ${bot.name} haciendo pago...`);
+
+      const hash = await bot.client.writeContract({
+        address: circleAddress as Address,
+        abi: CIRCLE_ABI,
+        functionName: 'makePayment',
+      });
+
+      console.log(`✅ ${bot.name} pagó - TX: ${hash}`);
+      return { success: true, hash };
+    } catch (error) {
+      console.error(`❌ Error ${bot.name} haciendo pago:`, error);
+      return { success: false };
+    }
+  }
+
+  /**
+   * Bot hace check-in
+   */
+  async botCheckIn(
+    botIndex: number,
+    circleAddress: Address
+  ): Promise<{ success: boolean; hash?: string }> {
+    const bot = this.bots[botIndex];
+    if (!bot) throw new Error(`Bot ${botIndex} no encontrado`);
+
+    try {
+      console.log(`✋ ${bot.name} haciendo check-in...`);
+
+      const hash = await bot.client.writeContract({
+        address: circleAddress as Address,
+        abi: CIRCLE_ABI,
+        functionName: 'checkIn',
+      });
+
+      console.log(`✅ ${bot.name} hizo check-in - TX: ${hash}`);
+      return { success: true, hash };
+    } catch (error) {
+      console.error(`❌ Error ${bot.name} haciendo check-in:`, error);
+      return { success: false };
+    }
+  }
+
+  /**
+   * Todos los bots aprueban USDC para un círculo
+   */
+  async allBotsApproveUSDC(circleAddress: Address, amount: number) {
+    console.log(`\n🤖 Todos los bots aprobando ${amount} USDC...\n`);
+
+    const results = [];
+    for (let i = 0; i < this.bots.length; i++) {
+      const result = await this.botApproveUSDC(i, circleAddress, amount);
+      results.push(result);
+
+      // Esperar un poco entre transacciones
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+
+    return results;
+  }
+
+  /**
+   * Todos los bots hacen pago
+   */
+  async allBotsMakePayment(circleAddress: Address) {
+    console.log('\n🤖 Todos los bots haciendo pago...\n');
+
+    const results = [];
+    for (let i = 0; i < this.bots.length; i++) {
+      const result = await this.botMakePayment(i, circleAddress);
+      results.push(result);
+
+      // Esperar un poco entre transacciones
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+
+    return results;
+  }
+
+  /**
+   * Todos los bots hacen check-in
+   */
+  async allBotsCheckIn(circleAddress: Address) {
+    console.log('\n🤖 Todos los bots haciendo check-in...\n');
+
+    const results = [];
+    for (let i = 0; i < this.bots.length; i++) {
+      const result = await this.botCheckIn(i, circleAddress);
+      results.push(result);
+
+      // Esperar un poco entre transacciones
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+
+    return results;
+  }
+}
+
+// Singleton instance
+export const botWalletService = new BotWalletService();

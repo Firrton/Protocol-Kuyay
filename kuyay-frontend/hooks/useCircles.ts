@@ -4,9 +4,7 @@ import { parseUnits } from "viem";
 import { useState, useEffect, useCallback } from "react";
 import { ERC20_ABI, CIRCLE_ABI, CIRCLE_FACTORY_ABI } from "@/lib/contracts/abis";
 
-/**
- * Hook para crear un círculo de ahorro
- */
+
 export function useCreateSavingsCircle() {
   const { address: userAddress } = useAccount();
   const { writeContract, data: hash, isPending, error } = useWriteContract();
@@ -269,14 +267,21 @@ export function useRoundPaymentStatus(circleAddress: string, currentRound: numbe
     },
   });
 
-  const paidMembers = data?.filter((result: any) => result.result === true).length || 0;
+  // Explicitly cast to avoid TypeScript deep instantiation issues
+  const resultsArray = (data as any[]) || [];
+  const paidMembers = resultsArray.filter((result: any) => result.result === true).length;
   const allPaid = paidMembers === members.length && members.length > 0;
 
   console.log("💰 Payment Status:", {
     paidMembers,
     totalMembers: members.length,
     allPaid,
-    data: data?.map((r: any) => r.result)
+    data: (data as { result: boolean; status: string }[])?.map((r) => {
+      if (r.status === "success") {
+        return r.result as boolean;
+      }
+      return false; // or handle the error case as needed
+    })
   });
 
   return {
@@ -652,7 +657,7 @@ export function useHasUserPaid(circleAddress: string | undefined, currentRound: 
     address: circleAddress as `0x${string}`,
     abi: CIRCLE_ABI,
     functionName: "hasPaidRound",
-    args: address && currentRound > 0 ? [address as `0x${string}`, currentRound] : undefined,
+    args: address && currentRound > 0 ? [address as `0x${string}`, BigInt(currentRound)] : undefined,
     query: {
       enabled: !!circleAddress && !!address && currentRound > 0 && CONTRACTS_DEPLOYED.circleFactory,
     },

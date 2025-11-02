@@ -40,7 +40,7 @@ Monte Carlo viable onchain = DeFi cuantitativo (QuantFi) completo ahora posible:
 
 **Track Principal:** Arbitrum Stylus - Innovación Técnica
 
-[🚀 Demo en Vivo](https://kuyay.finance) • [📖 Documentación](./ARCHITECTURE.md) • [💻 GitHub](https://github.com/kuyay-protocol)
+[🚀 Demo en Vivo](https://protocol-kuyay-licnpv7zm-firrtons-projects.vercel.app/) • [💻 GitHub](https://github.com/kuyay-protocol) • [▶️PitchDeck](
 
 </div>
 
@@ -558,11 +558,10 @@ cast call 0x319570972527b9e3c989902311b9f808fe3553a4 \
 #### **Opción 1: Frontend (Más Fácil)**
 
 ```bash
-1. Visita: https://kuyay.finance
+1. Visita: [https://protocol-kuyay-licnpv7zm-firrtons-projects.vercel.app/]
 2. Conecta wallet (MetaMask)
-3. Clic en "Simular Riesgo"
-4. Ve 1,000 simulaciones en tiempo real
-5. Resultado: 87% éxito, $95 retorno esperado
+3. Interactua con un caso de uso
+4. Ve si el Ayllu es confiable o no
 ```
 
 #### **Opción 2: Contrato Directo (Más Técnico)**
@@ -721,14 +720,6 @@ cargo stylus deploy \
 # Run tests
 cargo test --release
 ```
-
-### **Documentación Técnica**
-
-- 📐 [ARCHITECTURE.md](./ARCHITECTURE.md) - Análisis profundo Multi-VM
-- 🎲 [MONTE_CARLO_BREAKTHROUGH.md](./MONTE_CARLO_BREAKTHROUGH.md) - Paper técnico
-- ⚙️ [DEPLOYMENT_GUIDE.md](./stylus-contracts/DEPLOYMENT_GUIDE.md) - Guía deploy
-- ✅ [MONTE_CARLO_VERIFICATION.md](./stylus-contracts/MONTE_CARLO_VERIFICATION.md) - Tests
-
 ---
 
 ## 🌍 El Impacto: Más Allá de la Tecnología

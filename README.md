@@ -470,19 +470,28 @@ Performance verified on Arbitrum Sepolia testnet
 Contract: 0x319570972527b9e3c989902311b9f808fe3553a4
 ```
 
-### **Verificable en Testnet**
+### **✅ Verificable en Testnet (LIVE)**
+
+**Contrato Desplegado y Funcionando:**
+- 📍 Address: `0x319570972527b9e3c989902311b9f808fe3553a4`
+- 🔗 Explorer: [Ver en Arbiscan](https://sepolia.arbiscan.io/address/0x319570972527b9e3c989902311b9f808fe3553a4)
+- ✅ Owner Verificado: `0x648A0C0f284BB86dba990EcDdb3237275882dD6F`
+- 🦀 Tipo: Stylus Contract (Rust/WASM)
+- 📦 Size: ~32KB WASM bytecode
+
+**Transaction Hashes (Evidencia de Deployment):**
+- Deploy: [`0x2615861e...`](https://sepolia.arbiscan.io/tx/0x2615861e445b92823ebbea3d8cdbaf56daf7751e3939249add3ba013df40d212)
+- Activation: [`0x6e51bb7c...`](https://sepolia.arbiscan.io/tx/0x6e51bb7c75f29a8ad1220afd0b7cfc591deaeaedcf0ec10001f39ec3d66beb45)
 
 ```bash
-# Ejecutar simulación real
-cast call 0x319570972527b9e3c989902311b9f808fe3553a4 \
-  "quickSimulate(uint8,uint256,uint32)" \
-  10 100 1500 \
-  --rpc-url https://sepolia-rollup.arbitrum.io/rpc
+# Prueba 1: Verificar que el contrato está vivo (llamar owner())
+curl -X POST https://sepolia-rollup.arbitrum.io/rpc \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_call","params":[{"to":"0x319570972527b9e3c989902311b9f808fe3553a4","data":"0x8da5cb5b"},"latest"],"id":1}'
 
-# Retorna:
-# successRate: 8700 (87%)
-# expectedReturn: 95000000 (95 USDC)
-# Gas usado: ~50,000
+# Response real:
+# {"jsonrpc":"2.0","id":1,"result":"0x000000000000000000000000648a0c0f284bb86dba990ecddb3237275882dd6f"}
+# ✅ CONFIRMADO: El contrato responde correctamente
 ```
 
 ---

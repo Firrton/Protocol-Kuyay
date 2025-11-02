@@ -20,9 +20,9 @@ export-abi = ["stylus-sdk/export-abi"]
 debug = ["stylus-sdk/debug"]
 mini-alloc = ["stylus-sdk/mini-alloc"]
 
-[[bin]]
-name = "circle-simulator"
-path = "src/main.rs"
+# [[bin]]
+# name = "circle-simulator"
+# path = "src/main.rs"
 
 [lib]
 crate-type = ["lib", "cdylib"]

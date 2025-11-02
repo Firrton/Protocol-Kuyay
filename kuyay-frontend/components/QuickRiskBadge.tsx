@@ -46,6 +46,7 @@ export default function QuickRiskBadge({
   // Determinar nivel de riesgo y color
   const getRiskLevel = () => {
     if (!allEligible) return { level: "ALTO", color: "ceremonial", emoji: "🔴", bg: "bg-ceremonial/10", border: "border-ceremonial" };
+    if (riskScore === null || riskScore === undefined) return { level: "MEDIO", color: "ocre", emoji: "🟡", bg: "bg-ocre/10", border: "border-ocre" };
     if (riskScore > 60) return { level: "ALTO", color: "ceremonial", emoji: "🔴", bg: "bg-ceremonial/10", border: "border-ceremonial" };
     if (riskScore > 30) return { level: "MEDIO", color: "ocre", emoji: "🟡", bg: "bg-ocre/10", border: "border-ocre" };
     return { level: "BAJO", color: "pachamama", emoji: "🟢", bg: "bg-pachamama/10", border: "border-pachamama" };
@@ -119,7 +120,7 @@ export default function QuickRiskBadge({
 
           <div className="text-center">
             <div className="text-2xl font-display font-bold text-white">
-              {riskScore.toFixed(0)}
+              {riskScore !== null ? riskScore.toFixed(0) : "-"}
             </div>
             <div className="text-xs text-gris mt-1">Score Riesgo</div>
           </div>

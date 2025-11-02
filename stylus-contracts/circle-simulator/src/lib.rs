@@ -1,10 +1,3 @@
-//!
-//! Circle Simulator - Monte Carlo Simulation for Kuyay Circles
-//!
-//! HACKATHON DEMO: Simulates circle outcomes BEFORE creation
-//! Showcases Stylus power: IMPOSSIBLE in Solidity, TRIVIAL in Rust
-//!
-
 #![cfg_attr(not(any(test, feature = "export-abi")), no_main)]
 #![cfg_attr(not(any(test, feature = "export-abi")), no_std)]
 

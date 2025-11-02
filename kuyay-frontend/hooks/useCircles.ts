@@ -269,7 +269,9 @@ export function useRoundPaymentStatus(circleAddress: string, currentRound: numbe
     },
   });
 
-  const paidMembers = data?.filter((result: any) => result.result === true).length || 0;
+  // Explicitly cast to avoid TypeScript deep instantiation issues
+  const resultsArray = (data as any[]) || [];
+  const paidMembers = resultsArray.filter((result: any) => result.result === true).length;
   const allPaid = paidMembers === members.length && members.length > 0;
 
   console.log("💰 Payment Status:", {

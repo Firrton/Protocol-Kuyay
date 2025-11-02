@@ -269,14 +269,16 @@ export function useRoundPaymentStatus(circleAddress: string, currentRound: numbe
     },
   });
 
-  const paidMembers = data?.filter((result: any) => result.result === true).length || 0;
+  const paidMembers = Array.isArray(data) 
+    ? data.filter((result: any) => result.result === true).length 
+    : 0;
   const allPaid = paidMembers === members.length && members.length > 0;
 
   console.log("💰 Payment Status:", {
     paidMembers,
     totalMembers: members.length,
     allPaid,
-    data: data?.map((r: any) => r.result)
+    data: Array.isArray(data) ? data.map((r: any) => r.result) : []
   });
 
   return {

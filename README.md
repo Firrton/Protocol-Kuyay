@@ -36,7 +36,7 @@ Monte Carlo viable onchain = DeFi cuantitativo (QuantFi) completo ahora posible:
 
 [![Arbitrum Stylus](https://img.shields.io/badge/Arbitrum-Stylus-28a0f0?style=for-the-badge&logo=arbitrum)](https://arbitrum.io/stylus)
 [![Rust](https://img.shields.io/badge/Rust-WASM-ce422b?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
-[![Deployed](https://img.shields.io/badge/Deployed-Testnet-success?style=for-the-badge)](https://sepolia.arbiscan.io/)
+[![Deployed](https://img.shields.io/badge/Deployed-Testnet-success?style=for-the-badge)](https://sepolia.arbiscan.io/tx/0xc3e311ce603036a1d4880b089163c184fb437f86970cae50790b111b4b2b5923)
 
 **Track Principal:** Arbitrum Stylus - Innovación Técnica
 

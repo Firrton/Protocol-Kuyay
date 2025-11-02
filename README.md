@@ -12,7 +12,7 @@
 
 **Track Principal:** Arbitrum Stylus - Innovación Técnica
 
-[🚀 Demo en Vivo](https://kuyay.finance) • [📖 Documentación](./ARCHITECTURE.md) • [💻 GitHub](https://github.com/kuyay-protocol)
+[🚀 Demo en Vivo](https://protocol-kuyay.vercel.app) • [📖 Documentación](./ARCHITECTURE.md) • [💻 GitHub](https://github.com/tu-usuario/kuyay-protocol)
 
 </div>
 
@@ -558,7 +558,7 @@ cast call 0x319570972527b9e3c989902311b9f808fe3553a4 \
 #### **Opción 1: Frontend (Más Fácil)**
 
 ```bash
-1. Visita: https://kuyay.finance
+1. Visita: https://protocol-kuyay.vercel.app
 2. Conecta wallet (MetaMask)
 3. Clic en "Simular Riesgo"
 4. Ve 1,000 simulaciones en tiempo real
@@ -699,9 +699,8 @@ results.sort_unstable();
 ### **Para Desarrolladores**
 
 ```bash
-# Clonar repo
-git clone https://github.com/kuyay-protocol/kuyay.git
-cd kuyay/stylus-contracts/circle-simulator
+# Navegar al proyecto
+cd stylus-contracts/circle-simulator
 
 # Setup Rust + Stylus
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -772,10 +771,10 @@ Si reducimos defaults de 30% → 15%:
 
 ---
 
-**📧 Email:** hola@kuyay.finance  
+**📧 Email:** contacto@kuyay.com  
 **🐦 Twitter:** [@KuyayProtocol](https://twitter.com/KuyayProtocol)  
-**💻 GitHub:** [github.com/kuyay-protocol](https://github.com/kuyay-protocol)  
-**📖 Docs:** [docs.kuyay.finance](https://docs.kuyay.finance)
+**💻 GitHub:** [Repositorio Completo](./README.md)  
+**🌐 Demo:** [protocol-kuyay.vercel.app](https://protocol-kuyay.vercel.app)
 
 ---
 
@@ -836,6 +835,6 @@ MIT License - Ver [LICENSE](./LICENSE)
 
 **Kuyay Protocol - ETH México 2025**
 
-[![Star en GitHub](https://img.shields.io/github/stars/kuyay-protocol?style=social)](https://github.com/kuyay-protocol)
+**[⭐ Ver Código en GitHub](https://github.com)**
 
 </div>

@@ -1,7 +1,4 @@
-//! Monte Carlo Simulation Tests for Circle Simulator
-//!
-//! These tests verify the correctness and statistical properties
-//! of the Monte Carlo simulation mechanism
+//! Due to time issues, the tests could not be done well.
 
 #[cfg(test)]
 mod tests {

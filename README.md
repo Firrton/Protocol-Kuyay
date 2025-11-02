@@ -3,6 +3,7 @@
 <div align="center">
 
 ### **Monte Carlo Onchain: De lo Imposible a lo Posible con Arbitrum Stylus**
+### *"El DeFi sabía sumar. Con Kuyay, ahora le enseñamos a predecir*
 </div>
 
 ## Resumen Ejecutivo
@@ -27,7 +28,7 @@ Monte Carlo viable onchain = DeFi cuantitativo (QuantFi) completo ahora posible:
 - Statistical arbitrage descentralizado
 - VaR institutional-grade
 
-**Conclusión: Stylus no optimiza casos de uso existentes. Habilita categorías completamente nuevas.**
+**Kuyay abre una nueva era en DeFi, QuantFi**
 
 
 <div align="center">

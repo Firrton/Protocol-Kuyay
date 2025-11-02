@@ -263,7 +263,7 @@ export function useRoundPaymentStatus(circleAddress: string, currentRound: numbe
   }));
 
   const { data, isLoading, refetch } = useReadContracts({
-    contracts,
+    contracts: contracts as any,
     query: {
       enabled: !!circleAddress && members.length > 0 && CONTRACTS_DEPLOYED.circleFactory,
       // Deshabilitar cache para forzar actualización

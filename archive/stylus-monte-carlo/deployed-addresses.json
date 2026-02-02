@@ -1,0 +1,19 @@
+{
+  "network": "arbitrum-sepolia",
+  "chainId": 421614,
+  "timestamp": "2025-11-01T12:14:59Z",
+  "deployer": "0x648A0C0f284BB86dba990EcDdb3237275882dD6F",
+  "contracts": {
+    "CircleSimulator": {
+      "address": "0x319570972527b9e3c989902311b9f808fe3553a4",
+      "deployTx": "0x2615861e445b92823ebbea3d8cdbaf56daf7751e3939249add3ba013df40d212",
+      "activationTx": "0x6e51bb7c75f29a8ad1220afd0b7cfc591deaeaedcf0ec10001f39ec3d66beb45",
+      "explorer": "https://sepolia.arbiscan.io/address/0x319570972527b9e3c989902311b9f808fe3553a4"
+    },
+    "RiskOracle": {
+      "address": "0xc9ca3c1ceaf97012daae2f270f65d957113da3be",
+      "deployTx": "0x1a3fb2bc80abbcb7ecb3bacfc409c50d6c9b4e99a0001058a329d2de01583c5a",
+      "explorer": "https://sepolia.arbiscan.io/address/0xc9ca3c1ceaf97012daae2f270f65d957113da3be"
+    }
+  }
+}

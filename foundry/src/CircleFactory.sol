@@ -8,11 +8,14 @@ import "./KuyayVault.sol";
 import "./RiskOracle.sol";
 
 /**
- * @title CircleFactory
+ * @title CircleFactory (Monad Version)
  * @author Kuyay Protocol
  * @notice Fábrica para crear y validar Circles
  * 
- * Valida miembros, despliega Circles y los autoriza en otros contratos
+ * CAMBIOS vs Arbitrum:
+ * - Removido Chainlink VRF parameters
+ * - Añadido soporte para agentes AI
+ * - Función createAgentCircle() para tandas entre agentes
  */
 contract CircleFactory is Ownable {
 
@@ -20,9 +23,6 @@ contract CircleFactory is Ownable {
     KuyayVault public immutable vault;
     RiskOracle public immutable riskOracle;
     IERC20 public immutable asset;
-    address public immutable vrfCoordinator;
-    uint256 public immutable vrfSubscriptionId;
-    bytes32 public immutable vrfKeyHash;
 
     address[] public allCircles;
 
@@ -31,9 +31,13 @@ contract CircleFactory is Ownable {
     mapping(address => address[]) public userCircles;
     mapping(address => uint256) public userActiveCircles;
 
-    uint256 public minMembers = 3;
+    // Agent registry
+    mapping(address => bool) public isRegisteredAgent;
+    address[] public registeredAgents;
+
+    uint256 public minMembers = 2;  // Reducido para agentes
     uint256 public maxMembers = 50;
-    uint256 public minGuaranteeAmount = 10 * 10**6;      // 10 USDC
+    uint256 public minGuaranteeAmount = 1 * 10**6;       // 1 USDC (reducido para testing)
     uint256 public maxGuaranteeAmount = 10000 * 10**6;   // 10,000 USDC
 
     event CircleCreated(
@@ -44,10 +48,17 @@ contract CircleFactory is Ownable {
         uint256 guaranteeAmount,
         uint256 cuotaAmount
     );
+    event AgentCircleCreated(
+        address indexed circleAddress,
+        uint256 agentCount,
+        uint256 humanCount
+    );
     event CircleCompleted(address indexed circleAddress);
     event MinMembersUpdated(uint256 newMin);
     event MaxMembersUpdated(uint256 newMax);
     event GuaranteeRangeUpdated(uint256 newMin, uint256 newMax);
+    event AgentRegistered(address indexed agent);
+    event AgentUnregistered(address indexed agent);
 
     error InvalidMemberCount();
     error DuplicateMember();
@@ -56,23 +67,84 @@ contract CircleFactory is Ownable {
     error InvalidCuotaAmount();
     error InvalidParameter();
     error MemberLimitExceeded();
+    error AgentAlreadyRegistered();
+    error NotAnAgent();
 
     constructor(
         address _aguayoSBT,
         address _vault,
         address _riskOracle,
-        address _asset,
-        address _vrfCoordinator,
-        uint256 _vrfSubscriptionId,
-        bytes32 _vrfKeyHash
+        address _asset
     ) Ownable(msg.sender) {
         aguayoSBT = AguayoSBT(_aguayoSBT);
         vault = KuyayVault(_vault);
         riskOracle = RiskOracle(_riskOracle);
         asset = IERC20(_asset);
-        vrfCoordinator = _vrfCoordinator;
-        vrfSubscriptionId = _vrfSubscriptionId;
-        vrfKeyHash = _vrfKeyHash;
+    }
+
+    /// @notice Registra una dirección como agente AI autorizado
+    function registerAgent(address agent) external onlyOwner {
+        if (isRegisteredAgent[agent]) revert AgentAlreadyRegistered();
+        
+        isRegisteredAgent[agent] = true;
+        registeredAgents.push(agent);
+        
+        emit AgentRegistered(agent);
+    }
+
+    /// @notice Quita registro de agente
+    function unregisterAgent(address agent) external onlyOwner {
+        if (!isRegisteredAgent[agent]) revert NotAnAgent();
+        
+        isRegisteredAgent[agent] = false;
+        emit AgentUnregistered(agent);
+    }
+
+    /// @notice Crea un Circle donde participan agentes AI
+    /// @dev Los agentes deben estar registrados previamente
+    function createAgentCircle(
+        address[] calldata members,
+        address[] calldata agents,
+        uint256 guaranteeAmount,
+        uint256 cuotaAmount
+    ) external returns (address) {
+        // Los agents también deben estar en members
+        _validateCircleParams(members, guaranteeAmount, cuotaAmount, false);
+        
+        // Verificar que todos los agentes están registrados
+        for (uint256 i = 0; i < agents.length; i++) {
+            if (!isRegisteredAgent[agents[i]]) revert NotAnAgent();
+        }
+
+        Circle newCircle = new Circle(
+            Circle.CircleMode.SAVINGS,
+            members,
+            guaranteeAmount,
+            cuotaAmount,
+            address(asset),
+            address(aguayoSBT),
+            address(vault),
+            address(riskOracle)
+        );
+
+        address circleAddress = address(newCircle);
+
+        // Registrar agentes en el Circle
+        for (uint256 i = 0; i < agents.length; i++) {
+            newCircle.registerAgent(agents[i]);
+        }
+
+        aguayoSBT.authorizeCircle(circleAddress);
+
+        _recordCircle(circleAddress, members, Circle.CircleMode.SAVINGS, guaranteeAmount, cuotaAmount);
+
+        emit AgentCircleCreated(
+            circleAddress,
+            agents.length,
+            members.length - agents.length
+        );
+
+        return circleAddress;
     }
 
     // Crea un Circle de Ahorro (cualquiera con Aguayo puede participar)
@@ -91,10 +163,7 @@ contract CircleFactory is Ownable {
             address(asset),
             address(aguayoSBT),
             address(vault),
-            address(riskOracle),
-            vrfCoordinator,
-            vrfSubscriptionId,
-            vrfKeyHash
+            address(riskOracle)
         );
 
         address circleAddress = address(newCircle);
@@ -122,10 +191,7 @@ contract CircleFactory is Ownable {
             address(asset),
             address(aguayoSBT),
             address(vault),
-            address(riskOracle),
-            vrfCoordinator,
-            vrfSubscriptionId,
-            vrfKeyHash
+            address(riskOracle)
         );
 
         address circleAddress = address(newCircle);
@@ -168,7 +234,12 @@ contract CircleFactory is Ownable {
                 if (member == members[j]) revert DuplicateMember();
             }
 
-            // Verificar que tenga Aguayo
+            // Agentes registrados no necesitan Aguayo
+            if (isRegisteredAgent[member]) {
+                continue;
+            }
+
+            // Verificar que humanos tengan Aguayo
             if (!aguayoSBT.hasAguayo(member)) {
                 revert MemberNotEligible(member);
             }
@@ -183,12 +254,33 @@ contract CircleFactory is Ownable {
             }
         }
 
-        // Validación grupal para modo crédito
+        // Validación grupal para modo crédito (solo humanos)
         if (isCreditMode) {
-            if (!riskOracle.areAllMembersEligible(members)) {
+            address[] memory humanMembers = _getHumanMembers(members);
+            if (humanMembers.length > 0 && !riskOracle.areAllMembersEligible(humanMembers)) {
                 revert MemberNotEligible(address(0));
             }
         }
+    }
+
+    function _getHumanMembers(address[] calldata members) internal view returns (address[] memory) {
+        uint256 humanCount = 0;
+        for (uint256 i = 0; i < members.length; i++) {
+            if (!isRegisteredAgent[members[i]]) {
+                humanCount++;
+            }
+        }
+
+        address[] memory humans = new address[](humanCount);
+        uint256 index = 0;
+        for (uint256 i = 0; i < members.length; i++) {
+            if (!isRegisteredAgent[members[i]]) {
+                humans[index] = members[i];
+                index++;
+            }
+        }
+
+        return humans;
     }
 
     function _recordCircle(
@@ -217,6 +309,8 @@ contract CircleFactory is Ownable {
         );
     }
 
+    // ============ VIEW FUNCTIONS ============
+
     function getAllCircles() external view returns (address[] memory) {
         return allCircles;
     }
@@ -227,6 +321,20 @@ contract CircleFactory is Ownable {
 
     function getUserCircles(address user) external view returns (address[] memory) {
         return userCircles[user];
+    }
+
+    function getRegisteredAgents() external view returns (address[] memory) {
+        return registeredAgents;
+    }
+
+    function getAgentCount() external view returns (uint256) {
+        uint256 count = 0;
+        for (uint256 i = 0; i < registeredAgents.length; i++) {
+            if (isRegisteredAgent[registeredAgents[i]]) {
+                count++;
+            }
+        }
+        return count;
     }
 
     function getCircleInfo(address circleAddress)
@@ -256,6 +364,11 @@ contract CircleFactory is Ownable {
         }
 
         for (uint256 i = 0; i < members.length; i++) {
+            // Agentes siempre elegibles
+            if (isRegisteredAgent[members[i]]) {
+                continue;
+            }
+
             if (!aguayoSBT.hasAguayo(members[i])) {
                 return (false, 0, 0);
             }
@@ -268,11 +381,16 @@ contract CircleFactory is Ownable {
         eligible = true;
 
         if (isCreditMode) {
-            (leverageMultiplier, interestRate) = riskOracle.getLeverageLevel(members);
+            address[] memory humanMembers = _getHumanMembers(members);
+            if (humanMembers.length > 0) {
+                (leverageMultiplier, interestRate) = riskOracle.getLeverageLevel(humanMembers);
+            }
         }
 
         return (eligible, leverageMultiplier, interestRate);
     }
+
+    // ============ ADMIN FUNCTIONS ============
 
     function setMinMembers(uint256 newMin) external onlyOwner {
         if (newMin < 2 || newMin > maxMembers) revert InvalidParameter();

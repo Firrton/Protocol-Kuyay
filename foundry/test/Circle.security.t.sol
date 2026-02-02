@@ -5,7 +5,8 @@ import "./BaseTest.sol";
 
 /**
  * @title CircleSecurityTest
- * @notice Tests de seguridad críticos para Circle.sol
+ * @notice Tests de seguridad críticos para Circle.sol (Monad version)
+ * @dev Actualizado para Monad - sin VRF, sorteos instantáneos
  */
 contract CircleSecurityTest is BaseTest {
 
@@ -87,44 +88,50 @@ contract CircleSecurityTest is BaseTest {
         // circle.liquidate();
     }
 
-    /* ========== BUG CRÍTICO #2: No hay timeout para VRF ========== */
+    /* ========== MONAD: Sorteos instantáneos ========== */
 
-    /// @notice Si VRF nunca responde, los fondos quedan bloqueados para siempre
-    function test_CRITICAL_VRFNeverResponds_FundsLockedForever() public {
+    /// @notice En Monad no hay VRF - los sorteos son instantáneos con prevrandao
+    function test_InstantDrawWithPrevrandao() public {
         // Todos pagan la ronda 1
         _payCurrentRound(circle, members);
 
-        // VRF request fue enviado
-        uint256 requestId = circle.pendingRequestId();
-        assertTrue(requestId != 0);
-
-        // Pasa 1 año y VRF nunca responde (Chainlink caído)
-        vm.warp(block.timestamp + 365 days);
-
-        // Los miembros intentan recuperar sus fondos
-        // NO hay función de emergencia para esto ⚠️
-
-        // El círculo está permanentemente bloqueado
-        assertEq(uint(circle.status()), uint(Circle.CircleStatus.ACTIVE));
-        assertTrue(circle.pendingRequestId() != 0);
-
-        // Los fondos están atrapados:
-        // - currentPot tiene los pagos de la ronda
-        // - totalCollateral tiene las garantías
-        // - No hay forma de recuperarlos
-        uint256 trappedFunds = circle.currentPot() + circle.totalCollateral();
-        assertGt(trappedFunds, 0);
+        // El sorteo se ejecuta automáticamente cuando el último pago 
+        // completa el quórum, o manualmente con startDraw()
+        
+        // Verificar que hay un ganador
+        address winner = circle.roundWinners(1);
+        
+        // Si el sorteo fue automático, ya hay ganador
+        // Si no, necesitamos check-in y startDraw
+        if (winner == address(0)) {
+            // Hacer check-in
+            for (uint256 i = 0; i < members.length; i++) {
+                vm.prank(members[i]);
+                try circle.checkIn() {} catch {}
+            }
+            
+            // Ejecutar sorteo
+            if (circle.canStartDraw()) {
+                vm.prank(members[0]);
+                circle.startDraw();
+            }
+            
+            winner = circle.roundWinners(1);
+        }
+        
+        // Debe haber un ganador
+        assertTrue(winner != address(0), "No winner selected");
+        
+        // Círculo avanza a ronda 2
+        assertEq(circle.currentRound(), 2);
     }
 
     /// @notice Después del fix, debe haber una función de emergencia con timeout
-    function test_EmergencyWithdrawAfterVRFTimeout_AFTER_FIX() public {
+    function test_EmergencyWithdrawAfterTimeout_AFTER_FIX() public {
         _payCurrentRound(circle, members);
 
-        uint256 requestId = circle.pendingRequestId();
-        assertTrue(requestId != 0);
-
-        // Pasa el tiempo de timeout (ej: 7 días)
-        vm.warp(block.timestamp + 8 days);
+        // Pasa el tiempo de timeout (ej: 30 días)
+        vm.warp(block.timestamp + 31 days);
 
         // Cualquier miembro puede activar el modo de emergencia
         vm.prank(alice);
@@ -163,8 +170,8 @@ contract CircleSecurityTest is BaseTest {
 
         _payCurrentRound(creditCircle, creditMembers);
 
-        // Simular VRF
-        _fulfillVRF(creditCircle);
+        // Ejecutar sorteo (en Monad es instantáneo)
+        _executeDraw(creditCircle, creditMembers);
 
         // El ganador recibe el pot menos el repayment
         address winner = creditCircle.roundWinners(1);
@@ -179,7 +186,7 @@ contract CircleSecurityTest is BaseTest {
         // Después de todas las rondas, verificar deuda
         for (uint256 i = 2; i <= 3; i++) {
             _payCurrentRound(creditCircle, creditMembers);
-            _fulfillVRF(creditCircle);
+            _executeDraw(creditCircle, creditMembers);
         }
 
         // Verificar si la deuda fue completamente pagada

@@ -63,10 +63,7 @@ contract DeployKuyay is Script {
             address(aguayoSBT),
             address(vault),
             address(riskOracle),
-            USDC_ARBITRUM_SEPOLIA,
-            VRF_COORDINATOR,
-            VRF_SUBSCRIPTION_ID,
-            VRF_KEY_HASH
+            USDC_ARBITRUM_SEPOLIA
         );
         console.log("   CircleFactory deployed at:", address(factory));
 

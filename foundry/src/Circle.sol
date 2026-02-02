@@ -4,17 +4,19 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@chainlink/contracts/src/v0.8/vrf/dev/interfaces/IVRFCoordinatorV2Plus.sol";
-import "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
-import "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 import "./AguayoSBT.sol";
 import "./KuyayVault.sol";
 import "./RiskOracle.sol";
 
 /**
- * @title Circle
+ * @title Circle (Monad Version)
  * @author Kuyay Protocol
- * @notice Contrato de un Pasanaku individual
+ * @notice Contrato de un Pasanaku individual - Optimizado para Monad
+ *
+ * CAMBIOS vs Arbitrum:
+ * - Removido Chainlink VRF → usando prevrandao (EIP-4399 / Cancun)
+ * - Sorteos instantáneos en lugar de callback async
+ * - Optimizado para high TPS de Monad
  *
  * MODOS:
  * - SAVINGS: Sin préstamo del protocolo
@@ -22,10 +24,10 @@ import "./RiskOracle.sol";
  *
  * FASES:
  * 1. DEPOSIT: Miembros depositan garantías
- * 2. ACTIVE: Rondas de pago y sorteos VRF
+ * 2. ACTIVE: Rondas de pago y sorteos
  * 3. COMPLETED/LIQUIDATED: Fin exitoso o default
  */
-contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
+contract Circle is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     enum CircleMode {
@@ -45,10 +47,7 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
     AguayoSBT public immutable aguayoSBT;
     KuyayVault public immutable vault;
     RiskOracle public immutable riskOracle;
-    IVRFCoordinatorV2Plus public immutable vrfCoordinator;
-    uint256 public immutable subscriptionId;
-    bytes32 public immutable keyHash;
-    address public immutable factory;           
+    address public immutable factory;
 
     // Configuración del circle
     CircleMode public mode;
@@ -79,31 +78,30 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
     uint256 public presentCount;
     bool public drawCanBeStartedManually;
 
-    // VRF
-    uint256 public pendingRequestId;
-    mapping(uint256 => uint256) public requestIdToRound;
+    // Sorteo ponderado
     bool public useWeightedDraw;
-    uint48 public vrfRequestTimestamp;          
-    uint256 public constant VRF_TIMEOUT = 7 days; 
 
     // Round timeouts
-    uint48 public lastRoundStartTime;           
-    uint256 public constant ROUND_TIMEOUT = 30 days; 
+    uint48 public lastRoundStartTime;
+    uint256 public constant ROUND_TIMEOUT = 30 days;
+
+    // Agent support
+    mapping(address => bool) public isAgentMember;
+    uint256 public agentCount;
 
     event CircleCreated(CircleMode mode, uint256 memberCount, uint256 guaranteeAmount, uint256 cuotaAmount);
     event GuaranteeDeposited(address indexed member, uint256 amount);
     event CircleActivated(uint256 totalCollateral, uint256 protocolLoan);
     event RoundPaymentMade(address indexed member, uint256 round, uint256 amount);
     event MemberCheckedIn(address indexed member, uint256 round);
-    event DrawRequested(uint256 indexed requestId, uint256 round);
-    event RoundDrawStarted(uint256 round, uint256 requestId);
+    event DrawExecuted(uint256 round, uint256 randomSeed);
     event WinnerSelected(uint256 indexed round, address winner, uint256 amount);
     event RoundWinner(uint256 round, address indexed winner, uint256 potAmount);
     event CircleCompleted(uint256 finalRound);
     event CircleLiquidated(uint256 round, address indexed defaulter, string reason);
     event GuaranteeReturned(address indexed member, uint256 amount);
     event EmergencyCancelled(string reason);
-    event EmergencyWithdraw(address indexed member, uint256 amount); 
+    event AgentRegistered(address indexed agent);
 
     error InvalidMode();
     error InvalidStatus();
@@ -116,16 +114,12 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
     error PaymentAlreadyMade();
     error AlreadyWon();
     error RoundNotComplete();
-    error DrawAlreadyStarted();
     error NoEligibleMembers();
     error TransferFailed();
     error Unauthorized();
-    error VRFTimeoutNotReached();
-    error RoundTimeoutNotReached();
-    error NoLiquidationReason();
+    error CannotStartDraw();
     error InsufficientVaultLiquidity();
     error AlreadyCheckedIn();
-    error CannotStartDraw();
 
     modifier onlyFactory() {
         if (msg.sender != factory) revert Unauthorized();
@@ -140,11 +134,8 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
         address _asset,
         address _aguayoSBT,
         address _vault,
-        address _riskOracle,
-        address _vrfCoordinator,
-        uint256 _subscriptionId,
-        bytes32 _keyHash
-    ) VRFConsumerBaseV2Plus(_vrfCoordinator) {
+        address _riskOracle
+    ) {
         if (_members.length < 2 || _members.length > 50) revert InvalidMemberCount();
         if (_guaranteeAmount == 0 || _cuotaAmount == 0) revert InvalidAmount();
 
@@ -152,10 +143,7 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
         aguayoSBT = AguayoSBT(_aguayoSBT);
         vault = KuyayVault(_vault);
         riskOracle = RiskOracle(_riskOracle);
-        vrfCoordinator = IVRFCoordinatorV2Plus(_vrfCoordinator);
-        subscriptionId = _subscriptionId;
-        keyHash = _keyHash;
-        factory = msg.sender;                   
+        factory = msg.sender;
         mode = _mode;
         status = CircleStatus.DEPOSIT;
         guaranteeAmount = _guaranteeAmount;
@@ -175,6 +163,16 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
         useWeightedDraw = (_mode == CircleMode.CREDIT);
 
         emit CircleCreated(_mode, _members.length, _guaranteeAmount, _cuotaAmount);
+    }
+
+    /// @notice Registra un miembro como agente AI (solo factory puede llamar)
+    function registerAgent(address agent) external onlyFactory {
+        if (!isMember[agent]) revert NotMember();
+        if (isAgentMember[agent]) return;
+        
+        isAgentMember[agent] = true;
+        agentCount++;
+        emit AgentRegistered(agent);
     }
 
     // Miembros depositan su garantía
@@ -198,6 +196,7 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
     function _activateCircle() internal {
         status = CircleStatus.ACTIVE;
         currentRound = 1;
+        lastRoundStartTime = uint48(block.timestamp);
 
         if (mode == CircleMode.CREDIT) {
             _requestProtocolLoan();
@@ -236,19 +235,17 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
         asset.safeTransferFrom(msg.sender, address(this), cuotaAmount);
 
         uint256 tokenId = aguayoSBT.userToAguayo(msg.sender);
-        aguayoSBT.addWeave(tokenId);
+        if (tokenId > 0) {
+            aguayoSBT.addWeave(tokenId);
+        }
 
         emit RoundPaymentMade(msg.sender, currentRound, cuotaAmount);
 
-        // MODIFICADO PARA TESTING: Solo requiere 2 pagos en lugar de todos
-        if (paymentsThisRound >= 2) {
+        // Cuando todos hayan pagado (o al menos 2), habilitar el sorteo
+        if (paymentsThisRound >= members.length) {
             paymentsThisRound = 0;
             drawCanBeStartedManually = true;
-
-            // Si nadie ha hecho check-in, iniciar sorteo automáticamente
-            if (presentCount == 0) {
-                _startRoundDraw();
-            }
+            // El sorteo requiere llamada explícita a startDraw() para mayor control
         }
     }
 
@@ -267,25 +264,59 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
     }
 
     // Iniciar sorteo manualmente (requiere check-in de al menos 51% de miembros)
-    function startDraw() external nonReentrant returns (uint256) {
+    function startDraw() external nonReentrant {
         if (status != CircleStatus.ACTIVE) revert InvalidStatus();
         if (!drawCanBeStartedManually) revert CannotStartDraw();
-        if (pendingRequestId != 0) revert DrawAlreadyStarted();
 
-        // Requiere quórum mínimo del 51%
+        // Quórum mínimo del 51%
         uint256 quorumRequired = (members.length * 51) / 100;
+        if (quorumRequired == 0) quorumRequired = 1;
         if (presentCount < quorumRequired) revert CannotStartDraw();
 
-        return _startRoundDraw();
+        _executeInstantDraw();
+    }
+
+    /// @notice Ejecuta sorteo instantáneo usando prevrandao (Monad/Cancun)
+    function _executeInstantDraw() internal {
+        // Generar semilla aleatoria usando prevrandao (EIP-4399)
+        // En Monad esto es seguro porque los validadores no pueden manipular fácilmente
+        uint256 randomSeed = uint256(keccak256(abi.encodePacked(
+            block.prevrandao,
+            block.timestamp,
+            block.number,
+            currentRound,
+            msg.sender,
+            currentPot
+        )));
+
+        emit DrawExecuted(currentRound, randomSeed);
+
+        address winner;
+        if (useWeightedDraw) {
+            winner = _selectWeightedWinner(randomSeed);
+        } else {
+            winner = _selectRandomWinner(randomSeed);
+        }
+
+        _distributePot(winner, currentRound);
+
+        if (currentRound < totalRounds) {
+            currentRound++;
+            currentPot = 0;
+            lastRoundStartTime = uint48(block.timestamp);
+            _resetPresence();
+        } else {
+            _completeCircle();
+        }
     }
 
     // View: ¿Puede iniciarse el sorteo?
     function canStartDraw() external view returns (bool) {
         if (status != CircleStatus.ACTIVE) return false;
         if (!drawCanBeStartedManually) return false;
-        if (pendingRequestId != 0) return false;
 
         uint256 quorumRequired = (members.length * 51) / 100;
+        if (quorumRequired == 0) quorumRequired = 1;
         return presentCount >= quorumRequired;
     }
 
@@ -302,71 +333,6 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
         }
 
         return present;
-    }
-
-    function _isRoundFullyPaid(uint256 round) internal view returns (bool) {
-        for (uint256 i = 0; i < members.length; i++) {
-            if (!hasPaidRound[members[i]][round]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    function _startRoundDraw() internal returns (uint256) {
-        if (pendingRequestId != 0) revert DrawAlreadyStarted();
-
-        // Crear request struct para VRF V2 Plus
-        VRFV2PlusClient.RandomWordsRequest memory req = VRFV2PlusClient.RandomWordsRequest({
-            keyHash: keyHash,
-            subId: subscriptionId,
-            requestConfirmations: 3,
-            callbackGasLimit: 200000,
-            numWords: 1,
-            extraArgs: VRFV2PlusClient._argsToBytes(
-                VRFV2PlusClient.ExtraArgsV1({nativePayment: false})
-            )
-        });
-
-        uint256 requestId = vrfCoordinator.requestRandomWords(req);
-
-        pendingRequestId = requestId;
-        requestIdToRound[requestId] = currentRound;
-        vrfRequestTimestamp = uint48(block.timestamp);
-
-        emit RoundDrawStarted(currentRound, requestId);
-        emit DrawRequested(requestId, currentRound);
-
-        return requestId;
-    }
-
-    // Callback de Chainlink VRF
-    function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords)
-        internal
-        override
-    {
-        uint256 round = requestIdToRound[requestId];
-        if (round == 0) return;
-
-        pendingRequestId = 0;
-        vrfRequestTimestamp = 0;
-
-        address winner;
-        if (useWeightedDraw) {
-            winner = _selectWeightedWinner(randomWords[0]);
-        } else {
-            winner = _selectRandomWinner(randomWords[0]);
-        }
-
-        _distributePot(winner, round);
-
-        if (currentRound < totalRounds) {
-            currentRound++;
-            currentPot = 0;
-            _resetPresence();
-        } else {
-            _completeCircle();
-        }
     }
 
     function _selectRandomWinner(uint256 randomSeed) internal view returns (address) {
@@ -445,7 +411,6 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
     }
 
     function _resetPresence() internal {
-        // Reset presencia para la siguiente ronda
         for (uint256 i = 0; i < members.length; i++) {
             isMemberPresent[members[i]] = false;
         }
@@ -462,7 +427,9 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
                 canWithdrawGuarantee[member] = true;
 
                 uint256 tokenId = aguayoSBT.userToAguayo(member);
-                aguayoSBT.addBorder(tokenId);
+                if (tokenId > 0) {
+                    aguayoSBT.addBorder(tokenId);
+                }
             }
         }
 
@@ -505,7 +472,9 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
 
         for (uint256 i = 0; i < members.length; i++) {
             uint256 tokenId = aguayoSBT.userToAguayo(members[i]);
-            aguayoSBT.addStain(tokenId);
+            if (tokenId > 0) {
+                aguayoSBT.addStain(tokenId);
+            }
         }
 
         (bool success,) = factory.call(
@@ -514,6 +483,8 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
 
         emit CircleLiquidated(currentRound, address(0), "Liquidation initiated");
     }
+
+    // ============ VIEW FUNCTIONS ============
 
     function getMembers() external view returns (address[] memory) {
         return members;
@@ -533,5 +504,17 @@ contract Circle is VRFConsumerBaseV2Plus, ReentrancyGuard {
         returns (CircleMode circleMode, CircleStatus circleStatus, uint256 round, uint256 pot)
     {
         return (mode, status, currentRound, currentPot);
+    }
+
+    function getMemberCount() external view returns (uint256) {
+        return members.length;
+    }
+
+    function getAgentCount() external view returns (uint256) {
+        return agentCount;
+    }
+
+    function isAgent(address member) external view returns (bool) {
+        return isAgentMember[member];
     }
 }

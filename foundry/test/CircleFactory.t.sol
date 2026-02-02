@@ -111,7 +111,7 @@ contract CircleFactoryTest is BaseTest {
 
         for (uint256 i = 0; i < 3; i++) {
             _payCurrentRound(circle, members);
-            _fulfillVRF(circle);
+            _executeDraw(circle, members);
         }
 
         assertEq(uint(circle.status()), uint(Circle.CircleStatus.COMPLETED));
@@ -138,7 +138,7 @@ contract CircleFactoryTest is BaseTest {
 
         for (uint256 i = 0; i < 3; i++) {
             _payCurrentRound(circle1, members);
-            _fulfillVRF(circle1);
+            _executeDraw(circle1, members);
         }
 
         assertEq(factory.userActiveCircles(alice), 0);
@@ -226,7 +226,8 @@ contract CircleFactoryTest is BaseTest {
 
         vm.prank(alice);
         vm.expectRevert(CircleFactory.InvalidGuaranteeAmount.selector);
-        factory.createSavingsCircle(members, 1 * 10**6, DEFAULT_CUOTA);
+        // 0 es inválido (minGuaranteeAmount = 1 USDC)
+        factory.createSavingsCircle(members, 0, DEFAULT_CUOTA);
     }
 
     function test_PreviewCircleCreation() public {

@@ -7,12 +7,12 @@ import "../src/Circle.sol";
 import "../src/CircleFactory.sol";
 import "../src/KuyayVault.sol";
 import "../src/RiskOracle.sol";
-import "./mocks/MockVRFCoordinator.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**
  * @title BaseTest
- * @notice Setup común para todos los tests del protocolo Kuyay
+ * @notice Setup común para todos los tests del protocolo Kuyay (Monad version)
+ * @dev Sin VRF - usa prevrandao para randomness
  */
 contract MockUSDC is ERC20 {
     constructor() ERC20("USD Coin", "USDC") {
@@ -34,7 +34,6 @@ contract BaseTest is Test {
     CircleFactory public factory;
     KuyayVault public vault;
     RiskOracle public riskOracle;
-    MockVRFCoordinator public vrfCoordinator;
     MockUSDC public usdc;
 
     // Direcciones de prueba
@@ -46,9 +45,9 @@ contract BaseTest is Test {
     address public david;
     address public eve;
 
-    // Configuración VRF
-    uint64 public constant VRF_SUBSCRIPTION_ID = 1;
-    bytes32 public constant VRF_KEY_HASH = keccak256("test");
+    // Agentes de prueba
+    address public agent1;
+    address public agent2;
 
     // Cantidades comunes
     uint256 public constant INITIAL_BALANCE = 100_000 * 10**6; // 100k USDC
@@ -64,14 +63,13 @@ contract BaseTest is Test {
         charlie = makeAddr("charlie");
         david = makeAddr("david");
         eve = makeAddr("eve");
+        agent1 = makeAddr("agent1");
+        agent2 = makeAddr("agent2");
 
         // Deploy USDC mock
         usdc = new MockUSDC();
 
-        // Deploy VRF mock
-        vrfCoordinator = new MockVRFCoordinator();
-
-        // Deploy protocolo
+        // Deploy protocolo (sin VRF para Monad)
         aguayoSBT = new AguayoSBT();
         vault = new KuyayVault(address(usdc), treasury);
         riskOracle = new RiskOracle(address(aguayoSBT));
@@ -80,10 +78,7 @@ contract BaseTest is Test {
             address(aguayoSBT),
             address(vault),
             address(riskOracle),
-            address(usdc),
-            address(vrfCoordinator),
-            VRF_SUBSCRIPTION_ID,
-            VRF_KEY_HASH
+            address(usdc)
         );
 
         // Autorizar factory
@@ -96,10 +91,18 @@ contract BaseTest is Test {
             usdc.mint(users[i], INITIAL_BALANCE);
         }
 
+        // Fondear agentes también
+        usdc.mint(agent1, INITIAL_BALANCE);
+        usdc.mint(agent2, INITIAL_BALANCE);
+
         // Fondear vault con liquidez
         usdc.mint(address(this), 1_000_000 * 10**6);
         usdc.approve(address(vault), 1_000_000 * 10**6);
         vault.deposit(500_000 * 10**6);
+
+        // Registrar agentes
+        factory.registerAgent(agent1);
+        factory.registerAgent(agent2);
     }
 
     function _getTestUsers() internal view returns (address[] memory) {
@@ -164,6 +167,21 @@ contract BaseTest is Test {
         return Circle(circleAddr);
     }
 
+    // Helper: Crea un círculo con agentes
+    function _createAgentCircle(
+        address[] memory members,
+        address[] memory agents
+    ) internal returns (Circle) {
+        vm.prank(owner);
+        address circleAddr = factory.createAgentCircle(
+            members,
+            agents,
+            DEFAULT_GUARANTEE,
+            DEFAULT_CUOTA
+        );
+        return Circle(circleAddr);
+    }
+
     // Helper: Todos depositan garantías
     function _depositGuarantees(Circle circle, address[] memory members) internal {
         for (uint256 i = 0; i < members.length; i++) {
@@ -184,12 +202,25 @@ contract BaseTest is Test {
         }
     }
 
-    // Helper: Simula respuesta VRF
-    function _fulfillVRF(Circle circle) internal {
-        uint256 requestId = circle.pendingRequestId();
-        uint256[] memory randomWords = new uint256[](1);
-        randomWords[0] = uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao)));
+    // Helper: Ejecutar sorteo (en Monad es instantáneo, no hay VRF callback)
+    function _executeDraw(Circle circle, address[] memory members) internal {
+        uint256 currentRound = circle.currentRound();
+        
+        // Si el sorteo no está listo, no hacer nada
+        if (!circle.drawCanBeStartedManually()) {
+            return;
+        }
 
-        vrfCoordinator.fulfillRandomWords(requestId, address(circle), randomWords);
+        // Los miembros hacen check-in
+        for (uint256 i = 0; i < members.length; i++) {
+            if (circle.hasPaidRound(members[i], currentRound)) {
+                vm.prank(members[i]);
+                try circle.checkIn() {} catch {}
+            }
+        }
+
+        // Ejecutar sorteo (sin quórum para tests)
+        vm.prank(members[0]);
+        try circle.startDraw() {} catch {}
     }
 }

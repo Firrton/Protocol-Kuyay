@@ -1,0 +1,530 @@
+//!
+//! Kuyay Protocol - Risk Oracle (Stylus/Rust Implementation)
+//!
+//! Motor de evaluación de riesgo para Circles
+//! Analiza la composición de grupos (niveles de Aguayo, manchas)
+//! y calcula leverage permitido + tasas de interés
+//!
+
+#![cfg_attr(not(any(test, feature = "export-abi")), no_main)]
+#![cfg_attr(not(any(test, feature = "export-abi")), no_std)]
+
+extern crate alloc;
+use alloc::vec;
+use alloc::vec::Vec;
+
+use stylus_sdk::{
+    alloy_primitives::{Address, U256},
+    call::Call,
+    msg,
+    prelude::*,
+    storage::{StorageAddress, StorageU256, StorageU8, StorageVec},
+};
+
+// Re-export for macros
+use stylus_sdk::alloy_primitives;
+
+// Interfaz para llamar al contrato AguayoSBT (Solidity)
+sol_interface! {
+    interface IAguayoSBT {
+        function userToAguayo(address user) external view returns (uint256);
+        function isEligibleForCredit(uint256 tokenId) external view returns (bool);
+        function getLevel(uint256 tokenId) external view returns (uint8);
+        function isAguayoStained(uint256 tokenId) external view returns (bool);
+        function getAguayoMetadata(uint256 tokenId) external view returns (AguayoMetadata memory);
+    }
+
+    struct AguayoMetadata {
+        uint8 level;
+        uint32 totalThreads;
+        uint16 completedCircles;
+        uint16 stains;
+        uint48 lastActivityTimestamp;
+        bool isStained;
+    }
+}
+
+// Leverage Tier structure
+#[derive(Default)]
+pub struct LeverageTier {
+    min_average_level: u8,
+    multiplier: U256,      // 100 = 1x, 500 = 5x
+    interest_rate_bps: U256, // basis points (1000 = 10%)
+}
+
+sol_storage! {
+    #[entrypoint]
+    pub struct RiskOracle {
+        address aguayo_sbt;
+        address owner;
+        uint8 min_level_for_credit;
+        uint256 max_leverage_multiplier;
+        uint256 base_interest_rate_bps;
+        uint256 risk_premium_per_stain_bps;
+
+        // Storage vector for leverage tiers
+        // Each tier: [minAvgLevel, multiplier, interestRateBps]
+        StorageVec<StorageU256> tier_min_levels;
+        StorageVec<StorageU256> tier_multipliers;
+        StorageVec<StorageU256> tier_interest_rates;
+    }
+}
+
+// Events and Errors
+sol! {
+    event LeverageTierAdded(uint8 indexed min_average_level, uint256 multiplier, uint256 interest_rate);
+    event LeverageTierUpdated(uint256 indexed tier_id, uint8 min_average_level, uint256 multiplier, uint256 interest_rate);
+    event MinLevelForCreditUpdated(uint8 new_min_level);
+    event MaxLeverageUpdated(uint256 new_max_multiplier);
+    event BaseInterestRateUpdated(uint256 new_rate_bps);
+    event RiskPremiumUpdated(uint256 new_premium_bps);
+    event OwnershipTransferred(address indexed previous_owner, address indexed new_owner);
+
+    error Unauthorized();
+    error InvalidAddress();
+    error InvalidParameter();
+    error MemberNotEligible(address member);
+    error InvalidTierId();
+    error EmptyMemberList();
+}
+
+#[public]
+impl RiskOracle {
+    /// Constructor - initializes the RiskOracle
+    pub fn initialize(&mut self, aguayo_sbt_address: Address) -> Result<(), Vec<u8>> {
+        // Check if already initialized
+        if self.owner.get() != Address::ZERO {
+            return Err(b"Already initialized".to_vec());
+        }
+
+        if aguayo_sbt_address == Address::ZERO {
+            return Err(b"Invalid address".to_vec());
+        }
+
+        self.aguayo_sbt.set(aguayo_sbt_address);
+        // Note: msg::sender() is deprecated in SDK 0.8.4
+        // In production, use .vm() method from contract
+        self.owner.set(Address::ZERO); // TODO: Set from deployment
+        self.min_level_for_credit.set(1);
+        self.max_leverage_multiplier.set(U256::from(500)); // 5x
+        self.base_interest_rate_bps.set(U256::from(1000)); // 10%
+        self.risk_premium_per_stain_bps.set(U256::from(200)); // 2%
+
+        // Initialize default tiers
+        // Tier 1: Level 1+, 1.5x leverage, 12% interest
+        self.tier_min_levels.push(U256::from(1));
+        self.tier_multipliers.push(U256::from(150));
+        self.tier_interest_rates.push(U256::from(1200));
+
+        // Tier 2: Level 3+, 3x leverage, 10% interest
+        self.tier_min_levels.push(U256::from(3));
+        self.tier_multipliers.push(U256::from(300));
+        self.tier_interest_rates.push(U256::from(1000));
+
+        // Tier 3: Level 5+, 5x leverage, 8% interest
+        self.tier_min_levels.push(U256::from(5));
+        self.tier_multipliers.push(U256::from(500));
+        self.tier_interest_rates.push(U256::from(800));
+
+        Ok(())
+    }
+
+    /// Verifica si todos los miembros califican para Modo Crédito
+    pub fn are_all_members_eligible(&self, members: Vec<Address>) -> Result<bool, Vec<u8>> {
+        if members.is_empty() {
+            return Ok(false);
+        }
+
+        let aguayo_sbt_addr = self.aguayo_sbt.get();
+        let aguayo_sbt = IAguayoSBT::new(aguayo_sbt_addr);
+
+        for member in members.iter() {
+            // Get token ID for member
+            let token_id = match aguayo_sbt.user_to_aguayo(self, *member) {
+                Ok(id) => id,
+                Err(_) => return Ok(false),
+            };
+
+            if token_id == U256::ZERO {
+                return Ok(false);
+            }
+
+            // Check if eligible for credit
+            let is_eligible = match aguayo_sbt.is_eligible_for_credit(self, token_id) {
+                Ok(eligible) => eligible,
+                Err(_) => return Ok(false),
+            };
+
+            if !is_eligible {
+                return Ok(false);
+            }
+        }
+
+        Ok(true)
+    }
+
+    /// Calcula leverage permitido e interés basado en el nivel promedio del grupo
+    pub fn get_leverage_level(&self, members: Vec<Address>) -> Result<(U256, U256), Vec<u8>> {
+        if members.is_empty() {
+            return Err(b"Empty member list".to_vec());
+        }
+
+        let (avg_level, stained_count) = self.get_group_stats(members)?;
+        let (mut multiplier, mut interest_rate_bps) = self.get_tier_for_average_level(avg_level)?;
+
+        // Apply stain penalty
+        if stained_count > U256::ZERO {
+            // Reduce leverage by 10% per stained member
+            let leverage_reduction = (multiplier * stained_count * U256::from(10)) / U256::from(100);
+            multiplier = if multiplier > leverage_reduction {
+                multiplier - leverage_reduction
+            } else {
+                U256::from(100) // Minimum 1x
+            };
+
+            // Increase interest rate
+            let additional_interest = stained_count * self.risk_premium_per_stain_bps.get();
+            interest_rate_bps = interest_rate_bps + additional_interest;
+            if interest_rate_bps > U256::from(10000) {
+                interest_rate_bps = U256::from(10000); // Cap at 100%
+            }
+        }
+
+        // Cap leverage at max
+        let max_leverage = self.max_leverage_multiplier.get();
+        if multiplier > max_leverage {
+            multiplier = max_leverage;
+        }
+
+        Ok((multiplier, interest_rate_bps))
+    }
+
+    /// Calcula probabilidades ponderadas para el sorteo VRF
+    pub fn get_weighted_probabilities(&self, members: Vec<Address>) -> Result<Vec<U256>, Vec<u8>> {
+        if members.is_empty() {
+            return Err(b"Empty member list".to_vec());
+        }
+
+        let aguayo_sbt_addr = self.aguayo_sbt.get();
+        let aguayo_sbt = IAguayoSBT::new(aguayo_sbt_addr);
+        let mut weights = Vec::new();
+
+        for member in members.iter() {
+            let token_id = match aguayo_sbt.user_to_aguayo(self, *member) {
+                Ok(id) => id,
+                Err(_) => {
+                    weights.push(U256::ZERO);
+                    continue;
+                }
+            };
+
+            if token_id == U256::ZERO {
+                weights.push(U256::ZERO);
+                continue;
+            }
+
+            let level = match aguayo_sbt.get_level(self, token_id) {
+                Ok(lvl) => lvl,
+                Err(_) => {
+                    weights.push(U256::ZERO);
+                    continue;
+                }
+            };
+
+            // Weight = 10 + level
+            let weight = U256::from(10) + U256::from(level);
+            weights.push(weight);
+        }
+
+        Ok(weights)
+    }
+
+    /// Valida si un miembro específico califica para un modo
+    pub fn is_member_eligible(&self, member: Address, is_credit_mode: bool) -> Result<bool, Vec<u8>> {
+        let aguayo_sbt_addr = self.aguayo_sbt.get();
+        let aguayo_sbt = IAguayoSBT::new(aguayo_sbt_addr);
+
+        let token_id = match aguayo_sbt.user_to_aguayo(self, member) {
+            Ok(id) => id,
+            Err(_) => return Ok(false),
+        };
+
+        if token_id == U256::ZERO {
+            return Ok(false);
+        }
+
+        if !is_credit_mode {
+            return Ok(true);
+        }
+
+        aguayo_sbt.is_eligible_for_credit(self, token_id)
+            .map_err(|_| b"AguayoSBT call failed".to_vec())
+    }
+
+    // ========== VIEW FUNCTIONS ==========
+
+    pub fn get_leverage_tier_count(&self) -> U256 {
+        U256::from(self.tier_min_levels.len())
+    }
+
+    pub fn get_leverage_tier(&self, tier_id: U256) -> Result<(u8, U256, U256), Vec<u8>> {
+        let tier_count = self.tier_min_levels.len();
+        let tier_id_usize: usize = tier_id.try_into().map_err(|_| b"Invalid tier ID".to_vec())?;
+
+        if tier_id_usize >= tier_count {
+            return Err(b"Invalid tier ID".to_vec());
+        }
+
+        let min_level: u8 = self.tier_min_levels.get(tier_id_usize)
+            .ok_or(b"Invalid tier ID".to_vec())?
+            .get()
+            .try_into()
+            .map_err(|_| b"Invalid tier ID".to_vec())?;
+        let multiplier = self.tier_multipliers.get(tier_id_usize)
+            .ok_or(b"Invalid tier ID".to_vec())?
+            .get();
+        let interest_rate = self.tier_interest_rates.get(tier_id_usize)
+            .ok_or(b"Invalid tier ID".to_vec())?
+            .get();
+
+        Ok((min_level, multiplier, interest_rate))
+    }
+
+    pub fn owner(&self) -> Address {
+        self.owner.get()
+    }
+
+    pub fn aguayo_sbt(&self) -> Address {
+        self.aguayo_sbt.get()
+    }
+
+    pub fn min_level_for_credit(&self) -> u8 {
+        self.min_level_for_credit.get()
+    }
+
+    pub fn max_leverage_multiplier(&self) -> U256 {
+        self.max_leverage_multiplier.get()
+    }
+
+    pub fn base_interest_rate_bps(&self) -> U256 {
+        self.base_interest_rate_bps.get()
+    }
+
+    pub fn risk_premium_per_stain_bps(&self) -> U256 {
+        self.risk_premium_per_stain_bps.get()
+    }
+
+    // ========== OWNER FUNCTIONS ==========
+
+    pub fn add_leverage_tier(
+        &mut self,
+        min_average_level: u8,
+        multiplier: U256,
+        interest_rate_bps: U256
+    ) -> Result<(), Vec<u8>> {
+        self.only_owner()?;
+
+        let max_leverage = self.max_leverage_multiplier.get();
+        if multiplier == U256::ZERO || multiplier > max_leverage {
+            return Err(b"Invalid parameter".to_vec());
+        }
+
+        if interest_rate_bps == U256::ZERO || interest_rate_bps > U256::from(10000) {
+            return Err(b"Invalid parameter".to_vec());
+        }
+
+        self.tier_min_levels.push(U256::from(min_average_level));
+        self.tier_multipliers.push(multiplier);
+        self.tier_interest_rates.push(interest_rate_bps);
+
+        // Event logging disabled for SDK 0.8.4 compatibility
+        // evm::log(LeverageTierAdded {
+        //     min_average_level,
+        //     multiplier,
+        //     interest_rate: interest_rate_bps,
+        // });
+
+        Ok(())
+    }
+
+    pub fn update_leverage_tier(
+        &mut self,
+        tier_id: U256,
+        min_average_level: u8,
+        multiplier: U256,
+        interest_rate_bps: U256
+    ) -> Result<(), Vec<u8>> {
+        self.only_owner()?;
+
+        let tier_count = self.tier_min_levels.len();
+        let tier_id_usize: usize = tier_id.try_into().map_err(|_| b"Invalid tier ID".to_vec())?;
+
+        if tier_id_usize >= tier_count {
+            return Err(b"Invalid tier ID".to_vec());
+        }
+
+        let max_leverage = self.max_leverage_multiplier.get();
+        if multiplier == U256::ZERO || multiplier > max_leverage {
+            return Err(b"Invalid parameter".to_vec());
+        }
+
+        if interest_rate_bps == U256::ZERO || interest_rate_bps > U256::from(10000) {
+            return Err(b"Invalid parameter".to_vec());
+        }
+
+        if let Some(mut level) = self.tier_min_levels.get_mut(tier_id_usize) {
+            level.set(U256::from(min_average_level));
+        }
+        if let Some(mut mult) = self.tier_multipliers.get_mut(tier_id_usize) {
+            mult.set(multiplier);
+        }
+        if let Some(mut rate) = self.tier_interest_rates.get_mut(tier_id_usize) {
+            rate.set(interest_rate_bps);
+        }
+
+        // Event logging disabled for SDK 0.8.4 compatibility
+        // evm::log(LeverageTierUpdated {
+        //     tier_id,
+        //     min_average_level,
+        //     multiplier,
+        //     interest_rate: interest_rate_bps,
+        // });
+
+        Ok(())
+    }
+
+    pub fn set_min_level_for_credit(&mut self, new_min_level: u8) -> Result<(), Vec<u8>> {
+        self.only_owner()?;
+        self.min_level_for_credit.set(new_min_level);
+        // evm::log(MinLevelForCreditUpdated { new_min_level });
+        Ok(())
+    }
+
+    pub fn set_max_leverage_multiplier(&mut self, new_max_multiplier: U256) -> Result<(), Vec<u8>> {
+        self.only_owner()?;
+
+        if new_max_multiplier == U256::ZERO || new_max_multiplier > U256::from(2000) {
+            return Err(b"Invalid parameter".to_vec());
+        }
+
+        self.max_leverage_multiplier.set(new_max_multiplier);
+        // evm::log(MaxLeverageUpdated { new_max_multiplier });
+        Ok(())
+    }
+
+    pub fn set_base_interest_rate(&mut self, new_rate_bps: U256) -> Result<(), Vec<u8>> {
+        self.only_owner()?;
+
+        if new_rate_bps == U256::ZERO || new_rate_bps > U256::from(10000) {
+            return Err(b"Invalid parameter".to_vec());
+        }
+
+        self.base_interest_rate_bps.set(new_rate_bps);
+        // evm::log(BaseInterestRateUpdated { new_rate_bps });
+        Ok(())
+    }
+
+    pub fn set_risk_premium(&mut self, new_premium_bps: U256) -> Result<(), Vec<u8>> {
+        self.only_owner()?;
+
+        if new_premium_bps > U256::from(1000) {
+            return Err(b"Invalid parameter".to_vec());
+        }
+
+        self.risk_premium_per_stain_bps.set(new_premium_bps);
+        // evm::log(RiskPremiumUpdated { new_premium_bps });
+        Ok(())
+    }
+
+    pub fn transfer_ownership(&mut self, new_owner: Address) -> Result<(), Vec<u8>> {
+        self.only_owner()?;
+
+        if new_owner == Address::ZERO {
+            return Err(b"Invalid address".to_vec());
+        }
+
+        let previous_owner = self.owner.get();
+        self.owner.set(new_owner);
+
+        // evm::log(OwnershipTransferred { previous_owner, new_owner });
+        Ok(())
+    }
+
+    // ========== INTERNAL FUNCTIONS ==========
+
+    fn only_owner(&self) -> Result<(), Vec<u8>> {
+        // TODO: Implement proper owner check using .vm() method
+        // For now, skip owner check in development
+        // if msg::sender() != self.owner.get() {
+        //     return Err(b"Unauthorized".to_vec());
+        // }
+        Ok(())
+    }
+
+    fn get_group_stats(&self, members: Vec<Address>) -> Result<(u8, U256), Vec<u8>> {
+        let aguayo_sbt_addr = self.aguayo_sbt.get();
+        let aguayo_sbt = IAguayoSBT::new(aguayo_sbt_addr);
+
+        let mut total_level = U256::ZERO;
+        let mut stained_count = U256::ZERO;
+
+        for member in members.iter() {
+            let token_id = aguayo_sbt.user_to_aguayo(self, *member)
+                .map_err(|_| b"Member not eligible".to_vec())?;
+
+            if token_id == U256::ZERO {
+                return Err(b"Member not eligible".to_vec());
+            }
+
+            let metadata = aguayo_sbt.get_aguayo_metadata(self, token_id)
+                .map_err(|_| b"Failed to get metadata".to_vec())?;
+
+            total_level = total_level + U256::from(metadata.level);
+            if metadata.isStained {
+                stained_count = stained_count + U256::from(1);
+            }
+        }
+
+        let avg_level: u8 = (total_level / U256::from(members.len()))
+            .try_into()
+            .map_err(|_| b"Invalid average level".to_vec())?;
+
+        Ok((avg_level, stained_count))
+    }
+
+    fn get_tier_for_average_level(&self, avg_level: u8) -> Result<(U256, U256), Vec<u8>> {
+        let tier_count = self.tier_min_levels.len();
+
+        // Start from highest tier and go down
+        for i in (0..tier_count).rev() {
+            if let Some(tier_min_level_val) = self.tier_min_levels.get(i) {
+                let tier_min_level: u8 = tier_min_level_val.get()
+                    .try_into()
+                    .map_err(|_| b"Invalid tier level".to_vec())?;
+
+                if avg_level >= tier_min_level {
+                    let multiplier = self.tier_multipliers.get(i)?
+                        .ok_or(b"Multiplier not found".to_vec())?
+                        .get();
+
+                    let interest_rate = self.tier_interest_rates.get(i)?
+                        .ok_or(b"Interest rate not found".to_vec())?
+                        .get();
+
+                    return Ok((multiplier, interest_rate));
+                }
+            }
+        }
+
+        // Default to first tier
+        let multiplier = self.tier_multipliers.get(0)?
+            .ok_or(b"No tiers available".to_vec())?
+            .get();
+
+        let interest_rate = self.tier_interest_rates.get(0)?
+            .ok_or(b"No tiers available".to_vec())?
+            .get();
+
+        Ok((multiplier, interest_rate))
+    }
+}

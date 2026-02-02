@@ -88,7 +88,7 @@ contract KuyayVaultTest is BaseTest {
         assertGt(loanAmount, 0);
 
         _payCurrentRound(creditCircle, members);
-        _fulfillVRF(creditCircle);
+        _executeDraw(creditCircle, members);
 
         uint256 lp1BalanceAfterRepayment = vault.balanceOf(lp1);
         assertGe(lp1BalanceAfterRepayment, 50000 * 10**6);
@@ -113,7 +113,7 @@ contract KuyayVaultTest is BaseTest {
 
         for (uint256 i = 0; i < 3; i++) {
             _payCurrentRound(creditCircle, members);
-            _fulfillVRF(creditCircle);
+            _executeDraw(creditCircle, members);
         }
 
         uint256 finalBalance = vault.balanceOf(lp1);

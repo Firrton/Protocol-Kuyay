@@ -3,6 +3,11 @@ pragma solidity ^0.8.24;
 
 import "./BaseTest.sol";
 
+/**
+ * @title CircleTest
+ * @notice Tests para Circle.sol (Monad version)
+ * @dev Sin VRF - sorteos instantáneos con prevrandao
+ */
 contract CircleTest is BaseTest {
 
     Circle public circle;
@@ -38,23 +43,21 @@ contract CircleTest is BaseTest {
         assertEq(circle.currentPot(), DEFAULT_CUOTA);
     }
 
-    function test_FullRoundAndVRFDraw() public {
+    function test_FullRoundAndInstantDraw() public {
         _payCurrentRound(circle, members);
 
-        uint256 requestId = circle.pendingRequestId();
-        assertTrue(requestId != 0);
-
-        _fulfillVRF(circle);
+        // En Monad, el sorteo puede ser automático o manual
+        _executeDraw(circle, members);
 
         address winner = circle.roundWinners(1);
-        assertTrue(winner != address(0));
+        assertTrue(winner != address(0), "Winner should be selected");
         assertTrue(circle.hasWon(winner));
     }
 
     function test_CompleteCircle() public {
         for (uint256 round = 1; round <= 3; round++) {
             _payCurrentRound(circle, members);
-            _fulfillVRF(circle);
+            _executeDraw(circle, members);
         }
 
         assertEq(uint(circle.status()), uint(Circle.CircleStatus.COMPLETED));
@@ -128,13 +131,13 @@ contract CircleTest is BaseTest {
 
     function test_WinnersCannotWinTwice() public {
         _payCurrentRound(circle, members);
-        _fulfillVRF(circle);
+        _executeDraw(circle, members);
 
         address firstWinner = circle.roundWinners(1);
         assertTrue(circle.hasWon(firstWinner));
 
         _payCurrentRound(circle, members);
-        _fulfillVRF(circle);
+        _executeDraw(circle, members);
 
         address secondWinner = circle.roundWinners(2);
         assertTrue(firstWinner != secondWinner);
@@ -172,9 +175,35 @@ contract CircleTest is BaseTest {
         assertGt(initialDebt, 0);
 
         _payCurrentRound(creditCircle, creditMembers);
-        _fulfillVRF(creditCircle);
+        _executeDraw(creditCircle, creditMembers);
 
         uint256 debtAfterRound1 = vault.calculateTotalDebt(address(creditCircle));
         assertTrue(debtAfterRound1 < initialDebt);
+    }
+
+    // ========== MONAD-SPECIFIC TESTS ==========
+
+    function test_AgentCircleCreation() public {
+        // Los agentes ya están registrados en BaseTest.setUp()
+        assertTrue(factory.isRegisteredAgent(agent1));
+        assertTrue(factory.isRegisteredAgent(agent2));
+
+        // Crear círculo con agentes y humanos
+        address[] memory mixedMembers = new address[](3);
+        mixedMembers[0] = agent1;
+        mixedMembers[1] = agent2;
+        mixedMembers[2] = alice;
+
+        address[] memory agents = new address[](2);
+        agents[0] = agent1;
+        agents[1] = agent2;
+
+        Circle agentCircle = _createAgentCircle(mixedMembers, agents);
+
+        assertEq(uint(agentCircle.status()), uint(Circle.CircleStatus.DEPOSIT));
+        assertTrue(agentCircle.isAgent(agent1));
+        assertTrue(agentCircle.isAgent(agent2));
+        assertFalse(agentCircle.isAgent(alice));
+        assertEq(agentCircle.getAgentCount(), 2);
     }
 }

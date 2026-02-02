@@ -13,15 +13,17 @@ remappings = [
     "@chainlink/=lib/chainlink-brownie-contracts/"
 ]
 
-# EVM version (Paris for Arbitrum compatibility)
-evm_version = "paris"
+# EVM version (Cancun for Monad compatibility - prevrandao support)
+evm_version = "cancun"
 
-# Arbitrum Sepolia configuration
+# RPC endpoints
 [rpc_endpoints]
 arbitrum_sepolia = "https://sepolia-rollup.arbitrum.io/rpc"
+monad_testnet = "https://testnet-rpc.monad.xyz/"
 
 [etherscan]
 arbitrum_sepolia = { key = "${ARBISCAN_API_KEY}", url = "https://api-sepolia.arbiscan.io/api" }
+monad_testnet = { key = "${MONAD_EXPLORER_KEY}", url = "https://testnet.monadexplorer.com/api" }
 
 # Test configuration
 [fuzz]
@@ -30,4 +32,5 @@ runs = 256
 # File system permissions
 fs_permissions = [{ access = "read-write", path = "./deployments" }]
 
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+# Monad Testnet: Chain ID 10143, Currency: MON
+# Explorer: https://testnet.monadexplorer.com

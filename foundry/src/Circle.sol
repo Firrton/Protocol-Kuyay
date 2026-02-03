@@ -120,6 +120,7 @@ contract Circle is ReentrancyGuard {
     error CannotStartDraw();
     error InsufficientVaultLiquidity();
     error AlreadyCheckedIn();
+    error ZeroAddress();
 
     modifier onlyFactory() {
         if (msg.sender != factory) revert Unauthorized();
@@ -136,6 +137,12 @@ contract Circle is ReentrancyGuard {
         address _vault,
         address _riskOracle
     ) {
+        // Security: Zero address validation
+        if (_asset == address(0)) revert ZeroAddress();
+        if (_aguayoSBT == address(0)) revert ZeroAddress();
+        if (_vault == address(0)) revert ZeroAddress();
+        if (_riskOracle == address(0)) revert ZeroAddress();
+        
         if (_members.length < 2 || _members.length > 50) revert InvalidMemberCount();
         if (_guaranteeAmount == 0 || _cuotaAmount == 0) revert InvalidAmount();
 
@@ -152,7 +159,8 @@ contract Circle is ReentrancyGuard {
         currentRound = 0;
         createdAt = block.timestamp;
 
-        for (uint256 i = 0; i < _members.length; i++) {
+        uint256 memberCount = _members.length;
+        for (uint256 i = 0; i < memberCount; ++i) {
             address member = _members[i];
             if (isMember[member]) revert AlreadyMember();
 
@@ -277,16 +285,21 @@ contract Circle is ReentrancyGuard {
     }
 
     /// @notice Ejecuta sorteo instantáneo usando prevrandao (Monad/Cancun)
+    /// @dev Seguridad mejorada: usa blockhash del bloque anterior + prevrandao
     function _executeInstantDraw() internal {
-        // Generar semilla aleatoria usando prevrandao (EIP-4399)
-        // En Monad esto es seguro porque los validadores no pueden manipular fácilmente
+        // Generar semilla aleatoria usando múltiples fuentes de entropía
+        // - prevrandao (EIP-4399): proporcionado por consenso
+        // - blockhash: hash del bloque anterior (no manipulable después de minado)
+        // - datos del contrato: currentRound, currentPot, address(this)
+        // En Monad BFT esto es seguro porque validadores no pueden predecir fácilmente
         uint256 randomSeed = uint256(keccak256(abi.encodePacked(
             block.prevrandao,
+            blockhash(block.number - 1),  // Hash del bloque anterior
             block.timestamp,
-            block.number,
             currentRound,
-            msg.sender,
-            currentPot
+            address(this),  // Dirección del contrato en lugar de msg.sender
+            currentPot,
+            totalCollateral
         )));
 
         emit DrawExecuted(currentRound, randomSeed);
@@ -324,11 +337,12 @@ contract Circle is ReentrancyGuard {
     function getPresentMembers() external view returns (address[] memory) {
         address[] memory present = new address[](presentCount);
         uint256 index = 0;
+        uint256 len = members.length;
 
-        for (uint256 i = 0; i < members.length; i++) {
+        for (uint256 i = 0; i < len; ++i) {
             if (isMemberPresent[members[i]]) {
                 present[index] = members[i];
-                index++;
+                ++index;
             }
         }
 
@@ -369,19 +383,20 @@ contract Circle is ReentrancyGuard {
     }
 
     function _getEligibleMembers() internal view returns (address[] memory) {
+        uint256 len = members.length;
         uint256 eligibleCount = 0;
-        for (uint256 i = 0; i < members.length; i++) {
+        for (uint256 i = 0; i < len; ++i) {
             if (!hasWon[members[i]]) {
-                eligibleCount++;
+                ++eligibleCount;
             }
         }
 
         address[] memory eligible = new address[](eligibleCount);
         uint256 index = 0;
-        for (uint256 i = 0; i < members.length; i++) {
+        for (uint256 i = 0; i < len; ++i) {
             if (!hasWon[members[i]]) {
                 eligible[index] = members[i];
-                index++;
+                ++index;
             }
         }
 

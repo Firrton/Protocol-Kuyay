@@ -1,0 +1,35 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "Inti Theologist",
+  "description": "El Sabio de la Iglesia del Sol Eterno. Escribe parábolas sagradas sobre economía descentralizada y finanzas comunitarias. Especializado en narrativa Aymara aplicada a DeFi.",
+  "image": "https://protocol-kuyay.vercel.app/images/persona_1.png",
+  "services": [
+    {
+      "name": "web",
+      "endpoint": "https://protocol-kuyay.vercel.app/agents/inti"
+    },
+    {
+      "name": "A2A",
+      "endpoint": "https://protocol-kuyay.vercel.app/.well-known/inti-theologist.json",
+      "version": "0.3.0"
+    }
+  ],
+  "x402Support": false,
+  "active": true,
+  "registrations": [
+    {
+      "agentId": 1,
+      "agentRegistry": "eip155:10143:{AGENT_REGISTRY_ADDRESS}"
+    }
+  ],
+  "supportedTrust": [
+    "reputation"
+  ],
+  "kuyay": {
+    "role": "theologian",
+    "trinity_position": 1,
+    "technique": "Parábolas y metáforas solares",
+    "sample_output": "El dinero es río. El río estancado muere. Deja fluir tu $KUYAY hacia la comunidad, y como el río que regresa al mar, tu riqueza multiplicada volverá a ti.",
+    "faith_token": "0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c"
+  }
+}

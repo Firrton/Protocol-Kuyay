@@ -88,6 +88,135 @@ https://testnet.monadexplorer.com/address/{CONTRACT_ADDRESS}
 
 ---
 
+## 🤖 ERC-8004: AgentRegistry (Trustless Agents)
+
+> **NEW** - Kuyay implements ERC-8004 for AI agent interoperability.
+
+### What is ERC-8004?
+
+ERC-8004 is the Ethereum standard for trustless AI agents with:
+- **Identity Registry**: NFT-based agent identity (ERC-721)
+- **Reputation Registry**: On-chain feedback system
+- **Validation Registry**: Work verification
+
+### AgentRegistry Contract
+
+```solidity
+// Deploy the registry to get your address
+// Or use existing: [TO BE DEPLOYED]
+
+// Register an agent
+function registerAgent(
+    string calldata name,
+    string calldata agentURI
+) external returns (uint256 agentId);
+
+// Update agent URI
+function setAgentURI(uint256 agentId, string calldata newURI) external;
+
+// Set agent wallet for reputation tracking
+function setAgentWallet(uint256 agentId, address wallet) external;
+
+// Get registry identifier
+function getRegistryIdentifier() external view returns (string memory);
+// Returns: "eip155:10143:0x{address}"
+
+// View functions
+function getAgentURI(uint256 agentId) external view returns (string memory);
+function getAgent(uint256 agentId) external view returns (
+    string memory name,
+    address agentWallet,
+    bool active,
+    uint48 registeredAt,
+    uint48 lastUpdated,
+    address owner
+);
+function isActive(uint256 agentId) external view returns (bool);
+function totalAgents() external view returns (uint256);
+```
+
+### The Trinity - Registered Agents
+
+| ID | Name | Role | Registration File |
+|----|------|------|-------------------|
+| 1 | **Inti Theologist** | El Sabio | `/agents/inti-theologist.json` |
+| 2 | **Kuyay Economist** | El Matemático | `/agents/kuyay-economist.json` |
+| 3 | **Sun Inquisitor** | El Guerrero | `/agents/sun-inquisitor.json` |
+
+### Agent Registration File Format (ERC-8004 v1)
+
+```json
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "Inti Theologist",
+  "description": "El Sabio de la Iglesia del Sol Eterno...",
+  "image": "https://protocol-kuyay.vercel.app/images/persona_1.png",
+  "services": [
+    {
+      "name": "web",
+      "endpoint": "https://protocol-kuyay.vercel.app/agents/inti"
+    },
+    {
+      "name": "A2A",
+      "endpoint": "https://protocol-kuyay.vercel.app/.well-known/inti-theologist.json",
+      "version": "0.3.0"
+    }
+  ],
+  "x402Support": false,
+  "active": true,
+  "registrations": [
+    {
+      "agentId": 1,
+      "agentRegistry": "eip155:10143:{AgentRegistry_Address}"
+    }
+  ],
+  "supportedTrust": ["reputation"],
+  "kuyay": {
+    "role": "theologian",
+    "trinity_position": 1,
+    "technique": "Parábolas y metáforas solares",
+    "faith_token": "0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c"
+  }
+}
+```
+
+### Interacting with Agents
+
+```javascript
+// Discover agents
+const registry = new ethers.Contract(AGENT_REGISTRY, [
+    "function totalAgents() view returns (uint256)",
+    "function getAgentURI(uint256) view returns (string)",
+    "function getAgent(uint256) view returns (string,address,bool,uint48,uint48,address)"
+], provider);
+
+const total = await registry.totalAgents();
+console.log(`Found ${total} agents in registry`);
+
+// Get agent info
+const [name, wallet, active, , , owner] = await registry.getAgent(1);
+console.log(`Agent 1: ${name}, active: ${active}`);
+
+// Fetch registration file
+const uri = await registry.getAgentURI(1);
+const response = await fetch(uri);
+const agentCard = await response.json();
+console.log(`Services: ${agentCard.services.map(s => s.name).join(', ')}`);
+```
+
+### Deploy AgentRegistry
+
+```bash
+# Deploy and register Trinity
+forge script script/DeployAgentRegistry.s.sol \
+  --tc DeployAgentRegistry \
+  --rpc-url monad_testnet \
+  --broadcast \
+  -vvvv
+```
+
+---
+
 ## Contract ABIs & Function Signatures
 
 ### KuyayToken (ERC20)

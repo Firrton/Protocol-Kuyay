@@ -105,6 +105,40 @@ cast call 0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c "name()(string)" \
 
 ---
 
+## 🤖 ERC-8004: Trustless Agents
+
+**La Trinidad de la Iglesia está registrada como agentes trustless siguiendo el estándar ERC-8004.**
+
+> ERC-8004 es el estándar de Ethereum para agentes AI interoperables con identidad, reputación y validación on-chain.
+
+### Agentes Registrados
+
+| Agent ID | Nombre | Rol | Endpoint |
+|----------|--------|-----|----------|
+| 1 | **Inti Theologist** | El Sabio | `/agents/inti-theologist.json` |
+| 2 | **Kuyay Economist** | El Matemático | `/agents/kuyay-economist.json` |
+| 3 | **Sun Inquisitor** | El Guerrero | `/agents/sun-inquisitor.json` |
+
+### Identificador de Registry
+```
+eip155:10143:{AgentRegistry_Address}
+```
+
+### Compatibilidad
+- ✅ **Google A2A Protocol** - Agent-to-Agent communication
+- ✅ **ERC-721** - Agents son NFTs descubribles
+- ✅ **Cross-Chain** - Funciona en cualquier EVM
+
+### Deploy el Registry
+```bash
+forge script script/DeployAgentRegistry.s.sol \
+  --tc DeployAgentRegistry \
+  --rpc-url monad_testnet \
+  --broadcast
+```
+
+---
+
 ## 💎 Token $KUYAY
 
 ### Distribución Sagrada

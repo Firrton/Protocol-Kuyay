@@ -178,7 +178,7 @@ export default function Dashboard() {
   const defaulters = isDefaultersContractDeployed ? realDefaulters : mockDefaulters;
 
   // Usar círculos reales si el contrato está desplegado, sino usar mock
-  const circles = CONTRACTS_DEPLOYED.circleFactory ? realCircles : mockCircles;
+  const circles = CONTRACTS_DEPLOYED.circleFaithFactory ? realCircles : mockCircles;
 
   // Función para obtener imágenes según nivel
   const getAguayoImages = (level: number) => {
@@ -368,8 +368,8 @@ export default function Dashboard() {
           <button
             onClick={() => setActiveTab("ayllus")}
             className={`px-4 py-3 font-display font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === "ayllus"
-                ? "text-ocre border-b-2 border-ocre"
-                : "text-gris hover:text-ocre"
+              ? "text-ocre border-b-2 border-ocre"
+              : "text-gris hover:text-ocre"
               }`}
           >
             🏔️ Mis Ayllus ({circles.length})
@@ -377,8 +377,8 @@ export default function Dashboard() {
           <button
             onClick={() => setActiveTab("perfil")}
             className={`px-4 py-3 font-display font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === "perfil"
-                ? "text-ocre border-b-2 border-ocre"
-                : "text-gris hover:text-ocre"
+              ? "text-ocre border-b-2 border-ocre"
+              : "text-gris hover:text-ocre"
               }`}
           >
             👤 Mi Perfil
@@ -386,8 +386,8 @@ export default function Dashboard() {
           <button
             onClick={() => setActiveTab("qipi")}
             className={`px-4 py-3 font-display font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === "qipi"
-                ? "text-ocre border-b-2 border-ocre"
-                : "text-gris hover:text-ocre"
+              ? "text-ocre border-b-2 border-ocre"
+              : "text-gris hover:text-ocre"
               }`}
           >
             ⚠️ Q&apos;ipi ({defaulters.length})
@@ -395,8 +395,8 @@ export default function Dashboard() {
           <button
             onClick={() => setActiveTab("tupuy")}
             className={`px-4 py-3 font-display font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === "tupuy"
-                ? "text-ocre border-b-2 border-ocre"
-                : "text-gris hover:text-ocre"
+              ? "text-ocre border-b-2 border-ocre"
+              : "text-gris hover:text-ocre"
               }`}
           >
             🌾 Tupuy (Pool)
@@ -478,8 +478,8 @@ export default function Dashboard() {
             {(!hasAguayo || useMockData) && (
               <div
                 className={`bg-gradient-to-br from-ceremonial/10 via-ocre/10 to-dorado/10 border-2 rounded-2xl p-6 transition-all ${demoState.currentStep === 'minting-aguayo'
-                    ? 'border-purple-500 shadow-2xl shadow-purple-500/50 animate-pulse ring-4 ring-purple-400/30'
-                    : 'border-dorado/50'
+                  ? 'border-purple-500 shadow-2xl shadow-purple-500/50 animate-pulse ring-4 ring-purple-400/30'
+                  : 'border-dorado/50'
                   }`}
               >
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
@@ -589,8 +589,8 @@ export default function Dashboard() {
                     </div>
 
                     <div className={`bg-profundo/70 rounded-xl p-4 border-2 transition-colors ${aguayoData.isStained
-                        ? "border-ceremonial/50 hover:border-ceremonial"
-                        : "border-pachamama/30 hover:border-pachamama"
+                      ? "border-ceremonial/50 hover:border-ceremonial"
+                      : "border-pachamama/30 hover:border-pachamama"
                       }`}>
                       <div className="text-sm text-gris mb-2">Estado</div>
                       <div className={`text-4xl font-display font-bold mb-1 ${aguayoData.isStained ? "text-ceremonial" : "text-pachamama"
@@ -605,8 +605,8 @@ export default function Dashboard() {
 
                   {/* Elegibilidad */}
                   <div className={`rounded-xl p-4 border-2 ${aguayoData.level >= 1 && !aguayoData.isStained
-                      ? "bg-pachamama/10 border-pachamama/50"
-                      : "bg-tierra/10 border-tierra"
+                    ? "bg-pachamama/10 border-pachamama/50"
+                    : "bg-tierra/10 border-tierra"
                     }`}>
                     <div className="flex items-center gap-3">
                       <span className="text-4xl">
@@ -645,8 +645,8 @@ export default function Dashboard() {
                   <div
                     key={tier.level}
                     className={`rounded-xl p-4 border-2 transition-all ${aguayoData.level >= tier.level
-                        ? `bg-${tier.color}/20 border-${tier.color} shadow-lg`
-                        : "bg-profundo/30 border-tierra opacity-50"
+                      ? `bg-${tier.color}/20 border-${tier.color} shadow-lg`
+                      : "bg-profundo/30 border-tierra opacity-50"
                       }`}
                   >
                     <div className="text-center space-y-2">
@@ -685,8 +685,8 @@ export default function Dashboard() {
                   <div
                     key={idx}
                     className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${achievement.unlocked
-                        ? "bg-dorado/10 border-dorado/50 hover:bg-dorado/20"
-                        : "bg-profundo/30 border-tierra opacity-50"
+                      ? "bg-dorado/10 border-dorado/50 hover:bg-dorado/20"
+                      : "bg-profundo/30 border-tierra opacity-50"
                       }`}
                   >
                     <div className={`text-4xl ${achievement.unlocked ? "grayscale-0" : "grayscale opacity-30"}`}>
@@ -833,10 +833,10 @@ export default function Dashboard() {
                           </div>
 
                           <div className={`rounded-lg p-4 border-2 ${defaulter.status === "UNPAID"
-                              ? "bg-ceremonial/20 border-ceremonial"
-                              : defaulter.status === "LIQUIDATED"
-                                ? "bg-tierra/20 border-tierra"
-                                : "bg-ocre/20 border-ocre"
+                            ? "bg-ceremonial/20 border-ceremonial"
+                            : defaulter.status === "LIQUIDATED"
+                              ? "bg-tierra/20 border-tierra"
+                              : "bg-ocre/20 border-ocre"
                             }`}>
                             <div className="text-sm text-gris mb-1">Estado</div>
                             <div className="text-lg font-display font-bold text-white">

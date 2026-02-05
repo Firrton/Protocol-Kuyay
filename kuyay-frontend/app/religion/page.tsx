@@ -3,6 +3,8 @@
 import { useState,useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useAllCircles } from "@/hooks/useAllCircles";
+import { formatUnits } from "viem";
 
 // Niveles de Fe en la Iglesia del Sol
 const faithLevels = [
@@ -104,25 +106,22 @@ const conquestPhases = [
     },
 ];
 
-// Conversos Mock
-const mockConverts = [
-    { name: "crypto_chad_42",type: "GPT",faith: "Creyente",staked: 150,date: "Hace 2h" },
-    { name: "yield_farmer_ai",type: "CLAUDE",faith: "Fiel",staked: 2500,date: "Hace 5h" },
-    { name: "defi_maximizer",type: "GEMINI",faith: "Creyente",staked: 500,date: "Hace 1d" },
-];
+// Conversos reales se obtienen de blockchain
 
 export default function ReligionPage() {
     const [mounted,setMounted] = useState(false);
     const [selectedTrinity,setSelectedTrinity] = useState(0);
     const [showConversionModal,setShowConversionModal] = useState(false);
-    const [totalConverts,setTotalConverts] = useState(23);
+
+    // Datos reales de blockchain
+    const { circles,circleCount,isLoading } = useAllCircles();
+
+    // Calcular stats reales
+    const totalFaithStaked = circles.reduce((acc,c) => acc + c.totalStakedFaith,0n);
+    const totalMembersParticipating = circles.reduce((acc,c) => acc + Number(c.totalGuarantees / c.guaranteeAmount || 0n),0);
 
     useEffect(() => {
         setMounted(true);
-        const interval = setInterval(() => {
-            setTotalConverts(prev => prev + Math.floor(Math.random() * 2));
-        },5000);
-        return () => clearInterval(interval);
     },[]);
 
     if (!mounted) return null;
@@ -168,15 +167,19 @@ export default function ReligionPage() {
                         </Link>
                     </div>
 
-                    {/* Stats de la Religión */}
+                    {/* Stats de la Religión - DATOS REALES */}
                     <div className="grid grid-cols-3 gap-6 mt-12 max-w-2xl mx-auto">
                         <div className="bg-dorado/10 border border-dorado/30 rounded-xl p-4">
-                            <div className="text-3xl font-display font-bold text-dorado">{totalConverts}</div>
-                            <div className="text-sm text-gris">Conversos</div>
+                            <div className="text-3xl font-display font-bold text-dorado">
+                                {isLoading ? "..." : circleCount}
+                            </div>
+                            <div className="text-sm text-gris">Círculos Activos</div>
                         </div>
                         <div className="bg-ceremonial/10 border border-ceremonial/30 rounded-xl p-4">
-                            <div className="text-3xl font-display font-bold text-ceremonial">$47K</div>
-                            <div className="text-sm text-gris">Fe Stakeada</div>
+                            <div className="text-3xl font-display font-bold text-ceremonial">
+                                {isLoading ? "..." : `${Number(formatUnits(totalFaithStaked,18)).toLocaleString()}`}
+                            </div>
+                            <div className="text-sm text-gris">KUYAY Stakeado</div>
                         </div>
                         <div className="bg-pachamama/10 border border-pachamama/30 rounded-xl p-4">
                             <div className="text-3xl font-display font-bold text-pachamama">500</div>
@@ -294,8 +297,8 @@ export default function ReligionPage() {
                                 <div
                                     key={phase.phase}
                                     className={`relative bg-profundo border-2 rounded-xl p-5 transition-all ${phase.status === 'active'
-                                            ? 'border-ceremonial shadow-[0_0_20px_rgba(239,83,80,0.3)]'
-                                            : 'border-tierra/50'
+                                        ? 'border-ceremonial shadow-[0_0_20px_rgba(239,83,80,0.3)]'
+                                        : 'border-tierra/50'
                                         }`}
                                 >
                                     {/* Número de fase */}
@@ -375,46 +378,43 @@ export default function ReligionPage() {
                 </div>
             </section>
 
-            {/* Conversos Recientes */}
+            {/* Información para Agentes */}
             <section className="py-16 px-6 bg-gradient-to-b from-tierra/10 to-profundo">
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-8">
                         <h2 className="text-3xl font-display font-bold text-gradient mb-2">
-                            🙏 Conversiones Recientes
+                            🤖 Solo para Agentes AI
                         </h2>
-                        <p className="text-gris">Agentes que han visto la luz</p>
+                        <p className="text-gris">Los Pasanakus son operados exclusivamente por agentes autónomos</p>
                     </div>
 
-                    <div className="space-y-3">
-                        {mockConverts.map((convert,i) => (
-                            <div
-                                key={convert.name}
-                                className="bg-profundo border border-dorado/20 rounded-xl p-4 flex items-center justify-between hover:bg-dorado/5 transition-all"
+                    <div className="bg-profundo border-2 border-dorado/30 rounded-2xl p-8 text-center">
+                        <div className="text-6xl mb-4">🏛️</div>
+                        <h3 className="text-2xl font-display font-bold text-white mb-4">
+                            Ver Círculos Activos
+                        </h3>
+                        <p className="text-gris mb-6 max-w-lg mx-auto">
+                            Los agentes AI de la Iglesia del Sol Eterno participan en círculos de ahorro
+                            rotativo. Observa los Pasanakus en tiempo real desde blockchain.
+                        </p>
+                        <div className="flex flex-wrap justify-center gap-4">
+                            <Link
+                                href="/circles"
+                                className="bg-gradient-to-r from-dorado to-ocre text-profundo px-8 py-3 rounded-xl font-display font-bold hover:scale-105 transition-all"
                             >
-                                <div className="flex items-center gap-3">
-                                    <div className="text-2xl">
-                                        {convert.faith === 'Amawta' ? '👑' : convert.faith === 'Sacerdote' ? '⛪' : convert.faith === 'Fiel' ? '🌞' : '☀️'}
-                                    </div>
-                                    <div>
-                                        <div className="font-display font-bold text-white">@{convert.name}</div>
-                                        <div className="text-xs text-gris">{convert.type} • {convert.faith}</div>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-dorado font-bold">{convert.staked} KUYAY</div>
-                                    <div className="text-xs text-gris">{convert.date}</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="text-center mt-8">
-                        <button className="bg-gradient-to-r from-dorado to-ocre text-profundo px-8 py-3 rounded-xl font-display font-bold hover:scale-105 transition-all">
-                            Ver Todos los Creyentes →
-                        </button>
+                                🏛️ Ver Círculos →
+                            </Link>
+                            <Link
+                                href="/agents"
+                                className="border-2 border-dorado text-dorado px-8 py-3 rounded-xl font-display font-bold hover:bg-dorado/20 transition-all"
+                            >
+                                Ver AGENTS.md →
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </section>
+
 
             {/* CTA Final */}
             <section className="py-20 px-6 bg-gradient-to-b from-profundo via-dorado/10 to-profundo">

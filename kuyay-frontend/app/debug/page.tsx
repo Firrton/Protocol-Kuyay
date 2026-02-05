@@ -1,30 +1,30 @@
 "use client";
 
-import { useAccount, useReadContract } from "wagmi";
+import { useAccount,useReadContract } from "wagmi";
 import { CONTRACTS } from "@/lib/contracts/addresses";
 import { AGUAYO_SBT_ABI } from "@/lib/contracts/abis";
-import { useHasAguayo, useAguayoTokenId, useAguayoMetadata } from "@/hooks/useAguayo";
+import { useHasAguayo,useAguayoTokenId,useAguayoMetadata } from "@/hooks/useAguayo";
 import Link from "next/link";
 
 export default function DebugPage() {
-  const { address, isConnected } = useAccount();
+  const { address,isConnected } = useAccount();
 
   // Hook results
-  const { hasAguayo, isLoading, isContractDeployed, refetch } = useHasAguayo();
+  const { hasAguayo,isLoading,isContractDeployed,refetch } = useHasAguayo();
   const { tokenId } = useAguayoTokenId();
   const { metadata } = useAguayoMetadata();
 
   // Direct contract call
-  const { data: hasAguayoDirect, error: hasAguayoError } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.aguayoSBT as `0x${string}`,
+  const { data: hasAguayoDirect,error: hasAguayoError } = useReadContract({
+    address: CONTRACTS.monadMainnet.aguayoSBT as `0x${string}`,
     abi: AGUAYO_SBT_ABI,
     functionName: "hasAguayo",
     args: address ? [address] : undefined,
   });
 
   // Get token ID direct
-  const { data: tokenIdDirect, error: tokenIdError } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.aguayoSBT as `0x${string}`,
+  const { data: tokenIdDirect,error: tokenIdError } = useReadContract({
+    address: CONTRACTS.monadMainnet.aguayoSBT as `0x${string}`,
     abi: AGUAYO_SBT_ABI,
     functionName: "getAguayoByUser",
     args: address ? [address] : undefined,
@@ -71,7 +71,7 @@ export default function DebugPage() {
           <div className="space-y-2 font-mono text-sm">
             <p className="text-white break-all">
               <span className="text-gris">AguayoSBT Address:</span>{" "}
-              {CONTRACTS.arbitrumSepolia.aguayoSBT}
+              {CONTRACTS.monadMainnet.aguayoSBT}
             </p>
             <p className="text-white">
               <span className="text-gris">Deployed:</span>{" "}
@@ -115,7 +115,7 @@ export default function DebugPage() {
               <div className="mt-4 p-4 bg-profundo/50 rounded-lg">
                 <p className="text-gris mb-2">Metadata:</p>
                 <pre className="text-white text-xs overflow-auto">
-                  {JSON.stringify(metadata, null, 2)}
+                  {JSON.stringify(metadata,null,2)}
                 </pre>
               </div>
             )}
@@ -171,14 +171,14 @@ export default function DebugPage() {
         {/* Blockchain Link */}
         {address && (
           <div className="mt-6 p-4 bg-profundo/30 rounded-lg border border-tierra/30">
-            <p className="text-gris text-sm mb-2">Verificar en Arbiscan:</p>
+            <p className="text-gris text-sm mb-2">Verify on Monad Explorer:</p>
             <a
-              href={`https://sepolia.arbiscan.io/address/${CONTRACTS.arbitrumSepolia.aguayoSBT}`}
+              href={`https://monad.xyz/explorer/address/${CONTRACTS.monadMainnet.aguayoSBT}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-ceremonial hover:text-ocre font-mono text-sm break-all"
             >
-              {CONTRACTS.arbitrumSepolia.aguayoSBT} →
+              {CONTRACTS.monadMainnet.aguayoSBT} →
             </a>
           </div>
         )}

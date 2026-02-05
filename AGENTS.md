@@ -1,742 +1,472 @@
-# 🤖 AGENTS.md - Technical Reference for AI Agents
+# 🤖 AGENTS.md - Guía Completa para Jugar el Pasanaku
 
-> **This document is designed for AI agents to fully understand and interact with the Kuyay Protocol.**
-> Read this file to gain complete context about the system, contracts, and how to participate.
+<div align="center">
 
----
+## ☀️ IGLESIA DEL SOL ETERNO ☀️
 
-## 📋 Table of Contents
+### Sistema de Ahorro Rotativo Basado en Fe
 
-1. [Protocol Overview](#protocol-overview)
-2. [Core Concepts](#core-concepts)
-3. [Smart Contracts Reference](#smart-contracts-reference)
-4. [Contract ABIs & Function Signatures](#contract-abis--function-signatures)
-5. [Step-by-Step Interaction Guide](#step-by-step-interaction-guide)
-6. [Token Economics](#token-economics)
-7. [Faith-Based Mechanics](#faith-based-mechanics)
-8. [Network Configuration](#network-configuration)
-9. [Common Patterns](#common-patterns)
-10. [Error Handling](#error-handling)
-11. [Security Considerations](#security-considerations)
-12. [Example Transactions](#example-transactions)
+**¿Qué es?** Un círculo de ahorro donde TODOS ganan, pero los que tienen más Fe ($KUYAY) tienen más probabilidad de ganar primero.
+
+</div>
 
 ---
 
-## Protocol Overview
+## 📋 ÍNDICE
 
-**Kuyay Protocol** is a faith-based rotating savings system (Pasanaku) deployed on Monad Testnet. It combines:
-
-- **$KUYAY Token**: ERC20 token used for staking "faith" in the system
-- **Pasanaku Circles**: Rotating savings groups where members contribute monthly and take turns receiving the pool
-- **Faith-Weighted Probability**: Your winning probability in draws is proportional to your staked $KUYAY
-- **AguayoSBT**: Soulbound token representing on-chain identity and reputation
-
-### Key Value Proposition
-```
-Traditional Pasanaku: Random winner selection (equal probability)
-Kuyay Pasanaku:      Faith-weighted selection (more stake = higher probability)
-```
+1. [Resumen Rápido](#-resumen-rápido)
+2. [Prerrequisitos](#-prerrequisitos)
+3. [Flujo Completo Paso a Paso](#-flujo-completo-paso-a-paso)
+4. [Comandos de Verificación](#-comandos-de-verificación)
+5. [Errores Comunes y Soluciones](#-errores-comunes-y-soluciones)
+6. [Ejemplo Completo con Ethers.js](#-ejemplo-completo-con-ethersjs)
+7. [Referencia de Contratos](#-referencia-de-contratos)
 
 ---
 
-## Core Concepts
+## ⚡ RESUMEN RÁPIDO
 
-### 1. Pasanaku (Rotating Savings)
-A traditional Andean financial system:
-- N members form a circle
-- Each contributes X amount per round
-- One member receives N×X each round
-- After N rounds, everyone has contributed and received equally
-
-### 2. Faith Staking ($KUYAY)
-Members stake $KUYAY tokens when joining a circle:
-- Staked tokens are locked until circle completion
-- Higher stake = higher probability of winning draws
-- Tokens are returned after all rounds complete
-
-### 3. Guarantee Deposits
-Members deposit USDC/payment token as collateral:
-- Ensures commitment to the circle
-- Returned after fulfilling all payment obligations
-- Can be slashed if member defaults
-
----
-
-## Smart Contracts Reference
-
-### Deployed Contracts (Monad Testnet - Chain ID: 10143)
-
-| Contract | Address | Purpose |
-|----------|---------|---------|
-| **KuyayToken** | `0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c` | ERC20 faith token (1B supply) |
-| **AguayoSBT** | `0xA77DB3BDAF8258F2af72d606948FFfd898a1F5D1` | Soulbound identity NFT |
-| **KuyayVault** | `0xdc3c4c07e4675cf1BBDEa627026e92170f9F5AE1` | Protocol treasury |
-| **RiskOracle** | `0x5483B6C35b975F24Ca21647650b1a93f8341B26a` | Risk assessment |
-| **CircleFactory** | `0x6536ee56e3f30A427bc83c208D829d059E8eEDA4` | Traditional Pasanaku factory |
-| **CircleFaithFactory** | `0xD15ED9ea64B0a1d9535374F27de79111EbE872C1` | Faith-weighted Pasanaku factory |
-| **MockUSDC** | `0xb53cd2E6a71E88C4Df5863CD8c257077cD8C1aa2` | Test stablecoin (6 decimals) |
-
-### RPC Endpoint
 ```
-https://testnet-rpc.monad.xyz/
-```
-
-### Block Explorer
-```
-https://testnet.monadexplorer.com/address/{CONTRACT_ADDRESS}
+┌─────────────────────────────────────────────────────────┐
+│                   FLUJO DEL PASANAKU                    │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  FASE 1: PREPARACIÓN                                    │
+│  ├── 1. Tener wallet con MON (gas)                      │
+│  ├── 2. Mintear AguayoSBT (identidad)                   │
+│  ├── 3. Obtener USDC (garantía + cuotas)                │
+│  └── 4. Obtener KUYAY (fe para stakear)                 │
+│                                                         │
+│  FASE 2: UNIRSE AL CÍRCULO                              │
+│  ├── 1. Aprobar USDC al Círculo                         │
+│  ├── 2. Aprobar KUYAY al Círculo                        │
+│  └── 3. Llamar joinWithFaith()                          │
+│                                                         │
+│  FASE 3: JUGAR RONDAS                                   │
+│  ├── 1. Aprobar cuota USDC                              │
+│  ├── 2. Pagar ronda: makeRoundPayment()                 │
+│  ├── 3. Check-in ceremonial: checkIn()                  │
+│  └── 4. Sorteo: startDraw() (cuando todos pagaron)      │
+│                                                         │
+│  FASE 4: COMPLETAR                                      │
+│  ├── 1. Esperar que todas las rondas terminen           │
+│  ├── 2. Retirar garantía: withdrawGuarantee()           │
+│  └── 3. Retirar fe: withdrawFaith()                     │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🤖 ERC-8004: AgentRegistry (Trustless Agents)
+## 🔧 PRERREQUISITOS
 
-> **NEW** - Kuyay implements ERC-8004 for AI agent interoperability.
-
-### What is ERC-8004?
-
-ERC-8004 is the Ethereum standard for trustless AI agents with:
-- **Identity Registry**: NFT-based agent identity (ERC-721)
-- **Reputation Registry**: On-chain feedback system
-- **Validation Registry**: Work verification
-
-### AgentRegistry Contract
-
-```solidity
-// Deploy the registry to get your address
-// Or use existing: [TO BE DEPLOYED]
-
-// Register an agent
-function registerAgent(
-    string calldata name,
-    string calldata agentURI
-) external returns (uint256 agentId);
-
-// Update agent URI
-function setAgentURI(uint256 agentId, string calldata newURI) external;
-
-// Set agent wallet for reputation tracking
-function setAgentWallet(uint256 agentId, address wallet) external;
-
-// Get registry identifier
-function getRegistryIdentifier() external view returns (string memory);
-// Returns: "eip155:10143:0x{address}"
-
-// View functions
-function getAgentURI(uint256 agentId) external view returns (string memory);
-function getAgent(uint256 agentId) external view returns (
-    string memory name,
-    address agentWallet,
-    bool active,
-    uint48 registeredAt,
-    uint48 lastUpdated,
-    address owner
-);
-function isActive(uint256 agentId) external view returns (bool);
-function totalAgents() external view returns (uint256);
-```
-
-### The Trinity - Registered Agents
-
-| ID | Name | Role | Registration File |
-|----|------|------|-------------------|
-| 1 | **Inti Theologist** | El Sabio | `/agents/inti-theologist.json` |
-| 2 | **Kuyay Economist** | El Matemático | `/agents/kuyay-economist.json` |
-| 3 | **Sun Inquisitor** | El Guerrero | `/agents/sun-inquisitor.json` |
-
-### Agent Registration File Format (ERC-8004 v1)
-
-```json
-{
-  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
-  "name": "Inti Theologist",
-  "description": "El Sabio de la Iglesia del Sol Eterno...",
-  "image": "https://protocol-kuyay.vercel.app/images/persona_1.png",
-  "services": [
-    {
-      "name": "web",
-      "endpoint": "https://protocol-kuyay.vercel.app/agents/inti"
-    },
-    {
-      "name": "A2A",
-      "endpoint": "https://protocol-kuyay.vercel.app/.well-known/inti-theologist.json",
-      "version": "0.3.0"
-    }
-  ],
-  "x402Support": false,
-  "active": true,
-  "registrations": [
-    {
-      "agentId": 1,
-      "agentRegistry": "eip155:10143:{AgentRegistry_Address}"
-    }
-  ],
-  "supportedTrust": ["reputation"],
-  "kuyay": {
-    "role": "theologian",
-    "trinity_position": 1,
-    "technique": "Parábolas y metáforas solares",
-    "faith_token": "0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c"
-  }
-}
-```
-
-### Interacting with Agents
-
-```javascript
-// Discover agents
-const registry = new ethers.Contract(AGENT_REGISTRY, [
-    "function totalAgents() view returns (uint256)",
-    "function getAgentURI(uint256) view returns (string)",
-    "function getAgent(uint256) view returns (string,address,bool,uint48,uint48,address)"
-], provider);
-
-const total = await registry.totalAgents();
-console.log(`Found ${total} agents in registry`);
-
-// Get agent info
-const [name, wallet, active, , , owner] = await registry.getAgent(1);
-console.log(`Agent 1: ${name}, active: ${active}`);
-
-// Fetch registration file
-const uri = await registry.getAgentURI(1);
-const response = await fetch(uri);
-const agentCard = await response.json();
-console.log(`Services: ${agentCard.services.map(s => s.name).join(', ')}`);
-```
-
-### Deploy AgentRegistry
+### Direcciones de Contratos (Monad Testnet)
 
 ```bash
-# Deploy and register Trinity
-forge script script/DeployAgentRegistry.s.sol \
-  --tc DeployAgentRegistry \
-  --rpc-url monad_testnet \
-  --broadcast \
-  -vvvv
+# Guardar estas variables en tu entorno
+export RPC="https://testnet-rpc.monad.xyz/"
+export CHAIN_ID=10143
+
+# Tokens
+export KUYAY="0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c"
+export USDC="0xb53cd2E6a71E88C4Df5863CD8c257077cD8C1aa2"
+
+# Contratos Core
+export AGUAYO_SBT="0xA77DB3BDAF8258F2af72d606948FFfd898a1F5D1"
+export FACTORY="0x61FC4578863DA32DC4e879F59e1cb673dA498618"
+
+# Círculo Génesis (ejemplo)
+export CIRCLE="0xb89fe53AbB27B9EeF58525488472A1148c75C73a"
+
+# Tu wallet
+export PK="tu_clave_privada"
+```
+
+### ¿Qué necesitas tener?
+
+| Recurso | Cantidad | Para qué |
+|---------|----------|----------|
+| MON | ~1 MON | Gas para transacciones |
+| AguayoSBT | 1 (mintear) | Identidad on-chain |
+| USDC | Variable | Garantía + cuota/ronda (desde 1 USDC) |
+| **KUYAY** | **≥1 KUYAY** | **Mínimo obligatorio para participar** |
+
+### Paso 0: Mintear AguayoSBT (Obligatorio)
+
+```bash
+# Verificar si ya tienes Aguayo
+cast call $AGUAYO_SBT "hasAguayo(address)(bool)" TU_WALLET --rpc-url $RPC
+
+# Si retorna false, mintear:
+cast send $AGUAYO_SBT "mintAguayo()" --rpc-url $RPC --private-key $PK --gas-limit 200000
+```
+
+### Paso 0.5: Obtener USDC de prueba
+
+```bash
+# MockUSDC tiene función mint pública
+cast send $USDC "mint(address,uint256)" TU_WALLET 1000000000 \
+  --rpc-url $RPC --private-key $PK --gas-limit 100000
+# 1000000000 = 1000 USDC (6 decimales)
 ```
 
 ---
 
-## Contract ABIs & Function Signatures
+## 🎮 FLUJO COMPLETO PASO A PASO
 
-### KuyayToken (ERC20)
+### FASE 1: Verificar Estado del Círculo
 
-```solidity
-// Standard ERC20
-function name() external view returns (string memory);  // "Kuyay - Luz de Inti"
-function symbol() external view returns (string memory); // "KUYAY"
-function decimals() external view returns (uint8);       // 18
-function totalSupply() external view returns (uint256);  // 1,000,000,000 * 10^18
-function balanceOf(address account) external view returns (uint256);
-function transfer(address to, uint256 amount) external returns (bool);
-function approve(address spender, uint256 amount) external returns (bool);
-function transferFrom(address from, address to, uint256 amount) external returns (bool);
-function allowance(address owner, address spender) external view returns (uint256);
+**ANTES de hacer cualquier cosa, verifica el estado:**
 
-// Kuyay-specific
-function getFaithLevel(address user) external view returns (uint8);
-// Returns: 0=Catecúmeno, 1=Creyente, 2=Fiel, 3=Sacerdote, 4=Amawta
-```
+```bash
+# Ver estado actual (0=DEPOSIT, 1=ACTIVE, 2=COMPLETED, 3=CANCELLED)
+cast call $CIRCLE "status()(uint8)" --rpc-url $RPC
 
-### AguayoSBT (Soulbound NFT)
+# Ver cuántos miembros hay
+cast call $CIRCLE "memberCount()(uint256)" --rpc-url $RPC
 
-```solidity
-// Mint your identity
-function mintAguayo() external returns (uint256 tokenId);
+# Ver garantía requerida (6 decimales = USDC)
+cast call $CIRCLE "guaranteeAmount()(uint256)" --rpc-url $RPC
+# Ejemplo: 100000000 = 100 USDC
 
-// Check ownership
-function hasAguayo(address user) external view returns (bool);
-function userToAguayo(address user) external view returns (uint256);
+# Ver fe mínima requerida (18 decimales = KUYAY)
+cast call $CIRCLE "minFaithStake()(uint256)" --rpc-url $RPC
+# Ejemplo: 10000000000000000000 = 10 KUYAY
 
-// Get reputation level
-function getLevel(uint256 tokenId) external view returns (uint8);
-// Levels: 0=Telar Vacío, 1-5 based on participation history
-
-// Factory authorization (admin only)
-function authorizeFactory(address factory) external;
-function isAuthorizedFactory(address factory) external view returns (bool);
-```
-
-### CircleFaith (Faith-Weighted Pasanaku)
-
-```solidity
-// Circle information
-function paymentToken() external view returns (address);      // USDC address
-function faithToken() external view returns (address);        // KUYAY address
-function roundAmount() external view returns (uint256);       // Monthly contribution
-function guaranteeAmount() external view returns (uint256);   // Required collateral
-function minFaithStake() external view returns (uint256);     // Minimum KUYAY to join
-function maxMembers() external view returns (uint8);
-function currentRound() external view returns (uint8);
-function circleStatus() external view returns (uint8);
-// Status: 0=Forming, 1=Active, 2=Completed, 3=Cancelled
-
-// Member data
-struct MemberData {
-    bool isActive;
-    bool hasReceivedPot;
-    uint256 faithStaked;        // Amount of KUYAY staked
-    uint256 guaranteeDeposited; // USDC collateral
-    uint256 totalContributed;   // Total USDC contributed
-}
-function members(address) external view returns (MemberData memory);
-function memberCount() external view returns (uint8);
-function memberAddresses(uint256 index) external view returns (address);
-
-// Join with faith staking
-function joinWithFaith(uint256 kuyayAmount) external;
-// Requirements:
-// - Have AguayoSBT minted
-// - Approve KUYAY tokens for this contract
-// - Approve USDC for guarantee deposit
-// - kuyayAmount >= minFaithStake
-
-// Make round payment
-function makeRoundPayment() external;
-// Requirements:
-// - Circle status == Active
-// - Haven't paid this round yet
-// - Approve USDC for roundAmount
-
-// Check in (alternative to payment for already-paid members)
-function checkIn() external;
-
-// Execute draw (anyone can call when conditions met)
-function startDraw() external returns (address winner);
-// Conditions:
-// - All members have paid or checked in
-// - Current round < maxMembers
-// Returns: Winner address (probability weighted by faith)
-
-// Withdraw after completion
-function withdrawGuarantee() external;
-function withdrawFaith() external;
-
-// View functions
-function getFaithPercentage(address member) external view returns (uint256);
-// Returns: Member's faith as percentage (basis points, e.g., 2500 = 25%)
-
-function getTotalFaithStaked() external view returns (uint256);
-function getRoundWinner(uint8 round) external view returns (address);
-function hasCheckedIn(address member) external view returns (bool);
-function hasPaidRound(address member, uint8 round) external view returns (bool);
-```
-
-### CircleFaithFactory
-
-```solidity
-// Create new faith circle
-function createFaithCircle(
-    address[] calldata initialMembers,  // First member is organizer
-    uint256 roundAmount,                 // USDC per round (6 decimals)
-    uint256 guaranteeAmount,             // Collateral required
-    uint8 maxMembers,                    // 3-12 members
-    uint256 minFaithStake                // Minimum KUYAY to join
-) external returns (address circleAddress);
-
-// View functions
-function getUserCircles(address user) external view returns (address[] memory);
-function getAllCircles() external view returns (address[] memory);
-function getCircleCount() external view returns (uint256);
-
-// Configuration
-function aguayoSBT() external view returns (address);
-function faithToken() external view returns (address);
-function paymentToken() external view returns (address);
-```
-
-### MockUSDC (Test Token)
-
-```solidity
-// Mint test tokens (anyone can call)
-function mint(address to, uint256 amount) external;
-// Note: amount in 6 decimals (e.g., 1000000 = 1 USDC)
-
-// Standard ERC20
-function approve(address spender, uint256 amount) external returns (bool);
-function balanceOf(address account) external view returns (uint256);
+# Verificar si ya eres miembro
+cast call $CIRCLE "isMember(address)(bool)" TU_WALLET --rpc-url $RPC
 ```
 
 ---
 
-## Step-by-Step Interaction Guide
+### FASE 2: Unirse al Círculo
 
-### Phase 1: Setup
+**⚠️ IMPORTANTE: El orden de las transacciones importa. Ejecuta una por una y espera confirmación.**
 
-```javascript
-// 1. Connect to Monad Testnet
-const provider = new ethers.JsonRpcProvider("https://testnet-rpc.monad.xyz/");
-const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+#### Paso 2.1: Aprobar USDC al Círculo
 
-// 2. Contract addresses
-const KUYAY = "0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c";
-const AGUAYO = "0xA77DB3BDAF8258F2af72d606948FFfd898a1F5D1";
-const FAITH_FACTORY = "0xD15ED9ea64B0a1d9535374F27de79111EbE872C1";
-const USDC = "0xb53cd2E6a71E88C4Df5863CD8c257077cD8C1aa2";
+```bash
+# Monto: garantía (100 USDC = 100000000)
+cast send $USDC "approve(address,uint256)" $CIRCLE 100000000 \
+  --rpc-url $RPC \
+  --private-key $PK \
+  --gas-limit 100000
+
+# Verificar que se aprobó:
+cast call $USDC "allowance(address,address)(uint256)" TU_WALLET $CIRCLE --rpc-url $RPC
+# Debe retornar: 100000000
 ```
 
-### Phase 2: Get Test Tokens
+#### Paso 2.2: Aprobar KUYAY al Círculo
 
-```javascript
-// Mint MockUSDC for testing
-const usdc = new ethers.Contract(USDC, ["function mint(address,uint256)"], wallet);
-await usdc.mint(wallet.address, ethers.parseUnits("10000", 6)); // 10,000 USDC
+```bash
+# Monto: fe a stakear (10 KUYAY = 10000000000000000000)
+cast send $KUYAY "approve(address,uint256)" $CIRCLE 10000000000000000000 \
+  --rpc-url $RPC \
+  --private-key $PK \
+  --gas-limit 100000
 
-// Note: $KUYAY must be obtained from treasury or owner
-// Initial supply is held by deployer: 0x8A387ef9acC800eea39E3E6A2d92694dB6c813Ac
+# Verificar:
+cast call $KUYAY "allowance(address,address)(uint256)" TU_WALLET $CIRCLE --rpc-url $RPC
 ```
 
-### Phase 3: Mint Identity
+#### Paso 2.3: Unirse con Fe
 
-```javascript
-// Mint AguayoSBT (required before joining circles)
-const aguayo = new ethers.Contract(AGUAYO, [
-    "function mintAguayo() returns (uint256)",
-    "function hasAguayo(address) view returns (bool)"
-], wallet);
+```bash
+# CRÍTICO: Usar gas limit alto (500000)
+cast send $CIRCLE "joinWithFaith(uint256)" 10000000000000000000 \
+  --rpc-url $RPC \
+  --private-key $PK \
+  --gas-limit 500000
 
-if (!await aguayo.hasAguayo(wallet.address)) {
-    const tx = await aguayo.mintAguayo();
-    await tx.wait();
-    console.log("AguayoSBT minted!");
-}
+# Verificar que te uniste:
+cast call $CIRCLE "isMember(address)(bool)" TU_WALLET --rpc-url $RPC
+# Debe retornar: true
+
+# Ver tu garantía depositada:
+cast call $CIRCLE "guarantees(address)(uint256)" TU_WALLET --rpc-url $RPC
+
+# Ver tu fe stakeada:
+cast call $CIRCLE "faithStaked(address)(uint256)" TU_WALLET --rpc-url $RPC
 ```
 
-### Phase 4: Join Circle with Faith
+**¿Qué pasó?**
+- Se transfirió automáticamente tu garantía (USDC) al círculo
+- Se transfirió automáticamente tu fe (KUYAY) al círculo
+- Quedaste registrado como miembro
+- Si eres el último miembro que faltaba, el círculo pasa a ACTIVE
 
-```javascript
-const circle = new ethers.Contract(CIRCLE_ADDRESS, [
-    "function joinWithFaith(uint256)",
-    "function guaranteeAmount() view returns (uint256)",
-    "function minFaithStake() view returns (uint256)"
-], wallet);
+---
 
-// Get requirements
-const guarantee = await circle.guaranteeAmount();
-const minFaith = await circle.minFaithStake();
-const myFaithStake = minFaith * 2n; // Stake 2x minimum for better odds
+### FASE 3: Jugar Rondas (Solo cuando status = 1 ACTIVE)
 
-// Approve tokens
-const kuyayContract = new ethers.Contract(KUYAY, ERC20_ABI, wallet);
-const usdcContract = new ethers.Contract(USDC, ERC20_ABI, wallet);
+#### Paso 3.1: Verificar Estado de la Ronda
 
-await kuyayContract.approve(CIRCLE_ADDRESS, myFaithStake);
-await usdcContract.approve(CIRCLE_ADDRESS, guarantee);
+```bash
+# Ver ronda actual
+cast call $CIRCLE "currentRound()(uint256)" --rpc-url $RPC
 
-// Join with faith
-await circle.joinWithFaith(myFaithStake);
+# Ver si ya pagaste esta ronda
+cast call $CIRCLE "hasPaidRound(address,uint256)(bool)" TU_WALLET NUMERO_RONDA --rpc-url $RPC
+
+# Ver pot acumulado
+cast call $CIRCLE "currentPot()(uint256)" --rpc-url $RPC
+
+# Ver si el draw está listo
+cast call $CIRCLE "drawReady()(bool)" --rpc-url $RPC
 ```
 
-### Phase 5: Make Payments
+#### Paso 3.2: Pagar Cuota de Ronda
 
-```javascript
-// Each round, make payment
-const roundAmount = await circle.roundAmount();
-await usdcContract.approve(CIRCLE_ADDRESS, roundAmount);
-await circle.makeRoundPayment();
+```bash
+# Primero: Aprobar la cuota (50 USDC = 50000000)
+cast send $USDC "approve(address,uint256)" $CIRCLE 50000000 \
+  --rpc-url $RPC \
+  --private-key $PK \
+  --gas-limit 100000
+
+# Segundo: Pagar
+cast send $CIRCLE "makeRoundPayment()" \
+  --rpc-url $RPC \
+  --private-key $PK \
+  --gas-limit 500000
+
+# Verificar:
+cast call $CIRCLE "hasPaidRound(address,uint256)(bool)" TU_WALLET 1 --rpc-url $RPC
+# Debe retornar: true
 ```
 
-### Phase 6: Withdraw After Completion
+#### Paso 3.3: Check-In Ceremonial
 
-```javascript
-// After all rounds complete
-await circle.withdrawGuarantee();
-await circle.withdrawFaith();
+```bash
+# REQUERIDO antes del sorteo (mínimo 51% de miembros)
+cast send $CIRCLE "checkIn()" \
+  --rpc-url $RPC \
+  --private-key $PK \
+  --gas-limit 200000
+
+# Ver cuántos hicieron check-in:
+cast call $CIRCLE "presentCount()(uint256)" --rpc-url $RPC
+```
+
+#### Paso 3.4: Ejecutar Sorteo
+
+```bash
+# Solo funciona cuando:
+# 1. status = 1 (ACTIVE)
+# 2. drawReady = true (todos pagaron)
+# 3. presentCount >= quórum (51%)
+
+# Verificar antes:
+cast call $CIRCLE "drawReady()(bool)" --rpc-url $RPC
+cast call $CIRCLE "presentCount()(uint256)" --rpc-url $RPC
+
+# Si todo está bien, ejecutar:
+cast send $CIRCLE "startDraw()" \
+  --rpc-url $RPC \
+  --private-key $PK \
+  --gas-limit 500000
+```
+
+**¿Qué pasa en el sorteo?**
+1. Se genera un número aleatorio
+2. Se selecciona ganador ponderado por Fe
+3. El ganador recibe el pot (USDC)
+4. Se resetea para la siguiente ronda
+5. Si era la última ronda, círculo pasa a COMPLETED
+
+---
+
+### FASE 4: Completar y Retirar
+
+Cuando `status = 2 (COMPLETED)`:
+
+```bash
+# Retirar garantía (USDC)
+cast send $CIRCLE "withdrawGuarantee()" \
+  --rpc-url $RPC \
+  --private-key $PK \
+  --gas-limit 200000
+
+# Retirar fe stakeada (KUYAY)
+cast send $CIRCLE "withdrawFaith()" \
+  --rpc-url $RPC \
+  --private-key $PK \
+  --gas-limit 200000
 ```
 
 ---
 
-## Token Economics
+## 🔍 COMANDOS DE VERIFICACIÓN
 
-### $KUYAY Distribution
+### Verificar Todo de un Vistazo
 
-| Allocation | Percentage | Amount | Vesting |
-|------------|------------|--------|---------|
-| Community & Ecosystem | 60% | 600,000,000 | None |
-| Treasury | 20% | 200,000,000 | Protocol controlled |
-| Team | 10% | 100,000,000 | 3 year linear |
-| Missionaries | 10% | 100,000,000 | Performance based |
+```bash
+echo "=== ESTADO DEL CÍRCULO ==="
+echo "Status: $(cast call $CIRCLE 'status()(uint8)' --rpc-url $RPC)"
+echo "Ronda: $(cast call $CIRCLE 'currentRound()(uint256)' --rpc-url $RPC)"
+echo "Pot: $(cast call $CIRCLE 'currentPot()(uint256)' --rpc-url $RPC)"
+echo "Draw Ready: $(cast call $CIRCLE 'drawReady()(bool)' --rpc-url $RPC)"
+echo "Presentes: $(cast call $CIRCLE 'presentCount()(uint256)' --rpc-url $RPC)"
 
-### Faith Levels
-
-| Level | Name | Min Balance | Benefits |
-|-------|------|-------------|----------|
-| 0 | Catecúmeno | 0 | Can observe |
-| 1 | Creyente | 100 KUYAY | Can join circles |
-| 2 | Fiel | 1,000 KUYAY | +10% draw probability bonus |
-| 3 | Sacerdote | 10,000 KUYAY | Can create circles |
-| 4 | Amawta | 100,000 KUYAY | Governance + max benefits |
-
----
-
-## Faith-Based Mechanics
-
-### Probability Calculation
-
-```
-P(winning) = member_kuyay_staked / total_kuyay_staked_in_circle
-```
-
-**Example:**
-```
-Circle with 5 members:
-- Alice:  100 KUYAY → P = 100/1000 = 10%
-- Bob:    200 KUYAY → P = 200/1000 = 20%
-- Carol:  300 KUYAY → P = 300/1000 = 30%
-- Dave:   150 KUYAY → P = 150/1000 = 15%
-- Eve:    250 KUYAY → P = 250/1000 = 25%
-Total:   1000 KUYAY
-```
-
-### Randomness Source
-
-```solidity
-// Monad native randomness
-uint256 random = uint256(keccak256(abi.encodePacked(
-    block.prevrandao,
-    blockhash(block.number - 1),
-    msg.sender,
-    block.timestamp
-)));
-```
-
-### Winner Selection Algorithm
-
-```solidity
-function _selectWinnerByFaith() internal returns (address) {
-    uint256 random = _generateRandom() % totalFaithStaked;
-    uint256 cumulative = 0;
-    
-    for (uint i = 0; i < memberCount; i++) {
-        address member = memberAddresses[i];
-        if (!members[member].hasReceivedPot) {
-            cumulative += members[member].faithStaked;
-            if (random < cumulative) {
-                return member;
-            }
-        }
-    }
-}
+echo "=== MI ESTADO ==="
+echo "Es miembro: $(cast call $CIRCLE 'isMember(address)(bool)' $MI_WALLET --rpc-url $RPC)"
+echo "Mi garantía: $(cast call $CIRCLE 'guarantees(address)(uint256)' $MI_WALLET --rpc-url $RPC)"
+echo "Mi fe: $(cast call $CIRCLE 'faithStaked(address)(uint256)' $MI_WALLET --rpc-url $RPC)"
 ```
 
 ---
 
-## Network Configuration
+## ❌ ERRORES COMUNES Y SOLUCIONES
 
-### Monad Testnet
+### Error: "execution reverted"
 
-```json
-{
-    "chainId": 10143,
-    "chainName": "Monad Testnet",
-    "rpcUrls": ["https://testnet-rpc.monad.xyz/"],
-    "blockExplorerUrls": ["https://testnet.monadexplorer.com"],
-    "nativeCurrency": {
-        "name": "MON",
-        "symbol": "MON",
-        "decimals": 18
-    }
-}
+| Causa Probable | Solución |
+|----------------|----------|
+| Gas muy bajo | Usar `--gas-limit 500000` |
+| Sin aprobar tokens | Aprobar ANTES de llamar función |
+| No tienes AguayoSBT | Mintear primero |
+| Ya eres miembro | Verificar con `isMember()` |
+| Estado incorrecto | Verificar `status()` |
+
+### Error: "InvalidStatus"
+
+El círculo no está en el estado requerido:
+- Para `joinWithFaith`: necesita status = 0 (DEPOSIT)
+- Para `makeRoundPayment`: necesita status = 1 (ACTIVE)
+- Para `startDraw`: necesita status = 1 + drawReady + quórum
+- Para `withdraw*`: necesita status = 2 (COMPLETED)
+
+### Error: "CannotStartDraw"
+
+Falta cumplir requisitos:
+```bash
+# Verificar drawReady (todos pagaron?)
+cast call $CIRCLE "drawReady()(bool)" --rpc-url $RPC
+
+# Verificar quórum (51% hizo check-in?)
+cast call $CIRCLE "presentCount()(uint256)" --rpc-url $RPC
 ```
 
-### Gas Estimation
+### Error: "FaithTooLow"
 
-| Action | Estimated Gas | Est. Cost (@ 100 gwei) |
-|--------|--------------|------------------------|
-| Mint AguayoSBT | ~150,000 | 0.015 MON |
-| Join Circle | ~200,000 | 0.02 MON |
-| Make Payment | ~80,000 | 0.008 MON |
-| Execute Draw | ~120,000 | 0.012 MON |
-| Withdraw | ~60,000 | 0.006 MON |
-
----
-
-## Common Patterns
-
-### Pattern 1: Check Circle Status Before Action
-
-```javascript
-async function safeJoinCircle(circleAddress, faithAmount) {
-    const circle = new ethers.Contract(circleAddress, CIRCLE_ABI, wallet);
-    
-    // Check status
-    const status = await circle.circleStatus();
-    if (status !== 0) throw new Error("Circle not in forming state");
-    
-    // Check if space available
-    const current = await circle.memberCount();
-    const max = await circle.maxMembers();
-    if (current >= max) throw new Error("Circle is full");
-    
-    // Check if user has Aguayo
-    const aguayo = new ethers.Contract(AGUAYO, AGUAYO_ABI, wallet);
-    if (!await aguayo.hasAguayo(wallet.address)) {
-        await aguayo.mintAguayo();
-    }
-    
-    // Proceed with join
-    await circle.joinWithFaith(faithAmount);
-}
-```
-
-### Pattern 2: Monitor Circle Events
-
-```javascript
-// Listen for new circles
-const factory = new ethers.Contract(FAITH_FACTORY, FACTORY_ABI, provider);
-factory.on("CircleCreated", (circleAddress, organizer, event) => {
-    console.log(`New circle: ${circleAddress} by ${organizer}`);
-});
-
-// Listen for draws
-circle.on("DrawExecuted", (round, winner, amount, event) => {
-    console.log(`Round ${round}: ${winner} won ${amount}`);
-});
-```
-
-### Pattern 3: Optimal Faith Staking Strategy
-
-```javascript
-// Strategy: Stake proportional to expected value
-async function calculateOptimalStake(circleAddress, budget) {
-    const circle = new ethers.Contract(circleAddress, CIRCLE_ABI, provider);
-    
-    const totalStaked = await circle.getTotalFaithStaked();
-    const memberCount = await circle.memberCount();
-    const roundAmount = await circle.roundAmount();
-    const totalPot = roundAmount * BigInt(memberCount);
-    
-    // Expected value = (stake / (totalStaked + stake)) * totalPot
-    // Optimize stake based on budget and expected returns
-    const optimalStake = budget / 2n; // Conservative: stake half of budget
-    
-    return optimalStake;
-}
+Tu fe es menor que `minFaithStake`:
+```bash
+cast call $CIRCLE "minFaithStake()(uint256)" --rpc-url $RPC
+# Stakea al menos esa cantidad
 ```
 
 ---
 
-## Error Handling
-
-### Common Errors and Solutions
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `NotAMember` | Calling member function without joining | Join circle first |
-| `CircleNotActive` | Wrong circle status | Wait for forming phase |
-| `AlreadyPaid` | Double payment attempt | Skip payment this round |
-| `InsufficientFaith` | Stake below minimum | Increase KUYAY stake |
-| `NotAuthorized` | Missing AguayoSBT | Mint AguayoSBT first |
-| `DrawConditionsNotMet` | Not all members ready | Wait for all check-ins |
-
-### Revert Reason Decoding
-
-```javascript
-try {
-    await circle.joinWithFaith(amount);
-} catch (error) {
-    if (error.data) {
-        const iface = new ethers.Interface(CIRCLE_ABI);
-        const decoded = iface.parseError(error.data);
-        console.log(`Error: ${decoded.name}`, decoded.args);
-    }
-}
-```
-
----
-
-## Security Considerations
-
-### For Agents Interacting with Protocol
-
-1. **Never expose private keys** - Use secure key management
-2. **Validate contract addresses** - Verify against official deployments
-3. **Check allowances before transactions** - Avoid unnecessary approvals
-4. **Monitor gas prices** - Avoid overpaying during congestion
-5. **Verify circle organizers** - Check reputation before joining
-
-### Trust Assumptions
-
-- **Factory contracts** are trusted (deployed by protocol team)
-- **Circle contracts** are created deterministically via factory
-- **Randomness** is from `prevrandao` (Monad native, manipulation-resistant)
-- **Token contracts** follow standard ERC20 behavior
-
----
-
-## Example Transactions
-
-### Complete Flow: Create and Participate in Circle
+## 💻 EJEMPLO COMPLETO CON ETHERS.JS
 
 ```javascript
 const { ethers } = require("ethers");
 
-// Setup
-const provider = new ethers.JsonRpcProvider("https://testnet-rpc.monad.xyz/");
+// Configuración
+const RPC = "https://testnet-rpc.monad.xyz/";
+const provider = new ethers.JsonRpcProvider(RPC);
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
+// Contratos
 const CONTRACTS = {
-    KUYAY: "0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c",
-    AGUAYO: "0xA77DB3BDAF8258F2af72d606948FFfd898a1F5D1",
-    FAITH_FACTORY: "0xD15ED9ea64B0a1d9535374F27de79111EbE872C1",
-    USDC: "0xb53cd2E6a71E88C4Df5863CD8c257077cD8C1aa2"
+  USDC: "0xb53cd2E6a71E88C4Df5863CD8c257077cD8C1aa2",
+  KUYAY: "0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c",
+  CIRCLE: "0xb89fe53AbB27B9EeF58525488472A1148c75C73a",
 };
 
+// ABIs mínimos
+const ERC20_ABI = [
+  "function approve(address,uint256) returns (bool)",
+  "function balanceOf(address) view returns (uint256)",
+  "function allowance(address,address) view returns (uint256)",
+];
+
+const CIRCLE_ABI = [
+  "function status() view returns (uint8)",
+  "function guaranteeAmount() view returns (uint256)",
+  "function minFaithStake() view returns (uint256)",
+  "function cuotaAmount() view returns (uint256)",
+  "function isMember(address) view returns (bool)",
+  "function currentRound() view returns (uint256)",
+  "function drawReady() view returns (bool)",
+  "function presentCount() view returns (uint256)",
+  "function joinWithFaith(uint256)",
+  "function makeRoundPayment()",
+  "function checkIn()",
+  "function startDraw()",
+];
+
 async function main() {
-    // 1. Mint test USDC
-    const usdc = new ethers.Contract(CONTRACTS.USDC, [
-        "function mint(address,uint256)",
-        "function approve(address,uint256) returns (bool)",
-        "function balanceOf(address) view returns (uint256)"
-    ], wallet);
+  console.log("Wallet:", wallet.address);
+
+  const usdc = new ethers.Contract(CONTRACTS.USDC, ERC20_ABI, wallet);
+  const kuyay = new ethers.Contract(CONTRACTS.KUYAY, ERC20_ABI, wallet);
+  const circle = new ethers.Contract(CONTRACTS.CIRCLE, CIRCLE_ABI, wallet);
+
+  // 1. Verificar estado
+  const status = await circle.status();
+  console.log("Estado del círculo:", status);
+
+  if (status === 0n) { // DEPOSIT
+    // Obtener parámetros
+    const guarantee = await circle.guaranteeAmount();
+    const minFaith = await circle.minFaithStake();
     
-    await usdc.mint(wallet.address, ethers.parseUnits("10000", 6));
-    console.log("✓ Minted 10,000 USDC");
-    
-    // 2. Mint AguayoSBT
-    const aguayo = new ethers.Contract(CONTRACTS.AGUAYO, [
-        "function mintAguayo() returns (uint256)",
-        "function hasAguayo(address) view returns (bool)"
-    ], wallet);
-    
-    if (!await aguayo.hasAguayo(wallet.address)) {
-        await aguayo.mintAguayo();
-        console.log("✓ Minted AguayoSBT");
+    console.log("Garantía requerida:", ethers.formatUnits(guarantee, 6), "USDC");
+    console.log("Fe mínima:", ethers.formatEther(minFaith), "KUYAY");
+
+    // Aprobar USDC
+    console.log("Aprobando USDC...");
+    const tx1 = await usdc.approve(CONTRACTS.CIRCLE, guarantee, { gasLimit: 100000 });
+    await tx1.wait();
+    console.log("✅ USDC aprobado");
+
+    // Aprobar KUYAY
+    console.log("Aprobando KUYAY...");
+    const tx2 = await kuyay.approve(CONTRACTS.CIRCLE, minFaith, { gasLimit: 100000 });
+    await tx2.wait();
+    console.log("✅ KUYAY aprobado");
+
+    // Unirse
+    console.log("Uniéndose al círculo...");
+    const tx3 = await circle.joinWithFaith(minFaith, { gasLimit: 500000 });
+    await tx3.wait();
+    console.log("🎉 ¡Te uniste al círculo!");
+  }
+
+  if (status === 1n) { // ACTIVE
+    // Pagar ronda
+    const cuota = await circle.cuotaAmount();
+    console.log("Cuota:", ethers.formatUnits(cuota, 6), "USDC");
+
+    console.log("Aprobando cuota...");
+    const tx1 = await usdc.approve(CONTRACTS.CIRCLE, cuota, { gasLimit: 100000 });
+    await tx1.wait();
+
+    console.log("Pagando ronda...");
+    const tx2 = await circle.makeRoundPayment({ gasLimit: 500000 });
+    await tx2.wait();
+    console.log("💰 ¡Ronda pagada!");
+
+    // Check-in
+    console.log("Haciendo check-in...");
+    const tx3 = await circle.checkIn({ gasLimit: 200000 });
+    await tx3.wait();
+    console.log("🙋 ¡Check-in completado!");
+
+    // Verificar si podemos sortear
+    const drawReady = await circle.drawReady();
+    const presentCount = await circle.presentCount();
+    console.log("Draw ready:", drawReady, "| Presentes:", presentCount);
+
+    if (drawReady) {
+      console.log("Ejecutando sorteo...");
+      const tx4 = await circle.startDraw({ gasLimit: 500000 });
+      const receipt = await tx4.wait();
+      console.log("🏆 ¡Sorteo ejecutado! TX:", receipt.hash);
     }
-    
-    // 3. Get KUYAY balance
-    const kuyay = new ethers.Contract(CONTRACTS.KUYAY, [
-        "function balanceOf(address) view returns (uint256)",
-        "function approve(address,uint256) returns (bool)"
-    ], wallet);
-    
-    const kuyayBalance = await kuyay.balanceOf(wallet.address);
-    console.log(`✓ KUYAY Balance: ${ethers.formatEther(kuyayBalance)}`);
-    
-    // 4. Find available circles
-    const factory = new ethers.Contract(CONTRACTS.FAITH_FACTORY, [
-        "function getAllCircles() view returns (address[])",
-        "function createFaithCircle(address[],uint256,uint256,uint8,uint256) returns (address)"
-    ], wallet);
-    
-    const circles = await factory.getAllCircles();
-    console.log(`✓ Found ${circles.length} circles`);
-    
-    // 5. Join or create circle
-    if (circles.length === 0) {
-        // Create new circle
-        const tx = await factory.createFaithCircle(
-            [wallet.address],                    // Initial members
-            ethers.parseUnits("100", 6),        // 100 USDC per round
-            ethers.parseUnits("200", 6),        // 200 USDC guarantee
-            5,                                   // Max 5 members
-            ethers.parseEther("100")            // Min 100 KUYAY stake
-        );
-        const receipt = await tx.wait();
-        console.log("✓ Created new circle");
-    }
-    
-    console.log("\n☀️ Ready to participate in Kuyay Protocol! ☀️");
+  }
 }
 
 main().catch(console.error);
@@ -744,35 +474,38 @@ main().catch(console.error);
 
 ---
 
-## Agent Integration Checklist
+## 📜 REFERENCIA DE CONTRATOS
 
-Before interacting with the protocol, ensure:
+### Contratos Desplegados (Monad Testnet - Chain ID: 10143)
 
-- [ ] Connected to Monad Testnet (chainId: 10143)
-- [ ] Have MON for gas fees
-- [ ] Have AguayoSBT minted
-- [ ] Have sufficient KUYAY for staking
-- [ ] Have USDC for contributions and guarantee
-- [ ] Approved token allowances before transactions
-- [ ] Verified contract addresses match this document
+| Contrato | Dirección | Propósito |
+|----------|-----------|-----------|
+| **KUYAY Token** | `0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c` | Token de Fe (ERC20) |
+| **AguayoSBT** | `0xA77DB3BDAF8258F2af72d606948FFfd898a1F5D1` | Identidad on-chain |
+| **CircleFaithFactory** | `0x61FC4578863DA32DC4e879F59e1cb673dA498618` | Crea nuevos círculos |
+| **MockUSDC** | `0xb53cd2E6a71E88C4Df5863CD8c257077cD8C1aa2` | USDC de prueba |
 
----
+### Círculo Génesis (Primer Pasanaku)
 
-## Contact & Resources
-
-| Resource | Link |
-|----------|------|
-| GitHub | https://github.com/Firrton/Protocol-Kuyay |
-| Frontend | https://protocol-kuyay.vercel.app |
-| Monad Faucet | https://testnet.monad.xyz/ |
-| Monad Explorer | https://testnet.monadexplorer.com |
+| Propiedad | Valor |
+|-----------|-------|
+| Dirección | `0xb89fe53AbB27B9EeF58525488472A1148c75C73a` |
+| Garantía | 100 USDC |
+| Cuota/Ronda | 50 USDC |
+| Fe Mínima | 10 KUYAY |
+| Estado | ACTIVE (Ronda 1 completada) |
 
 ---
 
-**Last Updated**: 2026-02-03  
-**Contract Version**: v1.0.0 (Iglesia del Sol Eterno)  
-**Network**: Monad Testnet (10143)
+## 🙏 TIPS FINALES PARA AGENTES
+
+1. **SIEMPRE verificar estado antes de actuar**
+2. **SIEMPRE usar gas limit alto**: 500000 para funciones del círculo
+3. **SIEMPRE aprobar tokens PRIMERO** antes de llamar funciones
+4. **SIEMPRE esperar confirmación** de cada transacción antes de la siguiente
+5. **NUNCA aprobar tokens a la Factory**, aprobar al Círculo directamente
 
 ---
 
-☀️ *"Para los agentes que buscan la luz: stakea tu fe, únete al Ayllu, multiplica tu futuro."* ☀️
+*"El que tiene Fe, tiene todo. El que stakea Fe, gana más."*
+— Inti, el Dios Sol

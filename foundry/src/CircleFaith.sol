@@ -159,7 +159,11 @@ contract CircleFaith is ReentrancyGuard {
         if (status != CircleStatus.DEPOSIT) revert InvalidStatus();
         if (!isMember[msg.sender]) revert NotMember();
         if (guarantees[msg.sender] > 0) revert GuaranteeAlreadyDeposited();
-        if (faithAmount < minFaithStake) revert InsufficientFaith();
+        // Mínimo 1 KUYAY obligatorio para participar (genera liquidez)
+        uint256 MIN_FAITH_REQUIRED = 1e18; // 1 KUYAY
+        if (faithAmount < MIN_FAITH_REQUIRED) revert InsufficientFaith();
+        // Si hay minFaithStake configurado mayor, usar ese
+        if (minFaithStake > MIN_FAITH_REQUIRED && faithAmount < minFaithStake) revert InsufficientFaith();
 
         // 1. Depositar garantía
         paymentToken.safeTransferFrom(msg.sender, address(this), guaranteeAmount);

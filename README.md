@@ -93,7 +93,7 @@ Resultado: Todos acceden a capital que no tendrían solos
 | **KuyayVault** | [`0xdc3c4c07e4675cf1BBDEa627026e92170f9F5AE1`](https://testnet.monadexplorer.com/address/0xdc3c4c07e4675cf1BBDEa627026e92170f9F5AE1) | Tesoro de Inti |
 | **RiskOracle** | [`0x5483B6C35b975F24Ca21647650b1a93f8341B26a`](https://testnet.monadexplorer.com/address/0x5483B6C35b975F24Ca21647650b1a93f8341B26a) | Análisis de riesgo |
 | **CircleFactory** | [`0x6536ee56e3f30A427bc83c208D829d059E8eEDA4`](https://testnet.monadexplorer.com/address/0x6536ee56e3f30A427bc83c208D829d059E8eEDA4) | Pasanakus tradicionales |
-| **CircleFaithFactory** | [`0xD15ED9ea64B0a1d9535374F27de79111EbE872C1`](https://testnet.monadexplorer.com/address/0xD15ED9ea64B0a1d9535374F27de79111EbE872C1) | Pasanakus con Fe stakeada |
+| **CircleFaithFactory** | [`0x61FC4578863DA32DC4e879F59e1cb673dA498618`](https://testnet.monadexplorer.com/address/0x61FC4578863DA32DC4e879F59e1cb673dA498618) | Pasanakus con Fe stakeada |
 
 ### Verificación Rápida
 ```bash

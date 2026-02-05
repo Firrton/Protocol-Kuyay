@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState,useEffect } from "react";
 import { useAccount } from "wagmi";
 import Image from "next/image";
 import Link from "next/link";
-import { useHasAguayo, useAguayoMetadata } from "@/hooks/useAguayo";
-import { useDefaulters, type Defaulter } from "@/hooks/useDefaulters";
+import { useHasAguayo,useAguayoMetadata } from "@/hooks/useAguayo";
+import { useDefaulters,type Defaulter } from "@/hooks/useDefaulters";
 import { useDemo } from "@/lib/demo";
 import MintAguayoCard from "@/components/MintAguayoCard";
 import MintAguayoButton from "@/components/MintAguayoButton";
@@ -14,7 +14,7 @@ import CircleCard from "@/components/CircleCard";
 import DemoController from "@/components/demo/DemoController";
 import SoloModePanel from "@/components/demo/SoloModePanel";
 import DemoStepBanner from "@/components/demo/DemoStepBanner";
-import MonteCarloDemo from "@/components/MonteCarloDemo";
+
 
 // Importar hooks reales
 import { useUserCirclesWithDetails } from "@/hooks/useCircles";
@@ -46,26 +46,26 @@ interface Circle {
 }
 
 export default function Dashboard() {
-  const { address, isConnected } = useAccount();
-  const [activeTab, setActiveTab] = useState<Tab>("ayllus");
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [expandedCircle, setExpandedCircle] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const { address,isConnected } = useAccount();
+  const [activeTab,setActiveTab] = useState<Tab>("ayllus");
+  const [showCreateModal,setShowCreateModal] = useState(false);
+  const [expandedCircle,setExpandedCircle] = useState<string | null>(null);
+  const [mounted,setMounted] = useState(false);
 
   // Evitar error de hidratación
   useEffect(() => {
     setMounted(true);
-  }, []);
+  },[]);
 
   // Demo context para controlar navegación basada en pasos
   const { state: demoState } = useDemo();
 
   // Verificar si el usuario tiene Aguayo
-  const { hasAguayo, isLoading: isLoadingAguayo, isContractDeployed } = useHasAguayo();
+  const { hasAguayo,isLoading: isLoadingAguayo,isContractDeployed } = useHasAguayo();
   const { metadata: realAguayoMetadata } = useAguayoMetadata();
 
   // Obtener círculos del usuario desde blockchain (con detalles completos)
-  const { circles: realCircles, isLoading: isLoadingCircles, refetch: refetchCircles } = useUserCirclesWithDetails();
+  const { circles: realCircles,isLoading: isLoadingCircles,refetch: refetchCircles } = useUserCirclesWithDetails();
 
   // Obtener deudores desde blockchain (Q'ipi)
   const {
@@ -102,14 +102,14 @@ export default function Dashboard() {
       nextPaymentDue: new Date("2025-11-06"), // Fecha fija para evitar hidratación
       hasUserPaid: true,
       members: [
-        { address: "0x742d...8f3e", hasPaid: true, aguayoLevel: 3 },
-        { address: "0x8f3e...1a9c", hasPaid: true, aguayoLevel: 2 },
-        { address: "0x1a9c...5d2b", hasPaid: true, aguayoLevel: 1 },
-        { address: "0x5d2b...9e4f", hasPaid: false, aguayoLevel: 2 },
-        { address: "0x9e4f...3c8a", hasPaid: false, aguayoLevel: 1 },
-        { address: "0x3c8a...7b1d", hasPaid: true, aguayoLevel: 2 },
-        { address: "0x7b1d...2f6e", hasPaid: true, aguayoLevel: 4 },
-        { address: "0x2f6e...4a3b", hasPaid: true, aguayoLevel: 1 },
+        { address: "0x742d...8f3e",hasPaid: true,aguayoLevel: 3 },
+        { address: "0x8f3e...1a9c",hasPaid: true,aguayoLevel: 2 },
+        { address: "0x1a9c...5d2b",hasPaid: true,aguayoLevel: 1 },
+        { address: "0x5d2b...9e4f",hasPaid: false,aguayoLevel: 2 },
+        { address: "0x9e4f...3c8a",hasPaid: false,aguayoLevel: 1 },
+        { address: "0x3c8a...7b1d",hasPaid: true,aguayoLevel: 2 },
+        { address: "0x7b1d...2f6e",hasPaid: true,aguayoLevel: 4 },
+        { address: "0x2f6e...4a3b",hasPaid: true,aguayoLevel: 1 },
       ],
     },
     {
@@ -128,11 +128,11 @@ export default function Dashboard() {
       leverage: "2.5x",
       protocolLoan: 2500,
       members: [
-        { address: "0x742d...8f3e", hasPaid: false, aguayoLevel: 3 },
-        { address: "0x8f3e...1a9c", hasPaid: true, aguayoLevel: 4 },
-        { address: "0x1a9c...5d2b", hasPaid: true, aguayoLevel: 3 },
-        { address: "0x5d2b...9e4f", hasPaid: false, aguayoLevel: 2 },
-        { address: "0x9e4f...3c8a", hasPaid: true, aguayoLevel: 5 },
+        { address: "0x742d...8f3e",hasPaid: false,aguayoLevel: 3 },
+        { address: "0x8f3e...1a9c",hasPaid: true,aguayoLevel: 4 },
+        { address: "0x1a9c...5d2b",hasPaid: true,aguayoLevel: 3 },
+        { address: "0x5d2b...9e4f",hasPaid: false,aguayoLevel: 2 },
+        { address: "0x9e4f...3c8a",hasPaid: true,aguayoLevel: 5 },
       ],
     },
   ];
@@ -182,10 +182,10 @@ export default function Dashboard() {
 
   // Función para obtener imágenes según nivel
   const getAguayoImages = (level: number) => {
-    if (level === 0) return { aguayo: null, persona: null };
-    if (level === 1) return { aguayo: "/images/aguayo_1.png", persona: "/images/persona_1.png" };
-    if (level >= 2 && level <= 3) return { aguayo: "/images/aguayo_2.png", persona: "/images/persona_2.png" };
-    return { aguayo: "/images/aguayo_3.png", persona: "/images/persona_final.png" };
+    if (level === 0) return { aguayo: null,persona: null };
+    if (level === 1) return { aguayo: "/images/aguayo_1.png",persona: "/images/persona_1.png" };
+    if (level >= 2 && level <= 3) return { aguayo: "/images/aguayo_2.png",persona: "/images/persona_2.png" };
+    return { aguayo: "/images/aguayo_3.png",persona: "/images/persona_final.png" };
   };
 
   const getLevelTitle = (level: number) => {
@@ -320,7 +320,7 @@ export default function Dashboard() {
                   {getLevelTitle(aguayoData.level)}
                 </h1>
                 <p className="text-gris text-sm">
-                  {address?.slice(0, 6)}...{address?.slice(-4)}
+                  {address?.slice(0,6)}...{address?.slice(-4)}
                 </p>
                 <div className="flex gap-2 mt-1">
                   <span className="text-xs bg-ceremonial/20 text-ceremonial px-2 py-1 rounded-full border border-ceremonial/50">
@@ -367,41 +367,37 @@ export default function Dashboard() {
         <div className="flex gap-2 border-b border-tierra overflow-x-auto">
           <button
             onClick={() => setActiveTab("ayllus")}
-            className={`px-4 py-3 font-display font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
-              activeTab === "ayllus"
+            className={`px-4 py-3 font-display font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === "ayllus"
                 ? "text-ocre border-b-2 border-ocre"
                 : "text-gris hover:text-ocre"
-            }`}
+              }`}
           >
             🏔️ Mis Ayllus ({circles.length})
           </button>
           <button
             onClick={() => setActiveTab("perfil")}
-            className={`px-4 py-3 font-display font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
-              activeTab === "perfil"
+            className={`px-4 py-3 font-display font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === "perfil"
                 ? "text-ocre border-b-2 border-ocre"
                 : "text-gris hover:text-ocre"
-            }`}
+              }`}
           >
             👤 Mi Perfil
           </button>
           <button
             onClick={() => setActiveTab("qipi")}
-            className={`px-4 py-3 font-display font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
-              activeTab === "qipi"
+            className={`px-4 py-3 font-display font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === "qipi"
                 ? "text-ocre border-b-2 border-ocre"
                 : "text-gris hover:text-ocre"
-            }`}
+              }`}
           >
             ⚠️ Q&apos;ipi ({defaulters.length})
           </button>
           <button
             onClick={() => setActiveTab("tupuy")}
-            className={`px-4 py-3 font-display font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
-              activeTab === "tupuy"
+            className={`px-4 py-3 font-display font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === "tupuy"
                 ? "text-ocre border-b-2 border-ocre"
                 : "text-gris hover:text-ocre"
-            }`}
+              }`}
           >
             🌾 Tupuy (Pool)
           </button>
@@ -416,8 +412,8 @@ export default function Dashboard() {
             {/* Solo Mode Panel - Muestra los miembros simulados */}
             <SoloModePanel />
 
-            {/* Demo de Monte Carlo */}
-            <MonteCarloDemo />
+
+            {/* Monte Carlo removed - Now using Faith-based Monad system */}
 
             {/* Botón Crear Nuevo Ayllu con Monte Carlo */}
             <Link href="/create-circle">
@@ -449,7 +445,7 @@ export default function Dashboard() {
                   console.log("Pago/Garantía exitoso, actualizando dashboard...");
                   setTimeout(() => {
                     refetchCircles();
-                  }, 3000);
+                  },3000);
                 }}
               />
             ))}
@@ -481,11 +477,10 @@ export default function Dashboard() {
             {/* Si no tiene Aguayo o está en modo mock, mostrar opción de minteo */}
             {(!hasAguayo || useMockData) && (
               <div
-                className={`bg-gradient-to-br from-ceremonial/10 via-ocre/10 to-dorado/10 border-2 rounded-2xl p-6 transition-all ${
-                  demoState.currentStep === 'minting-aguayo'
+                className={`bg-gradient-to-br from-ceremonial/10 via-ocre/10 to-dorado/10 border-2 rounded-2xl p-6 transition-all ${demoState.currentStep === 'minting-aguayo'
                     ? 'border-purple-500 shadow-2xl shadow-purple-500/50 animate-pulse ring-4 ring-purple-400/30'
                     : 'border-dorado/50'
-                }`}
+                  }`}
               >
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                   <div className="flex items-center gap-4 flex-1">
@@ -593,15 +588,13 @@ export default function Dashboard() {
                       </div>
                     </div>
 
-                    <div className={`bg-profundo/70 rounded-xl p-4 border-2 transition-colors ${
-                      aguayoData.isStained
+                    <div className={`bg-profundo/70 rounded-xl p-4 border-2 transition-colors ${aguayoData.isStained
                         ? "border-ceremonial/50 hover:border-ceremonial"
                         : "border-pachamama/30 hover:border-pachamama"
-                    }`}>
-                      <div className="text-sm text-gris mb-2">Estado</div>
-                      <div className={`text-4xl font-display font-bold mb-1 ${
-                        aguayoData.isStained ? "text-ceremonial" : "text-pachamama"
                       }`}>
+                      <div className="text-sm text-gris mb-2">Estado</div>
+                      <div className={`text-4xl font-display font-bold mb-1 ${aguayoData.isStained ? "text-ceremonial" : "text-pachamama"
+                        }`}>
                         {aguayoData.isStained ? aguayoData.stains : "✨"}
                       </div>
                       <div className="text-xs text-gris">
@@ -611,11 +604,10 @@ export default function Dashboard() {
                   </div>
 
                   {/* Elegibilidad */}
-                  <div className={`rounded-xl p-4 border-2 ${
-                    aguayoData.level >= 1 && !aguayoData.isStained
+                  <div className={`rounded-xl p-4 border-2 ${aguayoData.level >= 1 && !aguayoData.isStained
                       ? "bg-pachamama/10 border-pachamama/50"
                       : "bg-tierra/10 border-tierra"
-                  }`}>
+                    }`}>
                     <div className="flex items-center gap-3">
                       <span className="text-4xl">
                         {aguayoData.level >= 1 && !aguayoData.isStained ? "🎯" : "🔒"}
@@ -645,18 +637,17 @@ export default function Dashboard() {
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
-                  { level: 0, title: "Telar Vacío", circles: 0, color: "tierra" },
-                  { level: 1, title: "Principiante", circles: 1, color: "ocre" },
-                  { level: 3, title: "Intermedio", circles: 3, color: "dorado" },
-                  { level: 5, title: "Maestro", circles: 5, color: "ceremonial" },
+                  { level: 0,title: "Telar Vacío",circles: 0,color: "tierra" },
+                  { level: 1,title: "Principiante",circles: 1,color: "ocre" },
+                  { level: 3,title: "Intermedio",circles: 3,color: "dorado" },
+                  { level: 5,title: "Maestro",circles: 5,color: "ceremonial" },
                 ].map((tier) => (
                   <div
                     key={tier.level}
-                    className={`rounded-xl p-4 border-2 transition-all ${
-                      aguayoData.level >= tier.level
+                    className={`rounded-xl p-4 border-2 transition-all ${aguayoData.level >= tier.level
                         ? `bg-${tier.color}/20 border-${tier.color} shadow-lg`
                         : "bg-profundo/30 border-tierra opacity-50"
-                    }`}
+                      }`}
                   >
                     <div className="text-center space-y-2">
                       <div className="text-3xl font-display font-bold">
@@ -684,20 +675,19 @@ export default function Dashboard() {
               </h3>
               <div className="space-y-3">
                 {[
-                  { icon: "🌱", title: "Primer Paso", desc: "Mintea tu Aguayo", unlocked: true },
-                  { icon: "🧵", title: "Primer Hilo", desc: "Completa tu primer pago", unlocked: aguayoData.totalThreads >= 1 },
-                  { icon: "🎯", title: "Tejedor Comprometido", desc: "Completa tu primer círculo", unlocked: aguayoData.completedCircles >= 1 },
-                  { icon: "💎", title: "Sin Manchas", desc: "Completa 3 círculos sin faltas", unlocked: aguayoData.completedCircles >= 3 && !aguayoData.isStained },
-                  { icon: "⭐", title: "Maestro Tejedor", desc: "Alcanza nivel 5", unlocked: aguayoData.level >= 5 },
-                  { icon: "🏔️", title: "Leyenda del Ayllu", desc: "Completa 10 círculos", unlocked: aguayoData.completedCircles >= 10 },
-                ].map((achievement, idx) => (
+                  { icon: "🌱",title: "Primer Paso",desc: "Mintea tu Aguayo",unlocked: true },
+                  { icon: "🧵",title: "Primer Hilo",desc: "Completa tu primer pago",unlocked: aguayoData.totalThreads >= 1 },
+                  { icon: "🎯",title: "Tejedor Comprometido",desc: "Completa tu primer círculo",unlocked: aguayoData.completedCircles >= 1 },
+                  { icon: "💎",title: "Sin Manchas",desc: "Completa 3 círculos sin faltas",unlocked: aguayoData.completedCircles >= 3 && !aguayoData.isStained },
+                  { icon: "⭐",title: "Maestro Tejedor",desc: "Alcanza nivel 5",unlocked: aguayoData.level >= 5 },
+                  { icon: "🏔️",title: "Leyenda del Ayllu",desc: "Completa 10 círculos",unlocked: aguayoData.completedCircles >= 10 },
+                ].map((achievement,idx) => (
                   <div
                     key={idx}
-                    className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
-                      achievement.unlocked
+                    className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${achievement.unlocked
                         ? "bg-dorado/10 border-dorado/50 hover:bg-dorado/20"
                         : "bg-profundo/30 border-tierra opacity-50"
-                    }`}
+                      }`}
                   >
                     <div className={`text-4xl ${achievement.unlocked ? "grayscale-0" : "grayscale opacity-30"}`}>
                       {achievement.icon}
@@ -760,7 +750,7 @@ export default function Dashboard() {
                   {isLoadingDefaulters ? (
                     <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent mx-auto"></div>
                   ) : (
-                    `$${defaulters.reduce((sum, d) => sum + d.amountOwed, 0).toLocaleString()}`
+                    `$${defaulters.reduce((sum,d) => sum + d.amountOwed,0).toLocaleString()}`
                   )}
                 </div>
               </div>
@@ -770,7 +760,7 @@ export default function Dashboard() {
                   {isLoadingDefaulters ? (
                     <div className="animate-spin rounded-full h-8 w-8 border-2 border-ocre border-t-transparent mx-auto"></div>
                   ) : (
-                    defaulters.reduce((sum, d) => sum + d.totalDefaults, 0)
+                    defaulters.reduce((sum,d) => sum + d.totalDefaults,0)
                   )}
                 </div>
               </div>
@@ -788,82 +778,81 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <>
-                  {defaulters.map((defaulter, idx) => (
-                <div
-                  key={idx}
-                  className="bg-gradient-to-br from-profundo to-tierra/5 border-2 border-ceremonial/30 rounded-xl p-6 hover:border-ceremonial/60 transition-all"
-                >
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {/* Info del Deudor */}
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-ceremonial/20 border-2 border-ceremonial flex items-center justify-center text-2xl">
-                          ❌
-                        </div>
-                        <div>
-                          <div className="font-mono text-white font-bold">
-                            {defaulter.address}
+                  {defaulters.map((defaulter,idx) => (
+                    <div
+                      key={idx}
+                      className="bg-gradient-to-br from-profundo to-tierra/5 border-2 border-ceremonial/30 rounded-xl p-6 hover:border-ceremonial/60 transition-all"
+                    >
+                      <div className="grid md:grid-cols-2 gap-6">
+                        {/* Info del Deudor */}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-full bg-ceremonial/20 border-2 border-ceremonial flex items-center justify-center text-2xl">
+                              ❌
+                            </div>
+                            <div>
+                              <div className="font-mono text-white font-bold">
+                                {defaulter.address}
+                              </div>
+                              <div className="text-sm text-gris">
+                                Aguayo Nivel {defaulter.aguayoLevel} • {defaulter.stains} mancha{defaulter.stains > 1 ? "s" : ""}
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-sm text-gris">
-                            Aguayo Nivel {defaulter.aguayoLevel} • {defaulter.stains} mancha{defaulter.stains > 1 ? "s" : ""}
-                          </div>
-                        </div>
-                      </div>
 
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-profundo/50 rounded-lg p-3 border border-tierra">
-                          <div className="text-xs text-gris mb-1">Defaults Totales</div>
-                          <div className="text-xl font-display font-bold text-ceremonial">
-                            {defaulter.totalDefaults}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-profundo/50 rounded-lg p-3 border border-tierra">
+                              <div className="text-xs text-gris mb-1">Defaults Totales</div>
+                              <div className="text-xl font-display font-bold text-ceremonial">
+                                {defaulter.totalDefaults}
+                              </div>
+                            </div>
+                            <div className="bg-profundo/50 rounded-lg p-3 border border-tierra">
+                              <div className="text-xs text-gris mb-1">Último Default</div>
+                              <div className="text-sm font-bold text-white">
+                                {defaulter.lastDefaultDate.toLocaleDateString("es-ES",{ month: "short",day: "numeric" })}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                        <div className="bg-profundo/50 rounded-lg p-3 border border-tierra">
-                          <div className="text-xs text-gris mb-1">Último Default</div>
-                          <div className="text-sm font-bold text-white">
-                            {defaulter.lastDefaultDate.toLocaleDateString("es-ES", { month: "short", day: "numeric" })}
-                          </div>
-                        </div>
-                      </div>
 
-                      <div className="bg-profundo/50 rounded-lg p-3 border border-ocre/30">
-                        <div className="text-xs text-gris mb-1">Círculo Afectado</div>
-                        <div className="text-lg font-display font-bold text-white">
-                          {defaulter.circleName}
+                          <div className="bg-profundo/50 rounded-lg p-3 border border-ocre/30">
+                            <div className="text-xs text-gris mb-1">Círculo Afectado</div>
+                            <div className="text-lg font-display font-bold text-white">
+                              {defaulter.circleName}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Info de Deuda */}
+                        <div className="space-y-4">
+                          <div className="bg-ceremonial/10 border border-ceremonial/50 rounded-lg p-4">
+                            <div className="text-sm text-gris mb-2">Monto Adeudado</div>
+                            <div className="text-3xl font-display font-bold text-ceremonial">
+                              ${defaulter.amountOwed.toLocaleString()}
+                            </div>
+                          </div>
+
+                          <div className={`rounded-lg p-4 border-2 ${defaulter.status === "UNPAID"
+                              ? "bg-ceremonial/20 border-ceremonial"
+                              : defaulter.status === "LIQUIDATED"
+                                ? "bg-tierra/20 border-tierra"
+                                : "bg-ocre/20 border-ocre"
+                            }`}>
+                            <div className="text-sm text-gris mb-1">Estado</div>
+                            <div className="text-lg font-display font-bold text-white">
+                              {defaulter.status === "UNPAID" && "🚨 Sin Pagar"}
+                              {defaulter.status === "LIQUIDATED" && "⚖️ Liquidado"}
+                              {defaulter.status === "PARTIALLY_PAID" && "⏳ Pago Parcial"}
+                            </div>
+                          </div>
+
+                          <div className="text-xs text-gris italic">
+                            ⚠️ Esta información es pública y permanente en la blockchain
+                          </div>
                         </div>
                       </div>
                     </div>
-
-                    {/* Info de Deuda */}
-                    <div className="space-y-4">
-                      <div className="bg-ceremonial/10 border border-ceremonial/50 rounded-lg p-4">
-                        <div className="text-sm text-gris mb-2">Monto Adeudado</div>
-                        <div className="text-3xl font-display font-bold text-ceremonial">
-                          ${defaulter.amountOwed.toLocaleString()}
-                        </div>
-                      </div>
-
-                      <div className={`rounded-lg p-4 border-2 ${
-                        defaulter.status === "UNPAID"
-                          ? "bg-ceremonial/20 border-ceremonial"
-                          : defaulter.status === "LIQUIDATED"
-                          ? "bg-tierra/20 border-tierra"
-                          : "bg-ocre/20 border-ocre"
-                      }`}>
-                        <div className="text-sm text-gris mb-1">Estado</div>
-                        <div className="text-lg font-display font-bold text-white">
-                          {defaulter.status === "UNPAID" && "🚨 Sin Pagar"}
-                          {defaulter.status === "LIQUIDATED" && "⚖️ Liquidado"}
-                          {defaulter.status === "PARTIALLY_PAID" && "⏳ Pago Parcial"}
-                        </div>
-                      </div>
-
-                      <div className="text-xs text-gris italic">
-                        ⚠️ Esta información es pública y permanente en la blockchain
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                  ))}
 
                   {defaulters.length === 0 && (
                     <div className="text-center py-12 bg-profundo/30 rounded-xl border-2 border-dashed border-tierra">

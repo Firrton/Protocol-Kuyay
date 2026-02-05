@@ -16,9 +16,9 @@ import {
  * para demostrar cómo funciona el análisis de riesgo
  */
 export default function MonteCarloDemo() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedScenario, setSelectedScenario] = useState<MonteCarloScenario | null>(null);
-  const [showScenarios, setShowScenarios] = useState(false);
+  const [isModalOpen,setIsModalOpen] = useState(false);
+  const [selectedScenario,setSelectedScenario] = useState<MonteCarloScenario | null>(null);
+  const [showScenarios,setShowScenarios] = useState(false);
 
   const handleScenarioSelect = (scenario: MonteCarloScenario) => {
     setSelectedScenario(scenario);
@@ -89,12 +89,11 @@ export default function MonteCarloDemo() {
           {scenarios.map((scenario) => (
             <div
               key={scenario.id}
-              className={`bg-profundo border-2 rounded-xl p-6 hover:scale-105 transition-all cursor-pointer shadow-xl ${
-                scenario.riskLevel === "critical" ? "border-ceremonial animate-pulse" :
-                scenario.riskLevel === "high" ? "border-ceremonial" :
-                scenario.riskLevel === "medium" ? "border-ocre" :
-                "border-pachamama"
-              }`}
+              className={`bg-profundo border-2 rounded-xl p-6 hover:scale-105 transition-all cursor-pointer shadow-xl ${scenario.riskLevel === "critical" ? "border-ceremonial animate-pulse" :
+                  scenario.riskLevel === "high" ? "border-ceremonial" :
+                    scenario.riskLevel === "medium" ? "border-ocre" :
+                      "border-pachamama"
+                }`}
               onClick={() => handleScenarioSelect(scenario)}
             >
               {/* Header del escenario */}
@@ -125,16 +124,20 @@ export default function MonteCarloDemo() {
 
               {/* Predicción */}
               <div className="bg-profundo/70 border-2 p-4 rounded-lg mb-4"
-                   style={{ borderColor: scenario.riskLevel === "critical" ? "#ef4444" :
-                                        scenario.riskLevel === "high" ? "#f97316" :
-                                        scenario.riskLevel === "medium" ? "#eab308" :
-                                        "#10b981" }}>
+                style={{
+                  borderColor: scenario.riskLevel === "critical" ? "#ef4444" :
+                    scenario.riskLevel === "high" ? "#f97316" :
+                      scenario.riskLevel === "medium" ? "#eab308" :
+                        "#10b981"
+                }}>
                 <p className="text-xs text-gris mb-2">Predicción Monte Carlo</p>
                 <p className="text-3xl font-display font-bold mb-2"
-                   style={{ color: scenario.riskLevel === "critical" ? "#ef4444" :
-                                   scenario.riskLevel === "high" ? "#f97316" :
-                                   scenario.riskLevel === "medium" ? "#eab308" :
-                                   "#10b981" }}>
+                  style={{
+                    color: scenario.riskLevel === "critical" ? "#ef4444" :
+                      scenario.riskLevel === "high" ? "#f97316" :
+                        scenario.riskLevel === "medium" ? "#eab308" :
+                          "#10b981"
+                  }}>
                   {scenario.expectedSuccessRate}%
                 </p>
                 <p className="text-xs text-white/80">
@@ -146,7 +149,7 @@ export default function MonteCarloDemo() {
               <div className="mb-4">
                 <p className="text-xs text-gris mb-2 font-semibold">Composición del Grupo:</p>
                 <div className="space-y-1 max-h-32 overflow-y-auto custom-scrollbar">
-                  {scenario.wallets.map((wallet, idx) => (
+                  {scenario.wallets.map((wallet,idx) => (
                     <div
                       key={idx}
                       className="flex items-center gap-2 text-xs bg-profundo/50 border border-tierra/30 p-2 rounded"
@@ -249,7 +252,7 @@ export default function MonteCarloDemo() {
             setSelectedScenario(null);
           }}
           numMembers={selectedScenario.numMembers}
-          cuotaAmount={selectedScenario.cuotaAmount}
+          cuotaAmount={selectedScenario.cuotaAmount.toString()}
           memberAddresses={selectedScenario.wallets.map((w) => w.address)}
         />
       )}

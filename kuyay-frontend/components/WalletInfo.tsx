@@ -1,10 +1,9 @@
 "use client";
 
-import { useAccount, useBalance } from 'wagmi'
-import { arbitrumSepolia } from 'wagmi/chains'
+import { useAccount,useBalance } from 'wagmi'
 
 export default function WalletInfo() {
-  const { address, isConnected } = useAccount()
+  const { address,isConnected } = useAccount()
   const { data: balance } = useBalance({
     address: address,
   })
@@ -16,22 +15,22 @@ export default function WalletInfo() {
   return (
     <div className="bg-gradient-to-br from-pachamama/20 to-transparent border-2 border-pachamama/50 rounded-xl p-6">
       <h3 className="text-xl font-display font-bold mb-4 text-pachamama">
-        Tu Wallet Conectada ✅
+        Wallet Connected ✅
       </h3>
 
       <div className="space-y-3">
         <div>
-          <p className="text-gris text-sm mb-1">Dirección:</p>
+          <p className="text-gris text-sm mb-1">Address:</p>
           <p className="font-mono text-white break-all text-sm bg-profundo/50 px-3 py-2 rounded-lg">
             {address}
           </p>
         </div>
 
         <div>
-          <p className="text-gris text-sm mb-1">Red:</p>
+          <p className="text-gris text-sm mb-1">Network:</p>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-pachamama rounded-full animate-pulse"></div>
-            <p className="text-white font-medium">{arbitrumSepolia.name}</p>
+            <p className="text-white font-medium">Monad Mainnet</p>
           </div>
         </div>
 

@@ -33,7 +33,7 @@ export function useDefaulters() {
 
     try {
       const metadata = await publicClient.readContract({
-        address: CONTRACTS.arbitrumSepolia.aguayoSBT as `0x${string}`,
+        address: CONTRACTS.monadMainnet.aguayoSBT as `0x${string}`,
         abi: AGUAYO_SBT_ABI,
         functionName: "getAguayoMetadata",
         args: [tokenId],
@@ -59,7 +59,7 @@ export function useDefaulters() {
 
     try {
       const owner = await publicClient.readContract({
-        address: CONTRACTS.arbitrumSepolia.aguayoSBT as `0x${string}`,
+        address: CONTRACTS.monadMainnet.aguayoSBT as `0x${string}`,
         abi: AGUAYO_SBT_ABI,
         functionName: "ownerOf",
         args: [tokenId],
@@ -85,7 +85,7 @@ export function useDefaulters() {
 
       // Obtener eventos StainAdded históricos
       const logs = await publicClient.getLogs({
-        address: CONTRACTS.arbitrumSepolia.aguayoSBT as `0x${string}`,
+        address: CONTRACTS.monadMainnet.aguayoSBT as `0x${string}`,
         event: {
           type: "event",
           name: "StainAdded",
@@ -171,7 +171,7 @@ export function useDefaulters() {
 
   // Escuchar nuevos eventos StainAdded en tiempo real
   useWatchContractEvent({
-    address: CONTRACTS.arbitrumSepolia.aguayoSBT as `0x${string}`,
+    address: CONTRACTS.monadMainnet.aguayoSBT as `0x${string}`,
     abi: AGUAYO_SBT_ABI,
     eventName: "StainAdded",
     onLogs: () => {

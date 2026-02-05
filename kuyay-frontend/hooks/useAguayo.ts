@@ -9,7 +9,7 @@ export function useHasAguayo() {
   const { address } = useAccount();
 
   const { data: hasAguayo, isLoading, refetch } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.aguayoSBT as `0x${string}`,
+    address: CONTRACTS.monadMainnet.aguayoSBT as `0x${string}`,
     abi: AGUAYO_SBT_ABI,
     functionName: "hasAguayo",
     args: address ? [address] : undefined,
@@ -34,7 +34,7 @@ export function useAguayoTokenId() {
   const { hasAguayo } = useHasAguayo();
 
   const { data: tokenId, isLoading } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.aguayoSBT as `0x${string}`,
+    address: CONTRACTS.monadMainnet.aguayoSBT as `0x${string}`,
     abi: AGUAYO_SBT_ABI,
     functionName: "getAguayoByUser",
     args: address ? [address] : undefined,
@@ -56,7 +56,7 @@ export function useAguayoMetadata() {
   const { tokenId } = useAguayoTokenId();
 
   const { data: metadata, isLoading, refetch } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.aguayoSBT as `0x${string}`,
+    address: CONTRACTS.monadMainnet.aguayoSBT as `0x${string}`,
     abi: AGUAYO_SBT_ABI,
     functionName: "getAguayoMetadata",
     args: tokenId ? [BigInt(tokenId)] : undefined,
@@ -98,7 +98,7 @@ export function useMintAguayo() {
   const mintAguayo = async () => {
     try {
       writeContract({
-        address: CONTRACTS.arbitrumSepolia.aguayoSBT as `0x${string}`,
+        address: CONTRACTS.monadMainnet.aguayoSBT as `0x${string}`,
         abi: AGUAYO_SBT_ABI,
         functionName: "mintAguayo",
       });
@@ -125,7 +125,7 @@ export function useIsEligibleForCredit() {
   const { tokenId } = useAguayoTokenId();
 
   const { data: isEligible, isLoading } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.aguayoSBT as `0x${string}`,
+    address: CONTRACTS.monadMainnet.aguayoSBT as `0x${string}`,
     abi: AGUAYO_SBT_ABI,
     functionName: "isEligibleForCredit",
     args: tokenId ? [BigInt(tokenId)] : undefined,

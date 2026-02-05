@@ -18,7 +18,7 @@ export function useMemberEligibility(
   isCreditMode: boolean = false
 ) {
   const { data: isEligible, isLoading, error, refetch } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.riskOracle as `0x${string}`,
+    address: CONTRACTS.monadMainnet.riskOracle as `0x${string}`,
     abi: RISK_ORACLE_ABI,
     functionName: "isMemberEligible",
     args: [memberAddress as `0x${string}`, isCreditMode],
@@ -40,7 +40,7 @@ export function useMemberEligibility(
  */
 export function useAllMembersEligibility(memberAddresses: string[]) {
   const { data: allEligible, isLoading, error, refetch } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.riskOracle as `0x${string}`,
+    address: CONTRACTS.monadMainnet.riskOracle as `0x${string}`,
     abi: RISK_ORACLE_ABI,
     functionName: "areAllMembersEligible",
     args: [memberAddresses as `0x${string}`[]],
@@ -65,7 +65,7 @@ export function useAllMembersEligibility(memberAddresses: string[]) {
  */
 export function useLeverageLevel(memberAddresses: string[]) {
   const { data, isLoading, error, refetch } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.riskOracle as `0x${string}`,
+    address: CONTRACTS.monadMainnet.riskOracle as `0x${string}`,
     abi: RISK_ORACLE_ABI,
     functionName: "getLeverageLevel",
     args: [memberAddresses as `0x${string}`[]],
@@ -95,7 +95,7 @@ export function useLeverageLevel(memberAddresses: string[]) {
  */
 export function useGroupStats(memberAddresses: string[]) {
   const { data, isLoading, error, refetch } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.riskOracle as `0x${string}`,
+    address: CONTRACTS.monadMainnet.riskOracle as `0x${string}`,
     abi: RISK_ORACLE_ABI,
     functionName: "getGroupStats",
     args: [memberAddresses as `0x${string}`[]],
@@ -123,7 +123,7 @@ export function useGroupStats(memberAddresses: string[]) {
  */
 export function useTierForLevel(averageLevel: number) {
   const { data, isLoading, error } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.riskOracle as `0x${string}`,
+    address: CONTRACTS.monadMainnet.riskOracle as `0x${string}`,
     abi: RISK_ORACLE_ABI,
     functionName: "getTierForAverageLevel",
     args: [averageLevel as any],
@@ -151,7 +151,7 @@ export function useTierForLevel(averageLevel: number) {
  */
 export function useAllTiers() {
   const { data: tierCount } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.riskOracle as `0x${string}`,
+    address: CONTRACTS.monadMainnet.riskOracle as `0x${string}`,
     abi: RISK_ORACLE_ABI,
     functionName: "getLeverageTierCount",
   });
@@ -173,37 +173,37 @@ export function useAllTiers() {
  */
 export function useRiskOracleConfig() {
   const { data: owner } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.riskOracle as `0x${string}`,
+    address: CONTRACTS.monadMainnet.riskOracle as `0x${string}`,
     abi: RISK_ORACLE_ABI,
     functionName: "owner",
   });
 
   const { data: aguayoSbt } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.riskOracle as `0x${string}`,
+    address: CONTRACTS.monadMainnet.riskOracle as `0x${string}`,
     abi: RISK_ORACLE_ABI,
     functionName: "aguayoSbt",
   });
 
   const { data: minLevelForCredit } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.riskOracle as `0x${string}`,
+    address: CONTRACTS.monadMainnet.riskOracle as `0x${string}`,
     abi: RISK_ORACLE_ABI,
     functionName: "minLevelForCredit",
   });
 
   const { data: maxLeverageMultiplier } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.riskOracle as `0x${string}`,
+    address: CONTRACTS.monadMainnet.riskOracle as `0x${string}`,
     abi: RISK_ORACLE_ABI,
     functionName: "maxLeverageMultiplier",
   });
 
   const { data: baseInterestRate } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.riskOracle as `0x${string}`,
+    address: CONTRACTS.monadMainnet.riskOracle as `0x${string}`,
     abi: RISK_ORACLE_ABI,
     functionName: "baseInterestRateBps",
   });
 
   const { data: riskPremium } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.riskOracle as `0x${string}`,
+    address: CONTRACTS.monadMainnet.riskOracle as `0x${string}`,
     abi: RISK_ORACLE_ABI,
     functionName: "riskPremiumPerStainBps",
   });

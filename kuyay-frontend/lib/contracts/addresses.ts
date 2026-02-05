@@ -7,13 +7,16 @@ export const CONTRACTS = {
   // Monad MAINNET (LIVE - Production Network)
   monadMainnet: {
     chainId: 143,
-    // Core Contracts
+    // Core Contracts (Deployed)
     kuyayToken: "0xF10Fba346c07110A2A8543Df8659F0b600fD7777",
-    usdc: "0x754704Bc059F8C67012fEd69BC8A327a5aafb603", // Real USDC
+    usdc: "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
     circleFaithFactory: "0x7066e62307551fd6f14325F905e5268436557837",
     aguayoSBT: "0x10C93611831AEFFA3D0Fde086C682dfE7E3495Ac",
-    // Legacy/Optional
+    // Legacy/Not Deployed (placeholder for type compatibility)
+    circleFactory: "",
+    circleSimulator: "",
     kuyayVault: "",
+    vault: "",
     riskOracle: "",
   },
   // Monad Testnet (Legacy - for reference)

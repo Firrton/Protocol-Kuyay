@@ -16,19 +16,19 @@ import type { SimulationResult } from "@/lib/contracts/abis";
  */
 export function useSimulatorInfo() {
   const { data: owner } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.circleSimulator as `0x${string}`,
+    address: CONTRACTS.monadMainnet.circleSimulator as `0x${string}`,
     abi: CIRCLE_SIMULATOR_ABI,
     functionName: "owner",
   });
 
   const { data: simulationCount } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.circleSimulator as `0x${string}`,
+    address: CONTRACTS.monadMainnet.circleSimulator as `0x${string}`,
     abi: CIRCLE_SIMULATOR_ABI,
     functionName: "simulationCount",
   });
 
   const { data: lastGasUsed } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.circleSimulator as `0x${string}`,
+    address: CONTRACTS.monadMainnet.circleSimulator as `0x${string}`,
     abi: CIRCLE_SIMULATOR_ABI,
     functionName: "lastGasUsed",
   });
@@ -51,7 +51,7 @@ export function useQuickSimulate(
   defaultProbability: number // 0-10000 (0-100%)
 ) {
   const { data, isLoading, error, refetch } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.circleSimulator as `0x${string}`,
+    address: CONTRACTS.monadMainnet.circleSimulator as `0x${string}`,
     abi: CIRCLE_SIMULATOR_ABI,
     functionName: "quickSimulate",
     args: [
@@ -101,7 +101,7 @@ export function useFullSimulation() {
   ) => {
     try {
       writeContract({
-        address: CONTRACTS.arbitrumSepolia.circleSimulator as `0x${string}`,
+        address: CONTRACTS.monadMainnet.circleSimulator as `0x${string}`,
         abi: CIRCLE_SIMULATOR_ABI,
         functionName: "simulateCircle",
         args: [

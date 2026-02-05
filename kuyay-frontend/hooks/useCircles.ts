@@ -34,7 +34,7 @@ export function useCreateSavingsCircle() {
 
     try {
       writeContract({
-        address: CONTRACTS.arbitrumSepolia.circleFactory as `0x${string}`,
+        address: CONTRACTS.monadMainnet.circleFactory as `0x${string}`,
         abi: CIRCLE_FACTORY_ABI,
         functionName: "createSavingsCircle",
         args: [
@@ -89,7 +89,7 @@ export function useCreateCreditCircle() {
 
     try {
       writeContract({
-        address: CONTRACTS.arbitrumSepolia.circleFactory as `0x${string}`,
+        address: CONTRACTS.monadMainnet.circleFactory as `0x${string}`,
         abi: CIRCLE_FACTORY_ABI,
         functionName: "createCreditCircle",
         args: [
@@ -122,7 +122,7 @@ export function useUserCircles() {
   const { address } = useAccount();
 
   const { data: circles,isLoading,refetch } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.circleFactory as `0x${string}`,
+    address: CONTRACTS.monadMainnet.circleFactory as `0x${string}`,
     abi: CIRCLE_FACTORY_ABI,
     functionName: "getUserCircles",
     args: address ? [address] : undefined,
@@ -147,7 +147,7 @@ export function useUserCirclesWithDetails() {
 
   // Primero obtener las direcciones de los círculos
   const { data: circleAddresses,isLoading: isLoadingAddresses,refetch } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.circleFactory as `0x${string}`,
+    address: CONTRACTS.monadMainnet.circleFactory as `0x${string}`,
     abi: CIRCLE_FACTORY_ABI,
     functionName: "getUserCircles",
     args: address ? [address] : undefined,
@@ -469,7 +469,7 @@ export function useMakePayment() {
 
       // Paso 1: Aprobar USDC
       writeContract({
-        address: CONTRACTS.arbitrumSepolia.usdc as `0x${string}`,
+        address: CONTRACTS.monadMainnet.usdc as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "approve",
         args: [circleAddress as `0x${string}`,amountInWei],
@@ -607,7 +607,7 @@ export function useDepositGuarantee() {
 
       // Paso 1: Aprobar USDC
       writeContract({
-        address: CONTRACTS.arbitrumSepolia.usdc as `0x${string}`,
+        address: CONTRACTS.monadMainnet.usdc as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "approve",
         args: [circleAddress as `0x${string}`,amountInWei],

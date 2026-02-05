@@ -24,7 +24,7 @@ export default function PaymentButton({
 
   // Leer balance de USDC del usuario
   const { data: usdcBalance, refetch: refetchBalance } = useReadContract({
-    address: CONTRACTS.arbitrumSepolia.usdc as `0x${string}`,
+    address: CONTRACTS.monadMainnet.usdc as `0x${string}`,
     abi: [
       {
         name: "balanceOf",

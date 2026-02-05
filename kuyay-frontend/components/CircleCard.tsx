@@ -4,9 +4,8 @@ import { useState } from "react";
 import { useAccount } from "wagmi";
 import PaymentButton from "./PaymentButton";
 import DepositGuaranteeButton from "./DepositGuaranteeButton";
-import CircleMonteCarloStats from "./CircleMonteCarloStats";
 import DrawCeremonyPanel from "./DrawCeremonyPanel";
-import { useHasUserPaid, useHasDepositedGuarantee, useMembersGuaranteeStatus } from "@/hooks/useCircles";
+import { useHasUserPaid,useHasDepositedGuarantee,useMembersGuaranteeStatus } from "@/hooks/useCircles";
 
 interface Circle {
   name: string;
@@ -45,23 +44,23 @@ export default function CircleCard({
   const { address: userAddress } = useAccount();
 
   // Verificar si ya depositó la garantía
-  const { hasDeposited, refetch: refetchGuarantee } = useHasDepositedGuarantee(circle.address);
+  const { hasDeposited,refetch: refetchGuarantee } = useHasDepositedGuarantee(circle.address);
 
   // Obtener el estado real de pago del usuario desde el contrato
-  const { hasPaid: hasUserPaidReal, refetch: refetchPaymentStatus } = useHasUserPaid(
+  const { hasPaid: hasUserPaidReal,refetch: refetchPaymentStatus } = useHasUserPaid(
     circle.address,
     circle.currentRound
   );
 
   // Obtener estado de depósitos de todos los miembros
   const memberAddresses = circle.members?.map((m) => m.address) || [];
-  const { membersStatus, depositedCount, totalMembers, refetch: refetchMembersStatus } = useMembersGuaranteeStatus(
+  const { membersStatus,depositedCount,totalMembers,refetch: refetchMembersStatus } = useMembersGuaranteeStatus(
     circle.address,
     memberAddresses
   );
 
   // Debug: mostrar estado del círculo
-  console.log("🔍 CircleCard Debug:", {
+  console.log("🔍 CircleCard Debug:",{
     name: circle.name,
     address: circle.address,
     status: circle.status,
@@ -86,11 +85,10 @@ export default function CircleCard({
             <div className="flex items-center gap-3">
               <h3 className="text-2xl font-display font-bold text-white">{circle.name}</h3>
               <span
-                className={`px-3 py-1 rounded-full text-xs font-display font-bold ${
-                  circle.mode === "CREDIT"
+                className={`px-3 py-1 rounded-full text-xs font-display font-bold ${circle.mode === "CREDIT"
                     ? "bg-ceremonial/20 text-ceremonial border border-ceremonial/40"
                     : "bg-pachamama/20 text-pachamama border border-pachamama/40"
-                }`}
+                  }`}
               >
                 {circle.mode}
               </span>
@@ -117,24 +115,25 @@ export default function CircleCard({
           </div>
         </div>
 
-        {/* Análisis Monte Carlo Compacto */}
-        <CircleMonteCarloStats
-          numMembers={circle.memberCount}
-          cuotaAmount={circle.cuotaAmount}
-          memberAddresses={memberAddresses}
-          circleName={circle.name}
-        />
+        {/* Faith indicator - replaces Monte Carlo */}
+        <div className="bg-gradient-to-r from-dorado/10 to-ocre/10 rounded-lg p-3 border border-dorado/30">
+          <div className="flex items-center justify-between">
+            <span className="text-gris">🙏 Sistema de Fe</span>
+            <span className="text-sm font-display font-bold text-dorado">
+              Mayor Fe = Mayor probabilidad de ganar
+            </span>
+          </div>
+        </div>
 
         {/* Badge de Estado del Círculo */}
         <div className="flex justify-center">
           <span
-            className={`px-4 py-2 rounded-full text-sm font-display font-bold ${
-              circle.status === "DEPOSIT"
+            className={`px-4 py-2 rounded-full text-sm font-display font-bold ${circle.status === "DEPOSIT"
                 ? "bg-dorado/20 text-dorado border-2 border-dorado/40"
                 : circle.status === "ACTIVE"
-                ? "bg-pachamama/20 text-pachamama border-2 border-pachamama/40"
-                : "bg-tierra/20 text-gris border-2 border-tierra/40"
-            }`}
+                  ? "bg-pachamama/20 text-pachamama border-2 border-pachamama/40"
+                  : "bg-tierra/20 text-gris border-2 border-tierra/40"
+              }`}
           >
             {circle.status === "DEPOSIT" && "💎 Fase de Garantías - Esperando Depósitos"}
             {circle.status === "ACTIVE" && "⚡ Círculo Activo - Ronda " + circle.currentRound}
@@ -222,31 +221,29 @@ export default function CircleCard({
         {circle.status === "ACTIVE" && (
           <>
             <div
-              className={`rounded-xl p-4 border-2 ${
-                hasUserPaid
+              className={`rounded-xl p-4 border-2 ${hasUserPaid
                   ? "bg-pachamama/10 border-pachamama/30"
                   : "bg-ceremonial/10 border-ceremonial/50"
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex items-center gap-3">
                   <span className="text-3xl">{hasUserPaid ? "✅" : "⏰"}</span>
                   <div>
                     <div
-                      className={`font-display font-bold ${
-                        hasUserPaid ? "text-pachamama" : "text-ceremonial"
-                      }`}
+                      className={`font-display font-bold ${hasUserPaid ? "text-pachamama" : "text-ceremonial"
+                        }`}
                     >
                       {hasUserPaid ? "Pago Completado" : "Pago Pendiente"}
                     </div>
                     <div className="text-sm text-gris" suppressHydrationWarning>
                       {hasUserPaid
                         ? "Esperando al resto del grupo"
-                        : `Vence: ${circle.nextPaymentDue.toLocaleDateString("es-ES", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}`}
+                        : `Vence: ${circle.nextPaymentDue.toLocaleDateString("es-ES",{
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}`}
                     </div>
                   </div>
                 </div>
@@ -307,7 +304,7 @@ export default function CircleCard({
               <div>
                 <span className="text-gris">Dirección:</span>
                 <p className="text-white font-mono text-xs mt-1">
-                  {circle.address.slice(0, 6)}...{circle.address.slice(-4)}
+                  {circle.address.slice(0,6)}...{circle.address.slice(-4)}
                 </p>
               </div>
               <div>
@@ -329,16 +326,15 @@ export default function CircleCard({
                 )}
               </h4>
               <div className="space-y-2">
-                {membersStatus.map((member, idx) => {
+                {membersStatus.map((member,idx) => {
                   const isCurrentUser = member.address.toLowerCase() === userAddress?.toLowerCase();
                   return (
                     <div
                       key={idx}
-                      className={`flex items-center justify-between rounded-lg p-3 border ${
-                        member.hasDeposited
+                      className={`flex items-center justify-between rounded-lg p-3 border ${member.hasDeposited
                           ? "bg-pachamama/10 border-pachamama/30"
                           : "bg-tierra/10 border-tierra"
-                      } ${isCurrentUser ? "ring-2 ring-ocre" : ""}`}
+                        } ${isCurrentUser ? "ring-2 ring-ocre" : ""}`}
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-2xl">
@@ -346,7 +342,7 @@ export default function CircleCard({
                         </span>
                         <div>
                           <div className="text-sm font-mono text-white">
-                            {member.address.slice(0, 6)}...{member.address.slice(-4)}
+                            {member.address.slice(0,6)}...{member.address.slice(-4)}
                             {isCurrentUser && (
                               <span className="ml-2 text-xs bg-ocre/20 text-ocre px-2 py-0.5 rounded-full">
                                 Tú
@@ -363,11 +359,10 @@ export default function CircleCard({
                         </div>
                       </div>
                       <div
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          member.hasDeposited
+                        className={`px-3 py-1 rounded-full text-xs font-bold ${member.hasDeposited
                             ? "bg-pachamama/20 text-pachamama"
                             : "bg-gris/20 text-gris"
-                        }`}
+                          }`}
                       >
                         {member.hasDeposited ? "Depositado" : "Pendiente"}
                       </div>

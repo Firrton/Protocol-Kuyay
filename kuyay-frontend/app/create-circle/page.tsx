@@ -5,14 +5,12 @@ import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import QuickRiskBadge from "@/components/QuickRiskBadge";
-import MonteCarloModal from "@/components/MonteCarloModal";
 import { useCreateSavingsCircle } from "@/hooks/useCircles";
 
 export default function CreateCirclePage() {
-  const { address, isConnected } = useAccount();
+  const { address,isConnected } = useAccount();
   const router = useRouter();
-  const [step, setStep] = useState(1);
-  const [showMonteCarloModal, setShowMonteCarloModal] = useState(false);
+  const [step,setStep] = useState(1);
 
   // Hook para crear círculo
   const {
@@ -24,7 +22,7 @@ export default function CreateCirclePage() {
   } = useCreateSavingsCircle();
 
   // Form state
-  const [formData, setFormData] = useState({
+  const [formData,setFormData] = useState({
     circleName: "",
     cuotaAmount: "100",
     guaranteeAmount: "500",
@@ -38,7 +36,7 @@ export default function CreateCirclePage() {
     if (formData.newMemberInput && !formData.members.includes(formData.newMemberInput)) {
       setFormData({
         ...formData,
-        members: [...formData.members, formData.newMemberInput],
+        members: [...formData.members,formData.newMemberInput],
         newMemberInput: "",
       });
     }
@@ -85,7 +83,7 @@ export default function CreateCirclePage() {
         formData.members
       );
     } catch (err) {
-      console.error("Error creando círculo:", err);
+      console.error("Error creando círculo:",err);
     }
   };
 
@@ -138,22 +136,20 @@ export default function CreateCirclePage() {
 
         {/* Progress Steps */}
         <div className="flex items-center justify-center gap-4 mb-8">
-          {[1, 2, 3].map((num) => (
+          {[1,2,3].map((num) => (
             <div key={num} className="flex items-center gap-2">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-display font-bold transition-all ${
-                  step >= num
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-display font-bold transition-all ${step >= num
                     ? "bg-gradient-to-r from-pachamama to-dorado text-white"
                     : "bg-tierra/20 text-gris"
-                }`}
+                  }`}
               >
                 {num}
               </div>
               {num < 3 && (
                 <div
-                  className={`w-16 h-1 ${
-                    step > num ? "bg-pachamama" : "bg-tierra/20"
-                  }`}
+                  className={`w-16 h-1 ${step > num ? "bg-pachamama" : "bg-tierra/20"
+                    }`}
                 />
               )}
             </div>
@@ -177,7 +173,7 @@ export default function CreateCirclePage() {
                   type="text"
                   value={formData.circleName}
                   onChange={(e) =>
-                    setFormData({ ...formData, circleName: e.target.value })
+                    setFormData({ ...formData,circleName: e.target.value })
                   }
                   placeholder="Ej: Ayllu de Comerciantes"
                   className="w-full px-4 py-3 bg-profundo border border-tierra rounded-lg text-white placeholder-gris focus:outline-none focus:border-pachamama transition-colors"
@@ -193,7 +189,7 @@ export default function CreateCirclePage() {
                     type="number"
                     value={formData.cuotaAmount}
                     onChange={(e) =>
-                      setFormData({ ...formData, cuotaAmount: e.target.value })
+                      setFormData({ ...formData,cuotaAmount: e.target.value })
                     }
                     className="w-full px-4 py-3 bg-profundo border border-tierra rounded-lg text-white focus:outline-none focus:border-pachamama transition-colors"
                   />
@@ -225,7 +221,7 @@ export default function CreateCirclePage() {
                   type="number"
                   value={formData.totalRounds}
                   onChange={(e) =>
-                    setFormData({ ...formData, totalRounds: e.target.value })
+                    setFormData({ ...formData,totalRounds: e.target.value })
                   }
                   className="w-full px-4 py-3 bg-profundo border border-tierra rounded-lg text-white focus:outline-none focus:border-pachamama transition-colors"
                 />
@@ -235,11 +231,10 @@ export default function CreateCirclePage() {
             <button
               onClick={() => setStep(2)}
               disabled={!formData.circleName || !formData.cuotaAmount}
-              className={`w-full mt-6 px-6 py-4 rounded-xl font-display font-bold text-white text-lg transition-all ${
-                formData.circleName && formData.cuotaAmount
+              className={`w-full mt-6 px-6 py-4 rounded-xl font-display font-bold text-white text-lg transition-all ${formData.circleName && formData.cuotaAmount
                   ? "bg-gradient-to-r from-pachamama to-dorado hover:scale-105 cursor-pointer"
                   : "bg-tierra/30 cursor-not-allowed opacity-50"
-              }`}
+                }`}
             >
               Continuar →
             </button>
@@ -261,7 +256,7 @@ export default function CreateCirclePage() {
                   type="text"
                   value={formData.newMemberInput}
                   onChange={(e) =>
-                    setFormData({ ...formData, newMemberInput: e.target.value })
+                    setFormData({ ...formData,newMemberInput: e.target.value })
                   }
                   placeholder="Dirección de wallet (0x...)"
                   className="flex-1 px-4 py-3 bg-profundo border border-tierra rounded-lg text-white placeholder-gris focus:outline-none focus:border-pachamama transition-colors"
@@ -278,7 +273,7 @@ export default function CreateCirclePage() {
               {/* Lista de miembros */}
               {formData.members.length > 0 && (
                 <div className="space-y-2 mb-6">
-                  {formData.members.map((member, idx) => (
+                  {formData.members.map((member,idx) => (
                     <div
                       key={idx}
                       className="flex items-center justify-between bg-profundo border border-tierra rounded-lg p-4"
@@ -286,7 +281,7 @@ export default function CreateCirclePage() {
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">👤</span>
                         <span className="font-mono text-white text-sm">
-                          {member.slice(0, 6)}...{member.slice(-4)}
+                          {member.slice(0,6)}...{member.slice(-4)}
                         </span>
                       </div>
                       <button
@@ -308,11 +303,14 @@ export default function CreateCirclePage() {
               )}
             </div>
 
-            {/* Quick Risk Badge */}
+            {/* Faith-based system info */}
             {formData.members.length >= 2 && (
               <QuickRiskBadge
                 memberAddresses={formData.members}
-                onViewDetails={() => setShowMonteCarloModal(true)}
+                onViewDetails={() => {
+                  // Monte Carlo removed - using Faith system now
+                  console.log("Showing Faith-based info");
+                }}
               />
             )}
 
@@ -327,11 +325,10 @@ export default function CreateCirclePage() {
               <button
                 onClick={() => setStep(3)}
                 disabled={formData.members.length < 2}
-                className={`flex-1 px-6 py-4 rounded-xl font-display font-bold text-white text-lg transition-all ${
-                  formData.members.length >= 2
+                className={`flex-1 px-6 py-4 rounded-xl font-display font-bold text-white text-lg transition-all ${formData.members.length >= 2
                     ? "bg-gradient-to-r from-pachamama to-dorado hover:scale-105 cursor-pointer"
                     : "bg-tierra/30 cursor-not-allowed opacity-50"
-                }`}
+                  }`}
               >
                 Continuar →
               </button>
@@ -434,20 +431,7 @@ export default function CreateCirclePage() {
           </div>
         )}
 
-        {/* Modal de Monte Carlo */}
-        {formData.members.length >= 2 && (
-          <MonteCarloModal
-            isOpen={showMonteCarloModal}
-            onClose={() => setShowMonteCarloModal(false)}
-            numMembers={formData.members.length}
-            cuotaAmount={formData.cuotaAmount}
-            memberAddresses={formData.members}
-            onAccept={() => {
-              // Usuario acepta continuar con estos miembros
-              console.log("Usuario aceptó el riesgo calculado");
-            }}
-          />
-        )}
+        {/* Faith-based system - Monte Carlo removed */}
       </div>
 
       {/* Custom scrollbar styles */}

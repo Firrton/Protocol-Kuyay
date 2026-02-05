@@ -1,17 +1,17 @@
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useReadContracts } from "wagmi";
-import { CONTRACTS, CONTRACTS_DEPLOYED } from "@/lib/contracts/addresses";
+import { useAccount,useReadContract,useWriteContract,useWaitForTransactionReceipt,useReadContracts } from "wagmi";
+import { CONTRACTS,CONTRACTS_DEPLOYED } from "@/lib/contracts/addresses";
 import { parseUnits } from "viem";
-import { useState, useEffect, useCallback } from "react";
-import { ERC20_ABI, CIRCLE_ABI, CIRCLE_FACTORY_ABI } from "@/lib/contracts/abis";
+import { useState,useEffect,useCallback } from "react";
+import { ERC20_ABI,CIRCLE_ABI,CIRCLE_FACTORY_ABI } from "@/lib/contracts/abis";
 
 /**
  * Hook para crear un círculo de ahorro
  */
 export function useCreateSavingsCircle() {
   const { address: userAddress } = useAccount();
-  const { writeContract, data: hash, isPending, error } = useWriteContract();
+  const { writeContract,data: hash,isPending,error } = useWriteContract();
 
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+  const { isLoading: isConfirming,isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
       hash,
     });
@@ -30,7 +30,7 @@ export function useCreateSavingsCircle() {
     }
 
     // Array de miembros = [usuario actual, ...direcciones invitadas]
-    const members: `0x${string}`[] = [userAddress, ...invitedAddresses as `0x${string}`[]];
+    const members: `0x${string}`[] = [userAddress,...invitedAddresses as `0x${string}`[]];
 
     try {
       writeContract({
@@ -39,12 +39,12 @@ export function useCreateSavingsCircle() {
         functionName: "createSavingsCircle",
         args: [
           members,
-          parseUnits(guaranteeAmount.toString(), 6),
-          parseUnits(cuotaAmount.toString(), 6)
+          parseUnits(guaranteeAmount.toString(),6),
+          parseUnits(cuotaAmount.toString(),6)
         ]
       });
     } catch (err) {
-      console.error("Error creating savings circle:", err);
+      console.error("Error creating savings circle:",err);
       throw err;
     }
   };
@@ -64,9 +64,9 @@ export function useCreateSavingsCircle() {
  */
 export function useCreateCreditCircle() {
   const { address: userAddress } = useAccount();
-  const { writeContract, data: hash, isPending, error } = useWriteContract();
+  const { writeContract,data: hash,isPending,error } = useWriteContract();
 
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+  const { isLoading: isConfirming,isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
       hash,
     });
@@ -85,7 +85,7 @@ export function useCreateCreditCircle() {
     }
 
     // Array de miembros = [usuario actual, ...direcciones invitadas]
-    const members: `0x${string}`[] = [userAddress, ...invitedAddresses as `0x${string}`[]];
+    const members: `0x${string}`[] = [userAddress,...invitedAddresses as `0x${string}`[]];
 
     try {
       writeContract({
@@ -94,12 +94,12 @@ export function useCreateCreditCircle() {
         functionName: "createCreditCircle",
         args: [
           members,
-          parseUnits(guaranteeAmount.toString(), 6),
-          parseUnits(cuotaAmount.toString(), 6)
+          parseUnits(guaranteeAmount.toString(),6),
+          parseUnits(cuotaAmount.toString(),6)
         ]
       });
     } catch (err) {
-      console.error("Error creating credit circle:", err);
+      console.error("Error creating credit circle:",err);
       throw err;
     }
   };
@@ -121,7 +121,7 @@ export function useCreateCreditCircle() {
 export function useUserCircles() {
   const { address } = useAccount();
 
-  const { data: circles, isLoading, refetch } = useReadContract({
+  const { data: circles,isLoading,refetch } = useReadContract({
     address: CONTRACTS.arbitrumSepolia.circleFactory as `0x${string}`,
     abi: CIRCLE_FACTORY_ABI,
     functionName: "getUserCircles",
@@ -146,7 +146,7 @@ export function useUserCirclesWithDetails() {
   const { address } = useAccount();
 
   // Primero obtener las direcciones de los círculos
-  const { data: circleAddresses, isLoading: isLoadingAddresses, refetch } = useReadContract({
+  const { data: circleAddresses,isLoading: isLoadingAddresses,refetch } = useReadContract({
     address: CONTRACTS.arbitrumSepolia.circleFactory as `0x${string}`,
     abi: CIRCLE_FACTORY_ABI,
     functionName: "getUserCircles",
@@ -191,7 +191,7 @@ export function useUserCirclesWithDetails() {
   ]);
 
   // Obtener todos los datos en paralelo
-  const { data: contractsData, isLoading: isLoadingDetails } = useReadContracts({
+  const { data: contractsData,isLoading: isLoadingDetails } = useReadContracts({
     contracts: contracts as any,
     query: {
       enabled: addresses.length > 0 && CONTRACTS_DEPLOYED.circleFactory,
@@ -202,14 +202,14 @@ export function useUserCirclesWithDetails() {
   const processedData = (contractsData as any[]) || [];
 
   // Procesar los datos y crear el array de círculos con detalles
-  const circlesWithDetails = addresses.map((circleAddress, index) => {
+  const circlesWithDetails = addresses.map((circleAddress,index) => {
     const baseIndex = index * 5; // 5 llamadas por círculo
 
     if (processedData.length < baseIndex + 5) {
       return null;
     }
 
-    const circleState = processedData[baseIndex]?.result as [number, number, bigint, bigint] | undefined;
+    const circleState = processedData[baseIndex]?.result as [number,number,bigint,bigint] | undefined;
     const cuotaAmount = processedData[baseIndex + 1]?.result as bigint | undefined;
     const guaranteeAmount = processedData[baseIndex + 2]?.result as bigint | undefined;
     const totalRounds = processedData[baseIndex + 3]?.result as bigint | undefined;
@@ -219,7 +219,7 @@ export function useUserCirclesWithDetails() {
       return null;
     }
 
-    const [mode, status, round, pot] = circleState;
+    const [mode,status,round,pot] = circleState;
 
     return {
       name: `Círculo ${index + 1}`, // Puedes mejorar esto obteniendo el nombre del contrato si existe
@@ -235,6 +235,7 @@ export function useUserCirclesWithDetails() {
       nextPaymentDue: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Por ahora 7 días (puedes mejorarlo)
       hasUserPaid: false, // Se actualiza con un hook separado useHasUserPaid
       leverage: mode === 1 ? "2.5x" : undefined, // TODO: obtener del contrato si está disponible
+      protocolLoan: mode === 1 ? Number(cuotaAmount) * members.length * 2.5 / 1e6 : undefined, // Calculado para CREDIT mode
       members: members.map((addr) => ({
         address: addr,
         hasPaid: false, // TODO: implementar
@@ -253,16 +254,16 @@ export function useUserCirclesWithDetails() {
 /**
  * Hook para verificar cuántos miembros han pagado en la ronda actual
  */
-export function useRoundPaymentStatus(circleAddress: string, currentRound: number, members: string[]) {
+export function useRoundPaymentStatus(circleAddress: string,currentRound: number,members: string[]) {
   // Obtener estado de pago de cada miembro
   const contracts = members.map((member) => ({
     address: circleAddress as `0x${string}`,
     abi: CIRCLE_ABI,
     functionName: "hasPaidRound",
-    args: [member as `0x${string}`, BigInt(currentRound)],
+    args: [member as `0x${string}`,BigInt(currentRound)],
   }));
 
-  const { data, isLoading, refetch } = useReadContracts({
+  const { data,isLoading,refetch } = useReadContracts({
     contracts: contracts as any,
     query: {
       enabled: !!circleAddress && members.length > 0 && CONTRACTS_DEPLOYED.circleFactory,
@@ -277,7 +278,7 @@ export function useRoundPaymentStatus(circleAddress: string, currentRound: numbe
   const paidMembers = resultsArray.filter((result: any) => result.result === true).length;
   const allPaid = paidMembers === members.length && members.length > 0;
 
-  console.log("💰 Payment Status:", {
+  console.log("💰 Payment Status:",{
     paidMembers,
     totalMembers: members.length,
     allPaid,
@@ -356,7 +357,7 @@ export function useCircleDetails(circleAddress: string | undefined) {
   }
 
   // Mapear los datos del contrato al formato esperado
-  const [mode, status, round, pot] = circleState as [number, number, bigint, bigint];
+  const [mode,status,round,pot] = circleState as [number,number,bigint,bigint];
 
   const details = {
     address: circleAddress || "",
@@ -383,13 +384,13 @@ export function useCircleDetails(circleAddress: string | undefined) {
  */
 export function useMakePayment() {
   const { address } = useAccount();
-  const { writeContract, data: hash, isPending, error, reset } = useWriteContract();
-  const [paymentStep, setPaymentStep] = useState<"idle" | "approving" | "paying">("idle");
-  const [pendingPayment, setPendingPayment] = useState<{ circleAddress: string; amount: bigint } | null>(null);
-  const [approvalHash, setApprovalHash] = useState<string | undefined>(undefined);
-  const [paymentHash, setPaymentHash] = useState<string | undefined>(undefined);
+  const { writeContract,data: hash,isPending,error,reset } = useWriteContract();
+  const [paymentStep,setPaymentStep] = useState<"idle" | "approving" | "paying">("idle");
+  const [pendingPayment,setPendingPayment] = useState<{ circleAddress: string; amount: bigint } | null>(null);
+  const [approvalHash,setApprovalHash] = useState<string | undefined>(undefined);
+  const [paymentHash,setPaymentHash] = useState<string | undefined>(undefined);
 
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+  const { isLoading: isConfirming,isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
       hash,
     });
@@ -400,7 +401,7 @@ export function useMakePayment() {
     }
 
     try {
-      console.log("💰 Executing payment to:", circleAddress);
+      console.log("💰 Executing payment to:",circleAddress);
       setPaymentStep("paying");
 
       writeContract({
@@ -410,33 +411,33 @@ export function useMakePayment() {
         gas: 800000n, // ⬆️ Gas aumentado para makeRoundPayment + updateAguayo + posible VRF
       });
     } catch (err) {
-      console.error("❌ Error making payment:", err);
+      console.error("❌ Error making payment:",err);
       setPaymentStep("idle");
       throw err;
     }
-  }, [writeContract]);
+  },[writeContract]);
 
   // Guardar hash cuando se genera
   useEffect(() => {
     if (hash) {
       if (paymentStep === "approving") {
-        console.log("📝 Approval hash:", hash);
+        console.log("📝 Approval hash:",hash);
         setApprovalHash(hash);
       } else if (paymentStep === "paying") {
-        console.log("📝 Payment hash:", hash);
+        console.log("📝 Payment hash:",hash);
         setPaymentHash(hash);
       }
     }
-  }, [hash, paymentStep]);
+  },[hash,paymentStep]);
 
   // Cuando se confirma la aprobación, proceder con el pago
   useEffect(() => {
-    console.log("🔍 Approval check:", { 
-      isConfirmed, 
-      paymentStep, 
+    console.log("🔍 Approval check:",{
+      isConfirmed,
+      paymentStep,
       hasPendingPayment: !!pendingPayment,
       currentHash: hash,
-      approvalHash 
+      approvalHash
     });
 
     if (isConfirmed && paymentStep === "approving" && pendingPayment && hash === approvalHash) {
@@ -444,26 +445,26 @@ export function useMakePayment() {
       // Esperar un momento para que la aprobación se registre en blockchain
       setTimeout(() => {
         executePayment(pendingPayment.circleAddress);
-      }, 5000);
+      },5000);
     }
-  }, [isConfirmed, paymentStep, pendingPayment, hash, approvalHash, executePayment]);
+  },[isConfirmed,paymentStep,pendingPayment,hash,approvalHash,executePayment]);
 
-  const makePayment = async (circleAddress: string, amount: number) => {
+  const makePayment = async (circleAddress: string,amount: number) => {
     if (!CONTRACTS_DEPLOYED.circleFactory) {
       // Modo mock - simular
-      console.log("Making payment (mock):", { circleAddress, amount });
-      alert(`Modo demo: Pagarías $${amount} USDC al círculo ${circleAddress.slice(0, 6)}...`);
+      console.log("Making payment (mock):",{ circleAddress,amount });
+      alert(`Modo demo: Pagarías $${amount} USDC al círculo ${circleAddress.slice(0,6)}...`);
       return;
     }
 
     try {
-      const amountInWei = parseUnits(amount.toString(), 6); // USDC tiene 6 decimales
+      const amountInWei = parseUnits(amount.toString(),6); // USDC tiene 6 decimales
 
       // Reset hashes
       setApprovalHash(undefined);
       setPaymentHash(undefined);
 
-      setPendingPayment({ circleAddress, amount: amountInWei });
+      setPendingPayment({ circleAddress,amount: amountInWei });
       setPaymentStep("approving");
 
       // Paso 1: Aprobar USDC
@@ -471,11 +472,11 @@ export function useMakePayment() {
         address: CONTRACTS.arbitrumSepolia.usdc as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "approve",
-        args: [circleAddress as `0x${string}`, amountInWei],
+        args: [circleAddress as `0x${string}`,amountInWei],
         gas: 100000n, // Gas limit explícito para aprobación
       });
     } catch (err) {
-      console.error("Error initiating payment:", err);
+      console.error("Error initiating payment:",err);
       setPaymentStep("idle");
       setPendingPayment(null);
       throw err;
@@ -484,8 +485,8 @@ export function useMakePayment() {
 
   // Reset cuando se completa el pago
   useEffect(() => {
-    console.log("🔄 Reset check:", { 
-      isConfirmed, 
+    console.log("🔄 Reset check:",{
+      isConfirmed,
       paymentStep,
       currentHash: hash,
       paymentHash
@@ -501,9 +502,9 @@ export function useMakePayment() {
         setApprovalHash(undefined);
         setPaymentHash(undefined);
         reset();
-      }, 3000);
+      },3000);
     }
-  }, [isConfirmed, paymentStep, hash, paymentHash, reset]);
+  },[isConfirmed,paymentStep,hash,paymentHash,reset]);
 
   return {
     makePayment,
@@ -523,13 +524,13 @@ export function useMakePayment() {
  */
 export function useDepositGuarantee() {
   const { address } = useAccount();
-  const { writeContract, data: hash, isPending, error, reset } = useWriteContract();
-  const [depositStep, setDepositStep] = useState<"idle" | "approving" | "depositing">("idle");
-  const [pendingDeposit, setPendingDeposit] = useState<{ circleAddress: string; amount: bigint } | null>(null);
-  const [approvalHash, setApprovalHash] = useState<string | undefined>(undefined);
-  const [depositHash, setDepositHash] = useState<string | undefined>(undefined);
+  const { writeContract,data: hash,isPending,error,reset } = useWriteContract();
+  const [depositStep,setDepositStep] = useState<"idle" | "approving" | "depositing">("idle");
+  const [pendingDeposit,setPendingDeposit] = useState<{ circleAddress: string; amount: bigint } | null>(null);
+  const [approvalHash,setApprovalHash] = useState<string | undefined>(undefined);
+  const [depositHash,setDepositHash] = useState<string | undefined>(undefined);
 
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+  const { isLoading: isConfirming,isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
       hash,
     });
@@ -540,7 +541,7 @@ export function useDepositGuarantee() {
     }
 
     try {
-      console.log("💎 Executing guarantee deposit to:", circleAddress);
+      console.log("💎 Executing guarantee deposit to:",circleAddress);
       setDepositStep("depositing");
 
       writeContract({
@@ -550,28 +551,28 @@ export function useDepositGuarantee() {
         gas: 500000n,
       });
     } catch (err) {
-      console.error("❌ Error depositing guarantee:", err);
+      console.error("❌ Error depositing guarantee:",err);
       setDepositStep("idle");
       throw err;
     }
-  }, [writeContract]);
+  },[writeContract]);
 
   // Guardar hash cuando se genera
   useEffect(() => {
     if (hash) {
       if (depositStep === "approving") {
-        console.log("📝 Approval hash:", hash);
+        console.log("📝 Approval hash:",hash);
         setApprovalHash(hash);
       } else if (depositStep === "depositing") {
-        console.log("📝 Deposit hash:", hash);
+        console.log("📝 Deposit hash:",hash);
         setDepositHash(hash);
       }
     }
-  }, [hash, depositStep]);
+  },[hash,depositStep]);
 
   // Cuando se confirma la aprobación, proceder con el depósito
   useEffect(() => {
-    console.log("🔍 Approval check:", {
+    console.log("🔍 Approval check:",{
       isConfirmed,
       depositStep,
       hasPendingDeposit: !!pendingDeposit,
@@ -583,25 +584,25 @@ export function useDepositGuarantee() {
       console.log("✅ Approval confirmed! Proceeding to deposit in 2s...");
       setTimeout(() => {
         executeDeposit(pendingDeposit.circleAddress);
-      }, 2000);
+      },2000);
     }
-  }, [isConfirmed, depositStep, pendingDeposit, hash, approvalHash, executeDeposit]);
+  },[isConfirmed,depositStep,pendingDeposit,hash,approvalHash,executeDeposit]);
 
-  const depositGuarantee = async (circleAddress: string, amount: number) => {
+  const depositGuarantee = async (circleAddress: string,amount: number) => {
     if (!CONTRACTS_DEPLOYED.circleFactory) {
-      console.log("Depositing guarantee (mock):", { circleAddress, amount });
-      alert(`Modo demo: Depositarías $${amount} USDC como garantía al círculo ${circleAddress.slice(0, 6)}...`);
+      console.log("Depositing guarantee (mock):",{ circleAddress,amount });
+      alert(`Modo demo: Depositarías $${amount} USDC como garantía al círculo ${circleAddress.slice(0,6)}...`);
       return;
     }
 
     try {
-      const amountInWei = parseUnits(amount.toString(), 6); // USDC tiene 6 decimales
+      const amountInWei = parseUnits(amount.toString(),6); // USDC tiene 6 decimales
 
       // Reset hashes
       setApprovalHash(undefined);
       setDepositHash(undefined);
 
-      setPendingDeposit({ circleAddress, amount: amountInWei });
+      setPendingDeposit({ circleAddress,amount: amountInWei });
       setDepositStep("approving");
 
       // Paso 1: Aprobar USDC
@@ -609,11 +610,11 @@ export function useDepositGuarantee() {
         address: CONTRACTS.arbitrumSepolia.usdc as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "approve",
-        args: [circleAddress as `0x${string}`, amountInWei],
+        args: [circleAddress as `0x${string}`,amountInWei],
         gas: 100000n,
       });
     } catch (err) {
-      console.error("Error initiating deposit:", err);
+      console.error("Error initiating deposit:",err);
       setDepositStep("idle");
       setPendingDeposit(null);
       throw err;
@@ -631,9 +632,9 @@ export function useDepositGuarantee() {
         setApprovalHash(undefined);
         setDepositHash(undefined);
         reset();
-      }, 3000);
+      },3000);
     }
-  }, [isConfirmed, depositStep, hash, depositHash, reset]);
+  },[isConfirmed,depositStep,hash,depositHash,reset]);
 
   return {
     depositGuarantee,
@@ -650,16 +651,16 @@ export function useDepositGuarantee() {
 /**
  * Hook para verificar si el usuario ha pagado la ronda actual
  */
-export function useHasUserPaid(circleAddress: string | undefined, currentRound: number) {
+export function useHasUserPaid(circleAddress: string | undefined,currentRound: number) {
   const { address } = useAccount();
 
-  const { data: hasPaid, isLoading, refetch } = useReadContract({
+  const { data: hasPaid,isLoading,refetch } = useReadContract({
     address: circleAddress as `0x${string}`,
     abi: CIRCLE_ABI,
     functionName: "hasPaidRound",
-    args: address && currentRound > 0 
-  ? [address as `0x${string}`, BigInt(currentRound)] 
-  : undefined,
+    args: address && currentRound > 0
+      ? [address as `0x${string}`,BigInt(currentRound)]
+      : undefined,
   });
 
   return {
@@ -675,7 +676,7 @@ export function useHasUserPaid(circleAddress: string | undefined, currentRound: 
 export function useHasDepositedGuarantee(circleAddress: string | undefined) {
   const { address } = useAccount();
 
-  const { data: guaranteeAmount, isLoading, refetch } = useReadContract({
+  const { data: guaranteeAmount,isLoading,refetch } = useReadContract({
     address: circleAddress as `0x${string}`,
     abi: CIRCLE_ABI,
     functionName: "guarantees",
@@ -698,7 +699,7 @@ export function useHasDepositedGuarantee(circleAddress: string | undefined) {
 /**
  * Hook para obtener el estado de depósito de todos los miembros de un círculo
  */
-export function useMembersGuaranteeStatus(circleAddress: string | undefined, members: string[]) {
+export function useMembersGuaranteeStatus(circleAddress: string | undefined,members: string[]) {
   // Crear array de contratos para verificar cada miembro
   const contracts = members.map((memberAddress) => ({
     address: circleAddress as `0x${string}`,
@@ -707,7 +708,7 @@ export function useMembersGuaranteeStatus(circleAddress: string | undefined, mem
     args: [memberAddress as `0x${string}`],
   }));
 
-  const { data: guaranteesData, isLoading, refetch } = useReadContracts({
+  const { data: guaranteesData,isLoading,refetch } = useReadContracts({
     contracts: contracts as any,
     query: {
       enabled: !!circleAddress && members.length > 0 && CONTRACTS_DEPLOYED.circleFactory,
@@ -715,7 +716,7 @@ export function useMembersGuaranteeStatus(circleAddress: string | undefined, mem
   });
 
   // Procesar los datos y crear un array con el estado de cada miembro
-  const membersStatus = members.map((memberAddress, index) => {
+  const membersStatus = members.map((memberAddress,index) => {
     const guaranteeAmount = guaranteesData?.[index]?.result as bigint | undefined;
     const hasDeposited = guaranteeAmount ? Number(guaranteeAmount) > 0 : false;
 

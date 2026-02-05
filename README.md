@@ -1,18 +1,18 @@
-# ☀️ IGLESIA DEL SOL ETERNO
+# ☀️ CHURCH OF THE ETERNAL SUN
 
 <div align="center">
 
-### **Protocol Kuyay - La Fe On-Chain**
+### **Protocol Kuyay - Faith On-Chain**
 
-*"El Dios Sol Inti nos enseñó que la riqueza verdadera nace de la comunidad"*
+*"The Sun God Inti taught us that true wealth is born from community"*
 
-[![Monad](https://img.shields.io/badge/Monad-Testnet-purple?style=for-the-badge)](https://monad.xyz)
+[![Monad](https://img.shields.io/badge/Monad-Mainnet-purple?style=for-the-badge)](https://monad.xyz)
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.24-blue?style=for-the-badge&logo=solidity)](https://soliditylang.org)
-[![$KUYAY](https://img.shields.io/badge/$KUYAY-1B%20Supply-gold?style=for-the-badge)](https://testnet.monadexplorer.com/address/0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c)
+[![$KUYAY](https://img.shields.io/badge/$KUYAY-nad.fun-gold?style=for-the-badge)](https://nad.fun/token/0xF10Fba346c07110A2A8543Df8659F0b600fD7777)
 
-**500 años de sabiduría Aymara. Ahora verificable en blockchain.**
+**500 years of Aymara wisdom. Now verifiable on blockchain.**
 
-[🌐 Demo](https://protocol-kuyay.vercel.app) • [📜 Contratos](#-contratos-sagrados) • [🙏 Únete a la Fe](#-únete-a-la-iglesia)
+[🌐 Demo](https://protocol-kuyay.vercel.app) • [📜 Contracts](#-sacred-contracts) • [🙏 Join the Faith](#-join-the-church)
 
 </div>
 
@@ -82,25 +82,23 @@ Resultado: Todos acceden a capital que no tendrían solos
 
 ---
 
-## ⛓️ Contratos Sagrados
+## ⛓️ Sacred Contracts
 
-### Desplegados en Monad Testnet (Chain ID: 10143)
+### Deployed on Monad Mainnet (Chain ID: 143)
 
-| Contrato | Dirección | Función |
-|----------|-----------|---------|
-| **$KUYAY Token** | [`0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c`](https://testnet.monadexplorer.com/address/0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c) | Token sagrado (1B supply) |
-| **AguayoSBT** | [`0xA77DB3BDAF8258F2af72d606948FFfd898a1F5D1`](https://testnet.monadexplorer.com/address/0xA77DB3BDAF8258F2af72d606948FFfd898a1F5D1) | Identidad on-chain |
-| **KuyayVault** | [`0xdc3c4c07e4675cf1BBDEa627026e92170f9F5AE1`](https://testnet.monadexplorer.com/address/0xdc3c4c07e4675cf1BBDEa627026e92170f9F5AE1) | Tesoro de Inti |
-| **RiskOracle** | [`0x5483B6C35b975F24Ca21647650b1a93f8341B26a`](https://testnet.monadexplorer.com/address/0x5483B6C35b975F24Ca21647650b1a93f8341B26a) | Análisis de riesgo |
-| **CircleFactory** | [`0x6536ee56e3f30A427bc83c208D829d059E8eEDA4`](https://testnet.monadexplorer.com/address/0x6536ee56e3f30A427bc83c208D829d059E8eEDA4) | Pasanakus tradicionales |
-| **CircleFaithFactory** | [`0x61FC4578863DA32DC4e879F59e1cb673dA498618`](https://testnet.monadexplorer.com/address/0x61FC4578863DA32DC4e879F59e1cb673dA498618) | Pasanakus con Fe stakeada |
+| Contract | Address | Function |
+|----------|---------|----------|
+| **$KUYAY Token** | [`0xF10Fba346c07110A2A8543Df8659F0b600fD7777`](https://monad.xyz/explorer/address/0xF10Fba346c07110A2A8543Df8659F0b600fD7777) | Sacred token (nad.fun) |
+| **AguayoSBT** | [`0x10C93611831AEFFA3D0Fde086C682dfE7E3495Ac`](https://monad.xyz/explorer/address/0x10C93611831AEFFA3D0Fde086C682dfE7E3495Ac) | On-chain identity |
+| **CircleFaithFactory** | [`0x7066e62307551fd6f14325F905e5268436557837`](https://monad.xyz/explorer/address/0x7066e62307551fd6f14325F905e5268436557837) | Faith-based Pasanakus |
+| **USDC** | [`0x754704Bc059F8C67012fEd69BC8A327a5aafb603`](https://monad.xyz/explorer/address/0x754704Bc059F8C67012fEd69BC8A327a5aafb603) | Payment token |
 
-### Verificación Rápida
+### Quick Verification
 ```bash
-# Verificar que $KUYAY existe
-cast call 0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c "name()(string)" \
-  --rpc-url https://testnet-rpc.monad.xyz/
-# → "Kuyay - Luz de Inti" ☀️
+# Verify that AguayoSBT exists
+cast call 0x10C93611831AEFFA3D0Fde086C682dfE7E3495Ac "name()(string)" \
+  --rpc-url https://rpc.monad.xyz/
+# → "Aguayo SBT" ☀️
 ```
 
 ---

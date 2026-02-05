@@ -77,6 +77,14 @@ contract CircleFaith is ReentrancyGuard {
     uint256 public presentCount;
     bool public drawReady;
 
+    // Liquidation mechanism
+    uint256 public roundDeadline;                    // Timestamp deadline for current round
+    uint256 public constant ROUND_DURATION = 1 days; // Time to pay each round
+    mapping(address => bool) public isDefaulted;     // Members who defaulted
+    uint256 public liquidatedFunds;                  // Pool of confiscated guarantees
+    uint256 public activeMemberCount;                // Members still active (not defaulted)
+
+
     // Eventos sagrados
     event CircleCreated(uint256 memberCount, uint256 guaranteeAmount, uint256 minFaith);
     event GuaranteeDeposited(address indexed member, uint256 amount);
@@ -89,6 +97,9 @@ contract CircleFaith is ReentrancyGuard {
     event CircleCompleted(uint256 finalRound);
     event FaithReturned(address indexed member, uint256 amount);
     event GuaranteeReturned(address indexed member, uint256 amount);
+    event MemberLiquidated(address indexed member, uint256 guaranteeConfiscated, uint256 faithConfiscated);
+    event LiquidatedFundsClaimed(address indexed member, uint256 amount);
+
 
     // Errores
     error InvalidStatus();
@@ -106,6 +117,11 @@ contract CircleFaith is ReentrancyGuard {
     error CannotStartDraw();
     error AlreadyCheckedIn();
     error ZeroAddress();
+    error MemberAlreadyDefaulted();
+    error DeadlineNotPassed();
+    error MemberNotDefaulted();
+    error NoLiquidatedFunds();
+
 
     modifier onlyFactory() {
         if (msg.sender != factory) revert Unauthorized();
@@ -187,8 +203,11 @@ contract CircleFaith is ReentrancyGuard {
     function _activateCircle() internal {
         status = CircleStatus.ACTIVE;
         currentRound = 1;
+        roundDeadline = block.timestamp + ROUND_DURATION;
+        activeMemberCount = members.length;
         emit CircleActivated(totalGuarantees, totalStakedFaith);
     }
+
 
     /// @notice Pagar cuota de la ronda actual
     function makeRoundPayment() external nonReentrant {
@@ -268,6 +287,7 @@ contract CircleFaith is ReentrancyGuard {
         if (currentRound < totalRounds) {
             currentRound++;
             currentPot = 0;
+            roundDeadline = block.timestamp + ROUND_DURATION; // Reset deadline
             _resetPresence();
         } else {
             _completeCircle();
@@ -394,6 +414,69 @@ contract CircleFaith is ReentrancyGuard {
         faithToken.safeTransfer(msg.sender, amount);
 
         emit FaithReturned(msg.sender, amount);
+    }
+
+    // ============ LIQUIDATION FUNCTIONS ============
+
+    /// @notice Liquidate a member who hasn't paid after deadline
+    /// @param member Address of the member to liquidate
+    function liquidateMember(address member) external nonReentrant {
+        if (status != CircleStatus.ACTIVE) revert InvalidStatus();
+        if (!isMember[member]) revert NotMember();
+        if (isDefaulted[member]) revert MemberAlreadyDefaulted();
+        if (block.timestamp < roundDeadline) revert DeadlineNotPassed();
+        if (hasPaidRound[member][currentRound]) revert PaymentAlreadyMade(); // Already paid, can't liquidate
+
+        // Mark as defaulted
+        isDefaulted[member] = true;
+        activeMemberCount--;
+
+        // Confiscate guarantee
+        uint256 guaranteeToConfiscate = guarantees[member];
+        guarantees[member] = 0;
+        liquidatedFunds += guaranteeToConfiscate;
+        totalGuarantees -= guaranteeToConfiscate;
+
+        // Confiscate staked faith (goes to protocol/remaining members)
+        uint256 faithToConfiscate = stakedFaith[member];
+        stakedFaith[member] = 0;
+        totalStakedFaith -= faithToConfiscate;
+
+        emit MemberLiquidated(member, guaranteeToConfiscate, faithToConfiscate);
+
+        // If not enough members left, complete circle early
+        if (activeMemberCount < 2) {
+            _completeCircle();
+        }
+    }
+
+    /// @notice Claim share of liquidated funds (only after circle completes)
+    function claimLiquidatedFunds() external nonReentrant {
+        if (status != CircleStatus.COMPLETED) revert InvalidStatus();
+        if (!isMember[msg.sender]) revert NotMember();
+        if (isDefaulted[msg.sender]) revert MemberNotDefaulted(); // Defaulted members can't claim
+        if (liquidatedFunds == 0) revert NoLiquidatedFunds();
+
+        // Calculate share: liquidatedFunds / activeMemberCount
+        uint256 share = liquidatedFunds / activeMemberCount;
+        if (share == 0) revert NoLiquidatedFunds();
+
+        liquidatedFunds -= share;
+        paymentToken.safeTransfer(msg.sender, share);
+
+        emit LiquidatedFundsClaimed(msg.sender, share);
+    }
+
+    /// @notice Extend deadline (only callable by members, requires payment)
+    function extendDeadline() external {
+        if (status != CircleStatus.ACTIVE) revert InvalidStatus();
+        if (!isMember[msg.sender]) revert NotMember();
+        if (!hasPaidRound[msg.sender][currentRound]) revert PaymentAlreadyMade();
+        
+        // Extend by 12 hours if all current payers agree (simplified: any payer can extend once)
+        if (block.timestamp > roundDeadline) {
+            roundDeadline = block.timestamp + 12 hours;
+        }
     }
 
     // ============ VIEW FUNCTIONS ============

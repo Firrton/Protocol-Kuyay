@@ -1,138 +1,129 @@
-# 🌞 Guía de Deploy - Iglesia del Sol Eterno
+# 🌞 Deployment Guide - Church of the Eternal Sun
 
-## Pre-requisitos
+## ✅ DEPLOYED TO MONAD MAINNET (Feb 5, 2026)
 
-### 1. Obtener MON del Faucet
-```bash
-# Ir a: https://testnet.monad.xyz/faucet
-# O usar API:
-curl -X POST https://faucet.testnet.monad.xyz/api/faucet \
-  -H "Content-Type: application/json" \
-  -d '{"address": "TU_WALLET_ADDRESS"}'
-```
+### Contract Addresses
 
-### 2. Configurar Variables de Entorno
+| Contract | Address |
+|----------|---------|
+| **$KUYAY Token** | `0xF10Fba346c07110A2A8543Df8659F0b600fD7777` |
+| **AguayoSBT** | `0x10C93611831AEFFA3D0Fde086C682dfE7E3495Ac` |
+| **CircleFaithFactory** | `0x7066e62307551fd6f14325F905e5268436557837` |
+| **USDC** | `0x754704Bc059F8C67012fEd69BC8A327a5aafb603` |
+
+---
+
+## Prerequisites
+
+### 1. Get MON for Gas
+The deployer wallet needs MON for gas on Monad mainnet.
+
+### 2. Configure Environment Variables
 ```bash
 cd /Users/firrton/Desktop/Protocol-Kuyay/foundry
 
-# Crear archivo .env
-echo "PRIVATE_KEY=tu_private_key_sin_0x" > .env
-echo "MONAD_EXPLORER_KEY=opcional" >> .env
+# Export private key
+export PRIVATE_KEY=your_private_key_without_0x
 ```
 
 ---
 
-## Deploy de Contratos
+## Deploy Contracts
 
-### Opción A: Deploy Completo (Recomendado)
+### Deploy to Monad Mainnet
 ```bash
-# Despliega TODO: KUYAY, AguayoSBT, Vault, Oracle, Factories
-source .env
-forge script script/DeployIglesiaDelSol.s.sol \
-  --rpc-url monad_testnet \
+cd /Users/firrton/Desktop/Protocol-Kuyay/foundry
+
+forge script script/DeployMainnet.s.sol \
+  --rpc-url https://rpc.monad.xyz/ \
   --broadcast \
+  --legacy \
   -vvvv
 ```
 
-### Opción B: Solo Token KUYAY
+### Verify Deployment
 ```bash
-forge script script/DeployKuyayToken.s.sol \
-  --rpc-url monad_testnet \
-  --broadcast \
-  -vvvv
-```
+# Verify AguayoSBT exists
+cast call 0x10C93611831AEFFA3D0Fde086C682dfE7E3495Ac "name()(string)" \
+  --rpc-url https://rpc.monad.xyz/
 
-### Verificar en Explorer (Opcional)
-```bash
-forge verify-contract \
-  --chain-id 10143 \
-  --verifier blockscout \
-  --verifier-url https://testnet.monadexplorer.com/api \
-  CONTRACT_ADDRESS \
-  src/KuyayToken.sol:KuyayToken
+# Verify CircleFaithFactory exists  
+cast call 0x7066e62307551fd6f14325F905e5268436557837 "aguayoSBT()(address)" \
+  --rpc-url https://rpc.monad.xyz/
 ```
 
 ---
 
-## Deploy de Frontend
+## Frontend Deployment
 
-### Opción A: Vercel (Recomendado)
+### Option A: Vercel (Recommended)
 ```bash
 cd /Users/firrton/Desktop/Protocol-Kuyay/kuyay-frontend
 
-# Instalar Vercel CLI si no está
-pnpm add -g vercel
+# Install Vercel CLI if needed
+npm install -g vercel
 
 # Deploy
 vercel
 ```
 
-### Opción B: Manual en Cualquier Host
+### Option B: Manual Build
 ```bash
-# Build
-pnpm build
-
-# El output estará en .next/
-# Subir a tu servidor preferido
+npm run build
+# Output will be in .next/
 ```
 
 ---
 
-## Post-Deploy: Configurar Frontend
+## Post-Deploy Configuration
 
-### 1. Actualizar Direcciones de Contratos
-Después del deploy, actualizar `lib/contracts.ts` con las nuevas direcciones:
+### Contract Addresses Already Updated
+The file `lib/contracts/addresses.ts` has been updated with:
 
 ```typescript
 export const CONTRACTS = {
-  KUYAY_TOKEN: "0x...",
-  AGUAYO_SBT: "0x...",
-  KUYAY_VAULT: "0x...",
-  CIRCLE_FACTORY: "0x...",
-  CIRCLE_FAITH_FACTORY: "0x...",
-  MOCK_USDC: "0x..."
+  monadMainnet: {
+    chainId: 143,
+    kuyayToken: "0xF10Fba346c07110A2A8543Df8659F0b600fD7777",
+    usdc: "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+    circleFaithFactory: "0x7066e62307551fd6f14325F905e5268436557837",
+    aguayoSBT: "0x10C93611831AEFFA3D0Fde086C682dfE7E3495Ac",
+  },
 };
 ```
 
-### 2. Configurar Chain
-Verificar que el frontend apunte a Monad Testnet (10143).
-
 ---
 
-## Verificación Post-Deploy
+## Verification Commands
 
-### 1. Verificar Token
+### 1. Create First Circle (Genesis)
 ```bash
-cast call CONTRACT_KUYAY "name()" --rpc-url monad_testnet
-# Debería retornar: "Kuyay - Light of the Andes"
-```
-
-### 2. Crear Primer Ayllu de Prueba
-```bash
-# 1. Mintear Aguayo para ti
-cast send CONTRACT_AGUAYO "mintAguayo()" \
-  --rpc-url monad_testnet \
+# First, mint an AguayoSBT identity
+cast send 0x10C93611831AEFFA3D0Fde086C682dfE7E3495Ac "mintAguayo()" \
+  --rpc-url https://rpc.monad.xyz/ \
   --private-key $PRIVATE_KEY
 
-# 2. Aprobar USDC y KUYAY
-# 3. Crear Circle de Fe
+# Then create a circle via factory
+# See AGENTS.md for complete flow
 ```
 
 ---
 
 ## Troubleshooting
 
-| Error | Solución |
+| Error | Solution |
 |-------|----------|
-| `insufficient funds` | Obtener más MON del faucet |
-| `nonce too low` | Resetear nonce con `--force` |
-| `gas limit exceeded` | Aumentar con `--gas-limit 10000000` |
+| `insufficient funds` | Get more MON |
+| `nonce too low` | Reset with `--force` |
+| `gas limit exceeded` | Increase with `--gas-limit 10000000` |
 
 ---
 
-## URLs Importantes
+## Important URLs
 
-- Monad Testnet RPC: `https://testnet-rpc.monad.xyz/`
-- Explorer: `https://testnet.monadexplorer.com`
-- Faucet: `https://testnet.monad.xyz/faucet`
-- Chain ID: `10143`
+| Resource | URL |
+|----------|-----|
+| **Monad Mainnet RPC** | `https://rpc.monad.xyz/` |
+| **Chain ID** | `143` |
+| **KUYAY on nad.fun** | `https://nad.fun/token/0xF10Fba346c07110A2A8543Df8659F0b600fD7777` |
+| **Frontend** | `https://protocol-kuyay.vercel.app` |

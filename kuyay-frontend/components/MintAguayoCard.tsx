@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState,useEffect } from "react";
 import Image from "next/image";
-import { useMintAguayo, useHasAguayo } from "@/hooks/useAguayo";
+import { useMintAguayo,useHasAguayo } from "@/hooks/useAguayo";
 
 export default function MintAguayoCard() {
-  const { mintAguayo, isPending, isConfirming, isConfirmed, error } = useMintAguayo();
-  const { hasAguayo, refetch, isContractDeployed } = useHasAguayo();
-  const [showSuccess, setShowSuccess] = useState(false);
+  const { mintAguayo,isPending,isConfirming,isConfirmed,error } = useMintAguayo();
+  const { hasAguayo,refetch,isContractDeployed } = useHasAguayo();
+  const [showSuccess,setShowSuccess] = useState(false);
 
   // Refetch cuando se confirme la transacción
   useEffect(() => {
@@ -16,9 +16,9 @@ export default function MintAguayoCard() {
       // Refetch después de 2 segundos para dar tiempo a que se indexe
       setTimeout(() => {
         refetch();
-      }, 2000);
+      },2000);
     }
-  }, [isConfirmed, refetch]);
+  },[isConfirmed,refetch]);
 
   // Si ya tiene Aguayo, no mostrar nada
   if (hasAguayo) return null;
@@ -33,12 +33,12 @@ export default function MintAguayoCard() {
         <div className="text-center space-y-4">
           <div className="text-6xl animate-bounce">🧵</div>
           <h2 className="text-3xl font-display font-bold text-gradient">
-            Teje tu Aguayo Digital
+            Weave your Digital Aguayo
           </h2>
           <p className="text-gris max-w-2xl mx-auto">
-            Tu Aguayo es tu identidad financiera on-chain. Cada pago que completas añade un hilo,
-            cada círculo terminado añade un borde ceremonial. Es inmutable, no transferible, y
-            representa tu reputación en la comunidad Kuyay.
+            Your Aguayo is your on-chain financial identity. Each payment you complete adds a thread,
+            each finished circle adds a ceremonial border. It's immutable, non-transferable, and
+            represents your reputation in the Kuyay community.
           </p>
         </div>
 
@@ -46,18 +46,18 @@ export default function MintAguayoCard() {
         <div className="grid md:grid-cols-3 gap-4">
           <div className="bg-profundo/50 rounded-xl p-4 border border-tierra text-center">
             <div className="text-4xl mb-2">🌱</div>
-            <div className="font-display font-bold text-white mb-1">Nivel 0</div>
-            <div className="text-sm text-gris">Telar Vacío - Comienza tu historia</div>
+            <div className="font-display font-bold text-white mb-1">Level 0</div>
+            <div className="text-sm text-gris">Empty Loom - Start your story</div>
           </div>
           <div className="bg-profundo/50 rounded-xl p-4 border border-dorado text-center">
             <div className="text-4xl mb-2">🧵</div>
-            <div className="font-display font-bold text-white mb-1">Cada Pago</div>
-            <div className="text-sm text-gris">Añade un hilo dorado</div>
+            <div className="font-display font-bold text-white mb-1">Each Payment</div>
+            <div className="text-sm text-gris">Adds a golden thread</div>
           </div>
           <div className="bg-profundo/50 rounded-xl p-4 border border-pachamama text-center">
             <div className="text-4xl mb-2">🎯</div>
-            <div className="font-display font-bold text-white mb-1">Cada Círculo</div>
-            <div className="text-sm text-gris">Añade un borde ceremonial</div>
+            <div className="font-display font-bold text-white mb-1">Each Circle</div>
+            <div className="text-sm text-gris">Adds a ceremonial border</div>
           </div>
         </div>
 
@@ -66,10 +66,10 @@ export default function MintAguayoCard() {
           <div className="flex items-start gap-3">
             <div className="text-2xl">ℹ️</div>
             <div className="flex-1 space-y-2 text-sm text-gris">
-              <p>• <strong className="text-white">Soul-Bound Token (SBT):</strong> No se puede transferir ni vender</p>
-              <p>• <strong className="text-white">Gratuito:</strong> Solo pagas el gas de la transacción</p>
-              <p>• <strong className="text-white">Permanente:</strong> Tu reputación queda registrada para siempre</p>
-              <p>• <strong className="text-white">Único:</strong> Una dirección = Un Aguayo</p>
+              <p>• <strong className="text-white">Soul-Bound Token (SBT):</strong> Cannot be transferred or sold</p>
+              <p>• <strong className="text-white">Free:</strong> You only pay the gas transaction fee</p>
+              <p>• <strong className="text-white">Permanent:</strong> Your reputation is recorded forever</p>
+              <p>• <strong className="text-white">Unique:</strong> One address = One Aguayo</p>
             </div>
           </div>
         </div>
@@ -80,14 +80,14 @@ export default function MintAguayoCard() {
             <div className="bg-ocre/10 border-2 border-ocre/50 rounded-xl p-6 space-y-3">
               <div className="text-4xl">🚧</div>
               <div className="font-display font-bold text-ocre text-xl">
-                Smart Contracts No Desplegados
+                Smart Contracts Not Deployed
               </div>
               <div className="text-gris text-sm">
-                Los contratos están en desarrollo. Cuando estén desplegados en Arbitrum Sepolia,
-                podrás mintear tu Aguayo aquí mismo.
+                The contracts are under development. When deployed on Monad Mainnet,
+                you can mint your Aguayo right here.
               </div>
               <div className="text-xs text-gris/70 font-mono bg-profundo/50 px-3 py-2 rounded">
-                Actualiza las direcciones en lib/contracts/addresses.ts
+                Update addresses in lib/contracts/addresses.ts
               </div>
             </div>
           ) : !isConfirmed && !showSuccess ? (
@@ -97,25 +97,25 @@ export default function MintAguayoCard() {
               className="bg-gradient-to-r from-ceremonial to-ocre text-white px-12 py-4 rounded-xl font-display font-bold text-lg hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-xl"
             >
               {isPending
-                ? "Confirma en tu wallet..."
+                ? "Confirm in your wallet..."
                 : isConfirming
-                ? "Minteando tu Aguayo..."
-                : "✨ Mintear mi Aguayo"}
+                  ? "Minting your Aguayo..."
+                  : "✨ Mint my Aguayo"}
             </button>
           ) : (
             <div className="space-y-4">
               <div className="text-6xl animate-pulse">🎉</div>
               <div className="text-2xl font-display font-bold text-pachamama">
-                ¡Aguayo Minteado!
+                Aguayo Minted!
               </div>
               <div className="text-gris">
-                Tu Telar Vacío (Nivel 0) ha sido creado. Ahora puedes unirte a círculos de ahorro.
+                Your Empty Loom (Level 0) has been created. You can now join savings circles.
               </div>
               <button
                 onClick={() => window.location.reload()}
                 className="bg-gradient-to-r from-pachamama to-ocre text-white px-8 py-3 rounded-lg font-display font-bold hover:scale-105 transition-transform"
               >
-                Continuar al Dashboard
+                Continue to Dashboard
               </button>
             </div>
           )}
@@ -124,9 +124,9 @@ export default function MintAguayoCard() {
         {/* Error display */}
         {error && (
           <div className="bg-ceremonial/10 border border-ceremonial rounded-lg p-4 text-center">
-            <div className="text-ceremonial font-bold mb-2">Error al mintear</div>
+            <div className="text-ceremonial font-bold mb-2">Minting Error</div>
             <div className="text-sm text-gris">
-              {error.message || "Ocurrió un error. Por favor intenta de nuevo."}
+              {error.message || "An error occurred. Please try again."}
             </div>
           </div>
         )}

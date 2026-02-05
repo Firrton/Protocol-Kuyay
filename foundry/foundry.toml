@@ -20,6 +20,8 @@ evm_version = "cancun"
 [rpc_endpoints]
 arbitrum_sepolia = "https://sepolia-rollup.arbitrum.io/rpc"
 monad_testnet = "https://testnet-rpc.monad.xyz/"
+monad_mainnet = "https://monad-mainnet.infura.io/v3/${INFURA_API_KEY}" # Reemplazar con URL real si es diferente
+
 
 # [etherscan]
 # arbitrum_sepolia = { key = "${ARBISCAN_API_KEY}", url = "https://api-sepolia.arbiscan.io/api" }

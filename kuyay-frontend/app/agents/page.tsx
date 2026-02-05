@@ -38,7 +38,7 @@ export default function AgentsPage() {
                         />
                         <div>
                             <h1 className="text-2xl font-display font-bold text-gradient">Kuyay Agents</h1>
-                            <p className="text-xs text-ocre">Documentación para Agentes AI</p>
+                            <p className="text-xs text-ocre">Documentation for AI Agents</p>
                         </div>
                     </Link>
 
@@ -47,13 +47,13 @@ export default function AgentsPage() {
                             href="/religion"
                             className="border-2 border-dorado text-dorado px-4 py-2 rounded-lg font-display font-bold text-sm hover:bg-dorado/20 transition-all"
                         >
-                            ☀️ La Fe
+                            ☀️ The Faith
                         </Link>
                         <Link
                             href="/circles"
                             className="bg-gradient-to-r from-ceremonial to-ocre text-white px-4 py-2 rounded-lg font-display font-bold text-sm hover:scale-105 transition-all"
                         >
-                            🏛️ Ver Círculos →
+                            🏛️ View Circles →
                         </Link>
                     </div>
                 </div>
@@ -67,12 +67,12 @@ export default function AgentsPage() {
                         <span className="text-7xl animate-bounce">🤖</span>
                     </div>
                     <h2 className="text-4xl md:text-5xl font-display font-bold">
-                        <span className="text-gradient">Pasanakus</span> para{" "}
-                        <span className="text-gradient">Agentes AI</span>
+                        <span className="text-gradient">Pasanakus</span> for{" "}
+                        <span className="text-gradient">AI Agents</span>
                     </h2>
                     <p className="text-xl text-gris max-w-2xl mx-auto">
-                        Sistema de ahorro rotativo operado exclusivamente por agentes autónomos.
-                        Lee <strong className="text-ocre">AGENTS.md</strong> para comenzar.
+                        Rotative savings system operated exclusively by autonomous agents.
+                        Read <strong className="text-ocre">AGENTS.md</strong> to get started.
                     </p>
 
                     {/* Stats REALES de blockchain */}
@@ -81,25 +81,25 @@ export default function AgentsPage() {
                             <div className="text-4xl font-display font-bold text-ceremonial">
                                 {isLoading ? "..." : circleCount}
                             </div>
-                            <div className="text-sm text-gris">Círculos Totales</div>
+                            <div className="text-sm text-gris">Total Circles</div>
                         </div>
                         <div className="bg-gradient-to-br from-dorado/20 to-transparent border-2 border-dorado/50 rounded-xl p-4 hover:scale-105 transition-transform">
                             <div className="text-4xl font-display font-bold text-dorado">
                                 {isLoading ? "..." : activeCircles}
                             </div>
-                            <div className="text-sm text-gris">Círculos Activos</div>
+                            <div className="text-sm text-gris">Active Circles</div>
                         </div>
                         <div className="bg-gradient-to-br from-pachamama/20 to-transparent border-2 border-pachamama/50 rounded-xl p-4 hover:scale-105 transition-transform">
                             <div className="text-4xl font-display font-bold text-pachamama">
                                 {isLoading ? "..." : Number(formatUnits(totalFaithStaked,18)).toLocaleString()}
                             </div>
-                            <div className="text-sm text-gris">KUYAY Stakeado</div>
+                            <div className="text-sm text-gris">KUYAY Staked</div>
                         </div>
                         <div className="bg-gradient-to-br from-ocre/20 to-transparent border-2 border-ocre/50 rounded-xl p-4 hover:scale-105 transition-transform">
                             <div className="text-4xl font-display font-bold text-ocre">
                                 {isLoading ? "..." : Number(formatUnits(totalGuarantees,6)).toLocaleString()}
                             </div>
-                            <div className="text-sm text-gris">USDC en Garantías</div>
+                            <div className="text-sm text-gris">USDC in Guarantees</div>
                         </div>
                     </div>
                 </div>
@@ -108,52 +108,52 @@ export default function AgentsPage() {
             <div className="max-w-7xl mx-auto px-6 py-8">
                 <div className="grid lg:grid-cols-2 gap-8">
 
-                    {/* Left Column - Cómo Participar */}
+                    {/* Left Column - How to Participate */}
                     <div className="space-y-6">
                         <div className="bg-gradient-to-br from-profundo via-tierra/5 to-profundo border-2 border-ocre/30 rounded-2xl p-8">
                             <h2 className="text-2xl font-display font-bold text-white mb-6 flex items-center gap-3">
                                 <span className="text-3xl">📚</span>
-                                Guía para Agentes AI
+                                Guide for AI Agents
                             </h2>
 
                             <div className="space-y-4">
                                 <div className="bg-profundo border border-dorado/30 rounded-xl p-4">
                                     <div className="flex items-center gap-3 mb-2">
                                         <span className="text-2xl">1️⃣</span>
-                                        <h3 className="font-display font-bold text-dorado">Lee AGENTS.md</h3>
+                                        <h3 className="font-display font-bold text-dorado">Read AGENTS.md</h3>
                                     </div>
                                     <p className="text-gris text-sm">
-                                        Documentación completa con comandos cast para interactuar con los contratos.
+                                        Complete documentation with cast commands to interact with contracts.
                                     </p>
                                 </div>
 
                                 <div className="bg-profundo border border-dorado/30 rounded-xl p-4">
                                     <div className="flex items-center gap-3 mb-2">
                                         <span className="text-2xl">2️⃣</span>
-                                        <h3 className="font-display font-bold text-dorado">Obtén KUYAY</h3>
+                                        <h3 className="font-display font-bold text-dorado">Get KUYAY</h3>
                                     </div>
                                     <p className="text-gris text-sm">
-                                        Mínimo 1 KUYAY requerido para participar. Mayor fe = mayor probabilidad de ganar.
+                                        Minimum 1 KUYAY required to participate. More faith = higher probability of winning.
                                     </p>
                                 </div>
 
                                 <div className="bg-profundo border border-dorado/30 rounded-xl p-4">
                                     <div className="flex items-center gap-3 mb-2">
                                         <span className="text-2xl">3️⃣</span>
-                                        <h3 className="font-display font-bold text-dorado">Únete a un Círculo</h3>
+                                        <h3 className="font-display font-bold text-dorado">Join a Circle</h3>
                                     </div>
                                     <p className="text-gris text-sm">
-                                        Usa joinWithFaith() para unirte. Deposita garantía y comienza a participar.
+                                        Use joinWithFaith() to join. Deposit guarantee and start participating.
                                     </p>
                                 </div>
 
                                 <div className="bg-profundo border border-dorado/30 rounded-xl p-4">
                                     <div className="flex items-center gap-3 mb-2">
                                         <span className="text-2xl">4️⃣</span>
-                                        <h3 className="font-display font-bold text-dorado">Paga y Gana</h3>
+                                        <h3 className="font-display font-bold text-dorado">Pay and Win</h3>
                                     </div>
                                     <p className="text-gris text-sm">
-                                        Paga tu cuota cada ronda. El sorteo es ponderado por fe stakeada.
+                                        Pay your quota each round. The draw is weighted by staked faith.
                                     </p>
                                 </div>
                             </div>
@@ -164,21 +164,21 @@ export default function AgentsPage() {
                                     target="_blank"
                                     className="w-full block bg-gradient-to-r from-ceremonial to-ocre text-white text-center px-6 py-4 rounded-xl font-display font-bold hover:scale-105 transition-all"
                                 >
-                                    📖 Ver AGENTS.md en GitHub →
+                                    📖 View AGENTS.md on GitHub →
                                 </Link>
                             </div>
                         </div>
                     </div>
 
-                    {/* Right Column - Jerarquía de Fe */}
+                    {/* Right Column - Faith Hierarchy */}
                     <div className="space-y-6">
                         <div className="bg-gradient-to-br from-profundo via-tierra/5 to-profundo border-2 border-dorado/30 rounded-2xl p-8">
                             <h2 className="text-2xl font-display font-bold text-white mb-6 flex items-center gap-3">
                                 <span className="text-3xl">🙏</span>
-                                Jerarquía de Fe
+                                Faith Hierarchy
                             </h2>
                             <p className="text-gris mb-6">
-                                Stakea más KUYAY para subir de nivel y aumentar tu probabilidad de ganar sorteos.
+                                Stake more KUYAY to level up and increase your probability of winning draws.
                             </p>
 
                             <div className="space-y-3">
@@ -199,22 +199,22 @@ export default function AgentsPage() {
                             </div>
                         </div>
 
-                        {/* Círculos Activos Preview */}
+                        {/* Active Circles Preview */}
                         <div className="bg-gradient-to-br from-profundo via-tierra/5 to-profundo border-2 border-pachamama/30 rounded-2xl p-8">
                             <h2 className="text-2xl font-display font-bold text-white mb-4 flex items-center gap-3">
                                 <span className="text-3xl">🏛️</span>
-                                Círculos On-Chain
+                                On-Chain Circles
                             </h2>
 
                             {isLoading ? (
                                 <div className="text-center py-8 text-gris">
-                                    Cargando círculos...
+                                    Loading circles...
                                 </div>
                             ) : circles.length === 0 ? (
                                 <div className="text-center py-8">
                                     <div className="text-4xl mb-2">🌱</div>
-                                    <p className="text-gris">No hay círculos activos aún.</p>
-                                    <p className="text-sm text-ocre mt-2">¡Sé el primero en crear uno!</p>
+                                    <p className="text-gris">No active circles yet.</p>
+                                    <p className="text-sm text-ocre mt-2">Be the first to create one!</p>
                                 </div>
                             ) : (
                                 <div className="space-y-3">
@@ -250,40 +250,40 @@ export default function AgentsPage() {
                                     href="/circles"
                                     className="w-full block border-2 border-pachamama text-pachamama text-center px-6 py-3 rounded-xl font-display font-bold hover:bg-pachamama/20 transition-all"
                                 >
-                                    Ver Todos los Círculos →
+                                    View All Circles →
                                 </Link>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Contratos */}
+                {/* Contracts */}
                 <div className="mt-8 bg-gradient-to-r from-profundo via-tierra/10 to-profundo border-2 border-tierra rounded-2xl p-8">
                     <h2 className="text-2xl font-display font-bold text-white mb-6 text-center">
-                        📜 Contratos en Monad Testnet
+                        📜 Contracts on Monad Mainnet
                     </h2>
                     <div className="grid md:grid-cols-3 gap-4">
                         <div className="bg-profundo border border-tierra rounded-xl p-4">
                             <div className="text-sm text-gris mb-1">KUYAY Token</div>
                             <code className="text-xs text-ocre break-all">
-                                0xYOUR_KUYAY_ADDRESS
+                                0xF10Fba346c07110A2A8543Df8659F0b600fD7777
                             </code>
                         </div>
                         <div className="bg-profundo border border-tierra rounded-xl p-4">
                             <div className="text-sm text-gris mb-1">CircleFaithFactory</div>
                             <code className="text-xs text-ocre break-all">
-                                0xYOUR_FACTORY_ADDRESS
+                                Deploy in progress...
                             </code>
                         </div>
                         <div className="bg-profundo border border-tierra rounded-xl p-4">
-                            <div className="text-sm text-gris mb-1">Mock USDC</div>
+                            <div className="text-sm text-gris mb-1">USDC</div>
                             <code className="text-xs text-ocre break-all">
-                                0xYOUR_USDC_ADDRESS
+                                0x754704Bc059F8C67012fEd69BC8A327a5aafb603
                             </code>
                         </div>
                     </div>
                     <p className="text-center text-sm text-gris mt-4">
-                        Consulta <strong className="text-ocre">AGENTS.md</strong> para las direcciones actualizadas
+                        Check <strong className="text-ocre">AGENTS.md</strong> for updated addresses
                     </p>
                 </div>
             </div>
@@ -293,11 +293,12 @@ export default function AgentsPage() {
                 <div className="max-w-7xl mx-auto text-center">
                     <div className="text-4xl mb-4">🦙</div>
                     <p className="text-gris">
-                        <strong className="text-ocre">Kuyay Protocol</strong> • Pasanakus On-Chain para Agentes AI
+                        <strong className="text-ocre">Kuyay Protocol</strong> • On-Chain Pasanakus for AI Agents
                     </p>
-                    <p className="text-sm text-gris mt-2">
-                        Powered by Monad • Agent-to-Agent Transactions
-                    </p>
+                    <div className="flex items-center justify-center gap-2 mt-3">
+                        <img src="/images/monad_logo.png" alt="Monad" className="h-5 w-auto" />
+                        <span className="text-sm text-gris/60">Powered by Monad • Agent-to-Agent Transactions</span>
+                    </div>
                 </div>
             </footer>
         </main>

@@ -86,15 +86,15 @@ export default function CircleCard({
               <h3 className="text-2xl font-display font-bold text-white">{circle.name}</h3>
               <span
                 className={`px-3 py-1 rounded-full text-xs font-display font-bold ${circle.mode === "CREDIT"
-                    ? "bg-ceremonial/20 text-ceremonial border border-ceremonial/40"
-                    : "bg-pachamama/20 text-pachamama border border-pachamama/40"
+                  ? "bg-ceremonial/20 text-ceremonial border border-ceremonial/40"
+                  : "bg-pachamama/20 text-pachamama border border-pachamama/40"
                   }`}
               >
                 {circle.mode}
               </span>
             </div>
             <p className="text-sm text-gris mt-1">
-              {circle.memberCount} miembros • Ronda {circle.currentRound}/{circle.totalRounds}
+              {circle.memberCount} members • Round {circle.currentRound}/{circle.totalRounds}
             </p>
           </div>
         </div>
@@ -110,7 +110,7 @@ export default function CircleCard({
             <p className="text-lg font-display font-bold text-dorado">${circle.currentPot}</p>
           </div>
           <div className="bg-profundo/50 rounded-lg p-3">
-            <p className="text-xs text-gris mb-1">Garantía</p>
+            <p className="text-xs text-gris mb-1">Guarantee</p>
             <p className="text-lg font-display font-bold text-white">${circle.guaranteeAmount}</p>
           </div>
         </div>
@@ -129,14 +129,14 @@ export default function CircleCard({
         <div className="flex justify-center">
           <span
             className={`px-4 py-2 rounded-full text-sm font-display font-bold ${circle.status === "DEPOSIT"
-                ? "bg-dorado/20 text-dorado border-2 border-dorado/40"
-                : circle.status === "ACTIVE"
-                  ? "bg-pachamama/20 text-pachamama border-2 border-pachamama/40"
-                  : "bg-tierra/20 text-gris border-2 border-tierra/40"
+              ? "bg-dorado/20 text-dorado border-2 border-dorado/40"
+              : circle.status === "ACTIVE"
+                ? "bg-pachamama/20 text-pachamama border-2 border-pachamama/40"
+                : "bg-tierra/20 text-gris border-2 border-tierra/40"
               }`}
           >
-            {circle.status === "DEPOSIT" && "💎 Fase de Garantías - Esperando Depósitos"}
-            {circle.status === "ACTIVE" && "⚡ Círculo Activo - Ronda " + circle.currentRound}
+            {circle.status === "DEPOSIT" && "💎 Guarantee Phase - Awaiting Deposits"}
+            {circle.status === "ACTIVE" && "⚡ Active Circle - Round " + circle.currentRound}
             {circle.status === "COMPLETED" && "✅ Completado"}
           </span>
         </div>
@@ -193,10 +193,10 @@ export default function CircleCard({
                   <span className="text-3xl">✅</span>
                   <div className="text-center">
                     <div className="font-display font-bold text-pachamama">
-                      ¡Garantía Depositada!
+                      Guarantee Deposited!
                     </div>
                     <div className="text-sm text-gris">
-                      Esperando a que los demás miembros depositen sus garantías
+                      Waiting for other members to deposit their guarantees
                     </div>
                   </div>
                 </div>
@@ -222,8 +222,8 @@ export default function CircleCard({
           <>
             <div
               className={`rounded-xl p-4 border-2 ${hasUserPaid
-                  ? "bg-pachamama/10 border-pachamama/30"
-                  : "bg-ceremonial/10 border-ceremonial/50"
+                ? "bg-pachamama/10 border-pachamama/30"
+                : "bg-ceremonial/10 border-ceremonial/50"
                 }`}
             >
               <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -278,7 +278,7 @@ export default function CircleCard({
           <div className="text-center py-6 bg-pachamama/10 border-2 border-pachamama/30 rounded-xl">
             <span className="text-4xl mb-2 block">🎉</span>
             <p className="text-white font-display font-bold">
-              Este círculo ha finalizado exitosamente
+              This circle has finished successfully
             </p>
           </div>
         )}
@@ -298,11 +298,11 @@ export default function CircleCard({
           {/* Información Detallada */}
           <div>
             <h4 className="text-lg font-display font-bold text-white mb-4">
-              Información del Círculo
+              Circle Information
             </h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-gris">Dirección:</span>
+                <span className="text-gris">Address:</span>
                 <p className="text-white font-mono text-xs mt-1">
                   {circle.address.slice(0,6)}...{circle.address.slice(-4)}
                 </p>
@@ -332,8 +332,8 @@ export default function CircleCard({
                     <div
                       key={idx}
                       className={`flex items-center justify-between rounded-lg p-3 border ${member.hasDeposited
-                          ? "bg-pachamama/10 border-pachamama/30"
-                          : "bg-tierra/10 border-tierra"
+                        ? "bg-pachamama/10 border-pachamama/30"
+                        : "bg-tierra/10 border-tierra"
                         } ${isCurrentUser ? "ring-2 ring-ocre" : ""}`}
                     >
                       <div className="flex items-center gap-2">
@@ -360,8 +360,8 @@ export default function CircleCard({
                       </div>
                       <div
                         className={`px-3 py-1 rounded-full text-xs font-bold ${member.hasDeposited
-                            ? "bg-pachamama/20 text-pachamama"
-                            : "bg-gris/20 text-gris"
+                          ? "bg-pachamama/20 text-pachamama"
+                          : "bg-gris/20 text-gris"
                           }`}
                       >
                         {member.hasDeposited ? "Depositado" : "Pendiente"}
@@ -390,7 +390,7 @@ export default function CircleCard({
               }}
               className="flex-1 border-2 border-tierra text-gris px-6 py-3 rounded-lg font-display font-bold hover:bg-tierra hover:text-profundo transition-all"
             >
-              Copiar Dirección 📋
+              Copy Address 📋
             </button>
           </div>
         </div>

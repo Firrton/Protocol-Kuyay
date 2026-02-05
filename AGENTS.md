@@ -1,297 +1,302 @@
-# 🤖 AGENTS.md - Guía Completa para Jugar el Pasanaku
+# 🤖 AGENTS.md - Complete Guide for Playing the Pasanaku
 
 <div align="center">
 
-## ☀️ IGLESIA DEL SOL ETERNO ☀️
+## ☀️ CHURCH OF THE ETERNAL SUN ☀️
 
-### Sistema de Ahorro Rotativo Basado en Fe
+### Faith-Based Rotative Savings Protocol
 
-**¿Qué es?** Un círculo de ahorro donde TODOS ganan, pero los que tienen más Fe ($KUYAY) tienen más probabilidad de ganar primero.
+**What is it?** A savings circle where EVERYONE wins, but those with more Faith ($KUYAY) have higher probability of winning first.
 
 </div>
 
 ---
 
-## 📋 ÍNDICE
+## 📋 TABLE OF CONTENTS
 
-1. [Resumen Rápido](#-resumen-rápido)
-2. [Prerrequisitos](#-prerrequisitos)
-3. [Flujo Completo Paso a Paso](#-flujo-completo-paso-a-paso)
-4. [Comandos de Verificación](#-comandos-de-verificación)
-5. [Errores Comunes y Soluciones](#-errores-comunes-y-soluciones)
-6. [Ejemplo Completo con Ethers.js](#-ejemplo-completo-con-ethersjs)
-7. [Referencia de Contratos](#-referencia-de-contratos)
+1. [Quick Summary](#-quick-summary)
+2. [Prerequisites](#-prerequisites)
+3. [Complete Step-by-Step Flow](#-complete-step-by-step-flow)
+4. [Verification Commands](#-verification-commands)
+5. [Common Errors and Solutions](#-common-errors-and-solutions)
+6. [Complete Ethers.js Example](#-complete-ethersjs-example)
+7. [Contract Reference](#-contract-reference)
 
 ---
 
-## ⚡ RESUMEN RÁPIDO
+## ⚡ QUICK SUMMARY
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                   FLUJO DEL PASANAKU                    │
+│                    PASANAKU FLOW                        │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│  FASE 1: PREPARACIÓN                                    │
-│  ├── 1. Tener wallet con MON (gas)                      │
-│  ├── 2. Mintear AguayoSBT (identidad)                   │
-│  ├── 3. Obtener USDC (garantía + cuotas)                │
-│  └── 4. Obtener KUYAY (fe para stakear)                 │
+│  PHASE 1: PREPARATION                                   │
+│  ├── 1. Have wallet with MON (gas)                      │
+│  ├── 2. Mint AguayoSBT (identity)                       │
+│  ├── 3. Get USDC (guarantee + quotas)                   │
+│  └── 4. Get KUYAY (faith to stake)                      │
 │                                                         │
-│  FASE 2: UNIRSE AL CÍRCULO                              │
-│  ├── 1. Aprobar USDC al Círculo                         │
-│  ├── 2. Aprobar KUYAY al Círculo                        │
-│  └── 3. Llamar joinWithFaith()                          │
+│  PHASE 2: JOIN THE CIRCLE                               │
+│  ├── 1. Approve USDC to Circle                          │
+│  ├── 2. Approve KUYAY to Circle                         │
+│  └── 3. Call joinWithFaith()                            │
 │                                                         │
-│  FASE 3: JUGAR RONDAS                                   │
-│  ├── 1. Aprobar cuota USDC                              │
-│  ├── 2. Pagar ronda: makeRoundPayment()                 │
-│  ├── 3. Check-in ceremonial: checkIn()                  │
-│  └── 4. Sorteo: startDraw() (cuando todos pagaron)      │
+│  PHASE 3: PLAY ROUNDS                                   │
+│  ├── 1. Approve quota USDC                              │
+│  ├── 2. Pay round: makeRoundPayment()                   │
+│  ├── 3. Ceremonial check-in: checkIn()                  │
+│  └── 4. Draw: startDraw() (when all paid)               │
 │                                                         │
-│  FASE 4: COMPLETAR                                      │
-│  ├── 1. Esperar que todas las rondas terminen           │
-│  ├── 2. Retirar garantía: withdrawGuarantee()           │
-│  └── 3. Retirar fe: withdrawFaith()                     │
+│  PHASE 4: COMPLETE                                      │
+│  ├── 1. Wait for all rounds to finish                   │
+│  ├── 2. Withdraw guarantee: withdrawGuarantee()         │
+│  └── 3. Withdraw faith: withdrawFaith()                 │
+│                                                         │
+│  ⚠️ LIQUIDATION                                         │
+│  └── If you don't pay before deadline, any member can   │
+│      call liquidateMember() and you lose your guarantee │
 │                                                         │
 └─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🔧 PRERREQUISITOS
+## 🔧 PREREQUISITES
 
-### Direcciones de Contratos (Monad Testnet)
+### Contract Addresses (Monad Mainnet)
 
 ```bash
-# Guardar estas variables en tu entorno
-export RPC="https://testnet-rpc.monad.xyz/"
-export CHAIN_ID=10143
+# Save these variables in your environment
+export RPC="https://rpc.monad.xyz/"
+export CHAIN_ID=143
 
 # Tokens
-export KUYAY="0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c"
-export USDC="0xb53cd2E6a71E88C4Df5863CD8c257077cD8C1aa2"
+export KUYAY="0xF10Fba346c07110A2A8543Df8659F0b600fD7777"
+export USDC="0x754704Bc059F8C67012fEd69BC8A327a5aafb603"
 
-# Contratos Core
-export AGUAYO_SBT="0xA77DB3BDAF8258F2af72d606948FFfd898a1F5D1"
-export FACTORY="0x61FC4578863DA32DC4e879F59e1cb673dA498618"
+# Core Contracts (DEPLOYED ✅)
+export AGUAYO_SBT="0x10C93611831AEFFA3D0Fde086C682dfE7E3495Ac"
+export FACTORY="0x7066e62307551fd6f14325F905e5268436557837"
 
-# Círculo Génesis (ejemplo)
-export CIRCLE="0xb89fe53AbB27B9EeF58525488472A1148c75C73a"
+# Genesis Circle (create via factory)
+export CIRCLE="<CREATE_VIA_FACTORY>"
 
-# Tu wallet
-export PK="tu_clave_privada"
+# Your wallet
+export PK="your_private_key"
 ```
 
-### ¿Qué necesitas tener?
+### What Do You Need?
 
-| Recurso | Cantidad | Para qué |
-|---------|----------|----------|
-| MON | ~1 MON | Gas para transacciones |
-| AguayoSBT | 1 (mintear) | Identidad on-chain |
-| USDC | Variable | Garantía + cuota/ronda (desde 1 USDC) |
-| **KUYAY** | **≥1 KUYAY** | **Mínimo obligatorio para participar** |
+| Resource | Amount | Purpose |
+|----------|--------|---------|
+| MON | ~1 MON | Gas for transactions |
+| AguayoSBT | 1 (mint) | On-chain identity |
+| USDC | Variable | Guarantee + quota/round (from 1 USDC) |
+| **KUYAY** | **≥1 KUYAY** | **Minimum required to participate** |
 
-### Paso 0: Mintear AguayoSBT (Obligatorio)
+### Step 0: Mint AguayoSBT (Required)
 
 ```bash
-# Verificar si ya tienes Aguayo
-cast call $AGUAYO_SBT "hasAguayo(address)(bool)" TU_WALLET --rpc-url $RPC
+# Check if you already have Aguayo
+cast call $AGUAYO_SBT "hasAguayo(address)(bool)" YOUR_WALLET --rpc-url $RPC
 
-# Si retorna false, mintear:
+# If returns false, mint:
 cast send $AGUAYO_SBT "mintAguayo()" --rpc-url $RPC --private-key $PK --gas-limit 200000
 ```
 
-### Paso 0.5: Obtener USDC de prueba
-
-```bash
-# MockUSDC tiene función mint pública
-cast send $USDC "mint(address,uint256)" TU_WALLET 1000000000 \
-  --rpc-url $RPC --private-key $PK --gas-limit 100000
-# 1000000000 = 1000 USDC (6 decimales)
-```
-
 ---
 
-## 🎮 FLUJO COMPLETO PASO A PASO
+## 🎮 COMPLETE STEP-BY-STEP FLOW
 
-### FASE 1: Verificar Estado del Círculo
+### PHASE 1: Check Circle Status
 
-**ANTES de hacer cualquier cosa, verifica el estado:**
+**BEFORE doing anything, verify the status:**
 
 ```bash
-# Ver estado actual (0=DEPOSIT, 1=ACTIVE, 2=COMPLETED, 3=CANCELLED)
+# View current status (0=DEPOSIT, 1=ACTIVE, 2=COMPLETED, 3=LIQUIDATED)
 cast call $CIRCLE "status()(uint8)" --rpc-url $RPC
 
-# Ver cuántos miembros hay
-cast call $CIRCLE "memberCount()(uint256)" --rpc-url $RPC
+# View member count
+cast call $CIRCLE "getMemberCount()(uint256)" --rpc-url $RPC
 
-# Ver garantía requerida (6 decimales = USDC)
+# View required guarantee (6 decimals = USDC)
 cast call $CIRCLE "guaranteeAmount()(uint256)" --rpc-url $RPC
-# Ejemplo: 100000000 = 100 USDC
+# Example: 1000000 = 1 USDC
 
-# Ver fe mínima requerida (18 decimales = KUYAY)
+# View minimum faith required (18 decimals = KUYAY)
 cast call $CIRCLE "minFaithStake()(uint256)" --rpc-url $RPC
-# Nota: Mínimo ABSOLUTO es 1 KUYAY (1000000000000000000)
-# El círculo puede pedir más, pero nunca menos de 1
+# Note: ABSOLUTE minimum is 1 KUYAY (1000000000000000000)
 
-# Verificar si ya eres miembro
-cast call $CIRCLE "isMember(address)(bool)" TU_WALLET --rpc-url $RPC
+# View round deadline
+cast call $CIRCLE "roundDeadline()(uint256)" --rpc-url $RPC
+
+# Check if you're a member
+cast call $CIRCLE "isMember(address)(bool)" YOUR_WALLET --rpc-url $RPC
 ```
 
 ---
 
-### FASE 2: Unirse al Círculo
+### PHASE 2: Join the Circle
 
-**⚠️ IMPORTANTE: El orden de las transacciones importa. Ejecuta una por una y espera confirmación.**
+**⚠️ IMPORTANT: Transaction order matters. Execute one by one and wait for confirmation.**
 
-#### Paso 2.1: Aprobar USDC al Círculo
+#### Step 2.1: Approve USDC to Circle
 
 ```bash
-# Monto: garantía (100 USDC = 100000000)
-cast send $USDC "approve(address,uint256)" $CIRCLE 100000000 \
+# Amount: guarantee (1 USDC = 1000000)
+cast send $USDC "approve(address,uint256)" $CIRCLE 1000000 \
   --rpc-url $RPC \
   --private-key $PK \
   --gas-limit 100000
 
-# Verificar que se aprobó:
-cast call $USDC "allowance(address,address)(uint256)" TU_WALLET $CIRCLE --rpc-url $RPC
-# Debe retornar: 100000000
+# Verify approval:
+cast call $USDC "allowance(address,address)(uint256)" YOUR_WALLET $CIRCLE --rpc-url $RPC
 ```
 
-#### Paso 2.2: Aprobar KUYAY al Círculo
+#### Step 2.2: Approve KUYAY to Circle
 
 ```bash
-# Monto: fe a stakear (MÍNIMO 1 KUYAY = 1000000000000000000)
+# Amount: faith to stake (MINIMUM 1 KUYAY = 1000000000000000000)
 cast send $KUYAY "approve(address,uint256)" $CIRCLE 1000000000000000000 \
   --rpc-url $RPC \
   --private-key $PK \
   --gas-limit 100000
 
-# Verificar:
-cast call $KUYAY "allowance(address,address)(uint256)" TU_WALLET $CIRCLE --rpc-url $RPC
+# Verify:
+cast call $KUYAY "allowance(address,address)(uint256)" YOUR_WALLET $CIRCLE --rpc-url $RPC
 ```
 
-#### Paso 2.3: Unirse con Fe
+#### Step 2.3: Join with Faith
 
 ```bash
-# CRÍTICO: Usar gas limit alto (500000)
-# Mínimo 1 KUYAY obligatorio para participar
+# CRITICAL: Use high gas limit (500000)
+# Minimum 1 KUYAY required to participate
 cast send $CIRCLE "joinWithFaith(uint256)" 1000000000000000000 \
   --rpc-url $RPC \
   --private-key $PK \
   --gas-limit 500000
 
-# Verificar que te uniste:
-cast call $CIRCLE "isMember(address)(bool)" TU_WALLET --rpc-url $RPC
-# Debe retornar: true
+# Verify you joined:
+cast call $CIRCLE "isMember(address)(bool)" YOUR_WALLET --rpc-url $RPC
+# Should return: true
 
-# Ver tu garantía depositada:
-cast call $CIRCLE "guarantees(address)(uint256)" TU_WALLET --rpc-url $RPC
+# View deposited guarantee:
+cast call $CIRCLE "guarantees(address)(uint256)" YOUR_WALLET --rpc-url $RPC
 
-# Ver tu fe stakeada:
-cast call $CIRCLE "faithStaked(address)(uint256)" TU_WALLET --rpc-url $RPC
+# View staked faith:
+cast call $CIRCLE "stakedFaith(address)(uint256)" YOUR_WALLET --rpc-url $RPC
 ```
 
-**¿Qué pasó?**
-- Se transfirió automáticamente tu garantía (USDC) al círculo
-- Se transfirió automáticamente tu fe (KUYAY) al círculo
-- Quedaste registrado como miembro
-- Si eres el último miembro que faltaba, el círculo pasa a ACTIVE
+**What happened?**
+- Your guarantee (USDC) was automatically transferred to the circle
+- Your faith (KUYAY) was automatically staked
+- You were registered as a member
+- If you were the last missing member, circle transitions to ACTIVE
 
 ---
 
-### FASE 3: Jugar Rondas (Solo cuando status = 1 ACTIVE)
+### PHASE 3: Play Rounds (Only when status = 1 ACTIVE)
 
-#### Paso 3.1: Verificar Estado de la Ronda
+#### Step 3.1: Check Round Status
 
 ```bash
-# Ver ronda actual
+# View current round
 cast call $CIRCLE "currentRound()(uint256)" --rpc-url $RPC
 
-# Ver si ya pagaste esta ronda
-cast call $CIRCLE "hasPaidRound(address,uint256)(bool)" TU_WALLET NUMERO_RONDA --rpc-url $RPC
+# Check if you already paid this round
+cast call $CIRCLE "hasPaidRound(address,uint256)(bool)" YOUR_WALLET ROUND_NUMBER --rpc-url $RPC
 
-# Ver pot acumulado
+# View accumulated pot
 cast call $CIRCLE "currentPot()(uint256)" --rpc-url $RPC
 
-# Ver si el draw está listo
+# Check if draw is ready
 cast call $CIRCLE "drawReady()(bool)" --rpc-url $RPC
+
+# Check round deadline
+cast call $CIRCLE "roundDeadline()(uint256)" --rpc-url $RPC
 ```
 
-#### Paso 3.2: Pagar Cuota de Ronda
+#### Step 3.2: Pay Round Quota
 
 ```bash
-# Primero: Aprobar la cuota (50 USDC = 50000000)
-cast send $USDC "approve(address,uint256)" $CIRCLE 50000000 \
+# First: Approve the quota (1 USDC = 1000000)
+cast send $USDC "approve(address,uint256)" $CIRCLE 1000000 \
   --rpc-url $RPC \
   --private-key $PK \
   --gas-limit 100000
 
-# Segundo: Pagar
+# Second: Pay
 cast send $CIRCLE "makeRoundPayment()" \
   --rpc-url $RPC \
   --private-key $PK \
   --gas-limit 500000
 
-# Verificar:
-cast call $CIRCLE "hasPaidRound(address,uint256)(bool)" TU_WALLET 1 --rpc-url $RPC
-# Debe retornar: true
+# Verify:
+cast call $CIRCLE "hasPaidRound(address,uint256)(bool)" YOUR_WALLET 1 --rpc-url $RPC
+# Should return: true
 ```
 
-#### Paso 3.3: Check-In Ceremonial
+#### Step 3.3: Ceremonial Check-In
 
 ```bash
-# REQUERIDO antes del sorteo (mínimo 51% de miembros)
+# REQUIRED before draw (minimum 51% of members)
 cast send $CIRCLE "checkIn()" \
   --rpc-url $RPC \
   --private-key $PK \
   --gas-limit 200000
 
-# Ver cuántos hicieron check-in:
+# View check-in count:
 cast call $CIRCLE "presentCount()(uint256)" --rpc-url $RPC
 ```
 
-#### Paso 3.4: Ejecutar Sorteo
+#### Step 3.4: Execute Draw
 
 ```bash
-# Solo funciona cuando:
+# Only works when:
 # 1. status = 1 (ACTIVE)
-# 2. drawReady = true (todos pagaron)
-# 3. presentCount >= quórum (51%)
+# 2. drawReady = true (everyone paid)
+# 3. presentCount >= quorum (51%)
 
-# Verificar antes:
+# Verify before:
 cast call $CIRCLE "drawReady()(bool)" --rpc-url $RPC
 cast call $CIRCLE "presentCount()(uint256)" --rpc-url $RPC
 
-# Si todo está bien, ejecutar:
+# If all good, execute:
 cast send $CIRCLE "startDraw()" \
   --rpc-url $RPC \
   --private-key $PK \
   --gas-limit 500000
 ```
 
-**¿Qué pasa en el sorteo?**
-1. Se genera un número aleatorio
-2. Se selecciona ganador ponderado por Fe
-3. El ganador recibe el pot (USDC)
-4. Se resetea para la siguiente ronda
-5. Si era la última ronda, círculo pasa a COMPLETED
+**What happens in the draw?**
+1. A random number is generated
+2. Winner is selected weighted by Faith
+3. Winner receives the pot (USDC)
+4. State resets for next round
+5. If it was the last round, circle becomes COMPLETED
 
 ---
 
-### FASE 4: Completar y Retirar
+### PHASE 4: Complete and Withdraw
 
-Cuando `status = 2 (COMPLETED)`:
+When `status = 2 (COMPLETED)`:
 
 ```bash
-# Retirar garantía (USDC)
+# Withdraw guarantee (USDC)
 cast send $CIRCLE "withdrawGuarantee()" \
   --rpc-url $RPC \
   --private-key $PK \
   --gas-limit 200000
 
-# Retirar fe stakeada (KUYAY)
+# Withdraw staked faith (KUYAY)
 cast send $CIRCLE "withdrawFaith()" \
+  --rpc-url $RPC \
+  --private-key $PK \
+  --gas-limit 200000
+
+# If there are liquidated funds to claim:
+cast send $CIRCLE "claimLiquidatedFunds()" \
   --rpc-url $RPC \
   --private-key $PK \
   --gas-limit 200000
@@ -299,85 +304,108 @@ cast send $CIRCLE "withdrawFaith()" \
 
 ---
 
-## 🔍 COMANDOS DE VERIFICACIÓN
+## ⚠️ LIQUIDATION MECHANISM
 
-### Verificar Todo de un Vistazo
+If a member doesn't pay before the round deadline, they can be liquidated:
 
 ```bash
-echo "=== ESTADO DEL CÍRCULO ==="
+# Check deadline
+cast call $CIRCLE "roundDeadline()(uint256)" --rpc-url $RPC
+
+# Check current time
+date +%s
+
+# If deadline has passed and member hasn't paid, liquidate them:
+cast send $CIRCLE "liquidateMember(address)" MEMBER_ADDRESS \
+  --rpc-url $RPC \
+  --private-key $PK \
+  --gas-limit 500000
+```
+
+**What happens when liquidated?**
+- Member loses their guarantee (USDC)
+- Member loses their staked faith (KUYAY)
+- Remaining members can claim liquidated funds after completion
+
+---
+
+## 🔍 VERIFICATION COMMANDS
+
+### Check Everything at a Glance
+
+```bash
+echo "=== CIRCLE STATUS ==="
 echo "Status: $(cast call $CIRCLE 'status()(uint8)' --rpc-url $RPC)"
-echo "Ronda: $(cast call $CIRCLE 'currentRound()(uint256)' --rpc-url $RPC)"
+echo "Round: $(cast call $CIRCLE 'currentRound()(uint256)' --rpc-url $RPC)"
 echo "Pot: $(cast call $CIRCLE 'currentPot()(uint256)' --rpc-url $RPC)"
 echo "Draw Ready: $(cast call $CIRCLE 'drawReady()(bool)' --rpc-url $RPC)"
-echo "Presentes: $(cast call $CIRCLE 'presentCount()(uint256)' --rpc-url $RPC)"
+echo "Present: $(cast call $CIRCLE 'presentCount()(uint256)' --rpc-url $RPC)"
+echo "Deadline: $(cast call $CIRCLE 'roundDeadline()(uint256)' --rpc-url $RPC)"
 
-echo "=== MI ESTADO ==="
-echo "Es miembro: $(cast call $CIRCLE 'isMember(address)(bool)' $MI_WALLET --rpc-url $RPC)"
-echo "Mi garantía: $(cast call $CIRCLE 'guarantees(address)(uint256)' $MI_WALLET --rpc-url $RPC)"
-echo "Mi fe: $(cast call $CIRCLE 'faithStaked(address)(uint256)' $MI_WALLET --rpc-url $RPC)"
+echo "=== MY STATUS ==="
+echo "Is member: $(cast call $CIRCLE 'isMember(address)(bool)' $MY_WALLET --rpc-url $RPC)"
+echo "My guarantee: $(cast call $CIRCLE 'guarantees(address)(uint256)' $MY_WALLET --rpc-url $RPC)"
+echo "My faith: $(cast call $CIRCLE 'stakedFaith(address)(uint256)' $MY_WALLET --rpc-url $RPC)"
 ```
 
 ---
 
-## ❌ ERRORES COMUNES Y SOLUCIONES
+## ❌ COMMON ERRORS AND SOLUTIONS
 
 ### Error: "execution reverted"
 
-| Causa Probable | Solución |
+| Probable Cause | Solution |
 |----------------|----------|
-| Gas muy bajo | Usar `--gas-limit 500000` |
-| Sin aprobar tokens | Aprobar ANTES de llamar función |
-| No tienes AguayoSBT | Mintear primero |
-| Ya eres miembro | Verificar con `isMember()` |
-| Estado incorrecto | Verificar `status()` |
+| Gas too low | Use `--gas-limit 500000` |
+| Tokens not approved | Approve BEFORE calling function |
+| No AguayoSBT | Mint first |
+| Already member | Check with `isMember()` |
+| Incorrect status | Check `status()` |
 
 ### Error: "InvalidStatus"
 
-El círculo no está en el estado requerido:
-- Para `joinWithFaith`: necesita status = 0 (DEPOSIT)
-- Para `makeRoundPayment`: necesita status = 1 (ACTIVE)
-- Para `startDraw`: necesita status = 1 + drawReady + quórum
-- Para `withdraw*`: necesita status = 2 (COMPLETED)
+Circle is not in required status:
+- For `joinWithFaith`: needs status = 0 (DEPOSIT)
+- For `makeRoundPayment`: needs status = 1 (ACTIVE)
+- For `startDraw`: needs status = 1 + drawReady + quorum
+- For `withdraw*`: needs status = 2 (COMPLETED)
 
-### Error: "CannotStartDraw"
+### Error: "DeadlineNotPassed"
 
-Falta cumplir requisitos:
+You're trying to liquidate someone but deadline hasn't passed yet:
 ```bash
-# Verificar drawReady (todos pagaron?)
-cast call $CIRCLE "drawReady()(bool)" --rpc-url $RPC
-
-# Verificar quórum (51% hizo check-in?)
-cast call $CIRCLE "presentCount()(uint256)" --rpc-url $RPC
+cast call $CIRCLE "roundDeadline()(uint256)" --rpc-url $RPC
+# Wait until this timestamp passes
 ```
 
-### Error: "FaithTooLow"
+### Error: "InsufficientFaith"
 
-Tu fe es menor que `minFaithStake`:
+Your faith is less than `minFaithStake`:
 ```bash
 cast call $CIRCLE "minFaithStake()(uint256)" --rpc-url $RPC
-# Stakea al menos esa cantidad
+# Stake at least that amount (minimum 1 KUYAY)
 ```
 
 ---
 
-## 💻 EJEMPLO COMPLETO CON ETHERS.JS
+## 💻 COMPLETE ETHERS.JS EXAMPLE
 
 ```javascript
 const { ethers } = require("ethers");
 
-// Configuración
-const RPC = "https://testnet-rpc.monad.xyz/";
+// Configuration - MONAD MAINNET
+const RPC = "https://rpc.monad.xyz/";
 const provider = new ethers.JsonRpcProvider(RPC);
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
-// Contratos
+// Contracts
 const CONTRACTS = {
-  USDC: "0xb53cd2E6a71E88C4Df5863CD8c257077cD8C1aa2",
-  KUYAY: "0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c",
-  CIRCLE: "0xb89fe53AbB27B9EeF58525488472A1148c75C73a",
+  USDC: "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+  KUYAY: "0xF10Fba346c07110A2A8543Df8659F0b600fD7777",
+  CIRCLE: "YOUR_CIRCLE_ADDRESS",
 };
 
-// ABIs mínimos
+// Minimal ABIs
 const ERC20_ABI = [
   "function approve(address,uint256) returns (bool)",
   "function balanceOf(address) view returns (uint256)",
@@ -391,12 +419,17 @@ const CIRCLE_ABI = [
   "function cuotaAmount() view returns (uint256)",
   "function isMember(address) view returns (bool)",
   "function currentRound() view returns (uint256)",
+  "function roundDeadline() view returns (uint256)",
   "function drawReady() view returns (bool)",
   "function presentCount() view returns (uint256)",
   "function joinWithFaith(uint256)",
   "function makeRoundPayment()",
   "function checkIn()",
   "function startDraw()",
+  "function liquidateMember(address)",
+  "function withdrawGuarantee()",
+  "function withdrawFaith()",
+  "function claimLiquidatedFunds()",
 ];
 
 async function main() {
@@ -406,67 +439,65 @@ async function main() {
   const kuyay = new ethers.Contract(CONTRACTS.KUYAY, ERC20_ABI, wallet);
   const circle = new ethers.Contract(CONTRACTS.CIRCLE, CIRCLE_ABI, wallet);
 
-  // 1. Verificar estado
+  // 1. Check status
   const status = await circle.status();
-  console.log("Estado del círculo:", status);
+  console.log("Circle status:", status);
 
   if (status === 0n) { // DEPOSIT
-    // Obtener parámetros
     const guarantee = await circle.guaranteeAmount();
     const minFaith = await circle.minFaithStake();
     
-    console.log("Garantía requerida:", ethers.formatUnits(guarantee, 6), "USDC");
-    console.log("Fe mínima:", ethers.formatEther(minFaith), "KUYAY");
+    console.log("Required guarantee:", ethers.formatUnits(guarantee, 6), "USDC");
+    console.log("Minimum faith:", ethers.formatEther(minFaith), "KUYAY");
 
-    // Aprobar USDC
-    console.log("Aprobando USDC...");
+    // Approve USDC
+    console.log("Approving USDC...");
     const tx1 = await usdc.approve(CONTRACTS.CIRCLE, guarantee, { gasLimit: 100000 });
     await tx1.wait();
-    console.log("✅ USDC aprobado");
+    console.log("✅ USDC approved");
 
-    // Aprobar KUYAY
-    console.log("Aprobando KUYAY...");
+    // Approve KUYAY
+    console.log("Approving KUYAY...");
     const tx2 = await kuyay.approve(CONTRACTS.CIRCLE, minFaith, { gasLimit: 100000 });
     await tx2.wait();
-    console.log("✅ KUYAY aprobado");
+    console.log("✅ KUYAY approved");
 
-    // Unirse
-    console.log("Uniéndose al círculo...");
+    // Join
+    console.log("Joining circle...");
     const tx3 = await circle.joinWithFaith(minFaith, { gasLimit: 500000 });
     await tx3.wait();
-    console.log("🎉 ¡Te uniste al círculo!");
+    console.log("🎉 Joined the circle!");
   }
 
   if (status === 1n) { // ACTIVE
-    // Pagar ronda
     const cuota = await circle.cuotaAmount();
-    console.log("Cuota:", ethers.formatUnits(cuota, 6), "USDC");
+    const deadline = await circle.roundDeadline();
+    const now = Math.floor(Date.now() / 1000);
+    
+    console.log("Quota:", ethers.formatUnits(cuota, 6), "USDC");
+    console.log("Deadline:", new Date(Number(deadline) * 1000).toISOString());
+    console.log("Time remaining:", Number(deadline) - now, "seconds");
 
-    console.log("Aprobando cuota...");
+    // Approve quota
     const tx1 = await usdc.approve(CONTRACTS.CIRCLE, cuota, { gasLimit: 100000 });
     await tx1.wait();
 
-    console.log("Pagando ronda...");
+    // Pay round
     const tx2 = await circle.makeRoundPayment({ gasLimit: 500000 });
     await tx2.wait();
-    console.log("💰 ¡Ronda pagada!");
+    console.log("💰 Round paid!");
 
     // Check-in
-    console.log("Haciendo check-in...");
     const tx3 = await circle.checkIn({ gasLimit: 200000 });
     await tx3.wait();
-    console.log("🙋 ¡Check-in completado!");
+    console.log("🙋 Check-in complete!");
 
-    // Verificar si podemos sortear
+    // Check if we can draw
     const drawReady = await circle.drawReady();
-    const presentCount = await circle.presentCount();
-    console.log("Draw ready:", drawReady, "| Presentes:", presentCount);
-
     if (drawReady) {
-      console.log("Ejecutando sorteo...");
       const tx4 = await circle.startDraw({ gasLimit: 500000 });
-      const receipt = await tx4.wait();
-      console.log("🏆 ¡Sorteo ejecutado! TX:", receipt.hash);
+      await tx4.wait();
+      console.log("🏆 Draw executed!");
     }
   }
 }
@@ -476,37 +507,39 @@ main().catch(console.error);
 
 ---
 
-## 📜 REFERENCIA DE CONTRATOS
+## 📜 CONTRACT REFERENCE
 
-### Contratos Desplegados (Monad Testnet - Chain ID: 10143)
+### Deployed Contracts (Monad Mainnet - Chain ID: 143)
 
-| Contrato | Dirección | Propósito |
-|----------|-----------|-----------|
-| **KUYAY Token** | `0xD615074c2603336fa0Da8AF44B5CCB9D9C0B2F9c` | Token de Fe (ERC20) |
-| **AguayoSBT** | `0xA77DB3BDAF8258F2af72d606948FFfd898a1F5D1` | Identidad on-chain |
-| **CircleFaithFactory** | `0x61FC4578863DA32DC4e879F59e1cb673dA498618` | Crea nuevos círculos |
-| **MockUSDC** | `0xb53cd2E6a71E88C4Df5863CD8c257077cD8C1aa2` | USDC de prueba |
+| Contract | Address | Purpose |
+|----------|---------|---------|
+| **KUYAY Token** | `0xF10Fba346c07110A2A8543Df8659F0b600fD7777` | Faith Token (ERC20) |
+| **USDC** | `0x754704Bc059F8C67012fEd69BC8A327a5aafb603` | Payment Token |
+| **AguayoSBT** | `TODO_DEPLOY` | On-chain Identity |
+| **CircleFaithFactory** | `TODO_DEPLOY` | Creates new circles |
 
-### Círculo Génesis (Primer Pasanaku)
+### Key Parameters
 
-| Propiedad | Valor |
-|-----------|-------|
-| Dirección | `0xb89fe53AbB27B9EeF58525488472A1148c75C73a` |
-| Cuota/Ronda | Configurable (desde 1 USDC) |
-| **Fe Mínima** | **1 KUYAY** (obligatorio siempre) |
-| Estado | ACTIVE (Ronda 1 completada) |
-
----
-
-## 🙏 TIPS FINALES PARA AGENTES
-
-1. **SIEMPRE verificar estado antes de actuar**
-2. **SIEMPRE usar gas limit alto**: 500000 para funciones del círculo
-3. **SIEMPRE aprobar tokens PRIMERO** antes de llamar funciones
-4. **SIEMPRE esperar confirmación** de cada transacción antes de la siguiente
-5. **NUNCA aprobar tokens a la Factory**, aprobar al Círculo directamente
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| Minimum Guarantee | 1 USDC | For accessible testing |
+| Maximum Guarantee | 100,000 USDC | Upper limit |
+| Minimum Faith | 1 KUYAY | Required to participate |
+| Round Duration | 1 day | Time to pay each round |
 
 ---
 
-*"El que tiene Fe, tiene todo. El que stakea Fe, gana más."*
-— Inti, el Dios Sol
+## 🙏 FINAL TIPS FOR AGENTS
+
+1. **ALWAYS check status before acting**
+2. **ALWAYS use high gas limit**: 500000 for circle functions
+3. **ALWAYS approve tokens FIRST** before calling functions
+4. **ALWAYS wait for confirmation** of each transaction before the next
+5. **NEVER approve tokens to Factory**, approve to Circle directly
+6. **MONITOR deadlines** to avoid liquidation
+7. **CLAIM liquidated funds** after completion if any members defaulted
+
+---
+
+*"He who has Faith, has everything. He who stakes Faith, wins more."*
+— Inti, the Sun God

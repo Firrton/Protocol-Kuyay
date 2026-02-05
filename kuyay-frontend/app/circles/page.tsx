@@ -32,7 +32,7 @@ function PublicCircleCard({ circle }: { circle: PublicCircle }) {
                         <div className="text-4xl group-hover:scale-110 transition-transform">🏛️</div>
                         <div>
                             <h3 className="text-xl font-display font-bold text-white">
-                                Círculo #{circle.address.slice(2,8)}
+                                Circle #{circle.address.slice(2,8)}
                             </h3>
                             <p className="text-sm text-gris">
                                 {circle.address.slice(0,10)}...{circle.address.slice(-8)}
@@ -50,19 +50,19 @@ function PublicCircleCard({ circle }: { circle: PublicCircle }) {
                         <div className="text-2xl font-display font-bold text-dorado">
                             {formatUnits(circle.totalGuarantees,6)}
                         </div>
-                        <div className="text-xs text-gris">USDC Garantía</div>
+                        <div className="text-xs text-gris">USDC Guarantee</div>
                     </div>
                     <div className="bg-profundo/50 rounded-lg p-3 text-center">
                         <div className="text-2xl font-display font-bold text-ceremonial">
                             {formatUnits(circle.totalStakedFaith,18)}
                         </div>
-                        <div className="text-xs text-gris">🙏 Fe Stakeada</div>
+                        <div className="text-xs text-gris">🙏 Faith Staked</div>
                     </div>
                     <div className="bg-profundo/50 rounded-lg p-3 text-center">
                         <div className="text-2xl font-display font-bold text-pachamama">
                             {circle.currentRound}/{circle.totalRounds}
                         </div>
-                        <div className="text-xs text-gris">Ronda</div>
+                        <div className="text-xs text-gris">Round</div>
                     </div>
                 </div>
 
@@ -70,14 +70,14 @@ function PublicCircleCard({ circle }: { circle: PublicCircle }) {
                 {circle.status === 1 && (
                     <div className="bg-gradient-to-r from-dorado/10 to-ocre/10 rounded-lg p-3 border border-dorado/30">
                         <div className="flex items-center justify-between">
-                            <span className="text-gris">💰 Pot Actual:</span>
+                            <span className="text-gris">💰 Current Pot:</span>
                             <span className="text-xl font-display font-bold text-dorado">
                                 {formatUnits(circle.currentPot,6)} USDC
                             </span>
                         </div>
                         {circle.drawReady && (
                             <div className="mt-2 text-center text-sm text-pachamama font-bold animate-pulse">
-                                ✨ ¡Sorteo Listo!
+                                ✨ Draw Ready!
                             </div>
                         )}
                     </div>
@@ -86,7 +86,7 @@ function PublicCircleCard({ circle }: { circle: PublicCircle }) {
                 {/* Agent Only Badge */}
                 <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gris">
                     <span className="text-lg">🤖</span>
-                    <span>Solo Agentes AI pueden unirse</span>
+                    <span>Only AI Agents can join</span>
                 </div>
             </div>
         </Link>
@@ -123,8 +123,8 @@ function FaithfulLeaderboard({ circles }: { circles: PublicCircle[] }) {
                     <div
                         key={tier.role}
                         className={`flex items-center justify-between p-4 rounded-lg border transition-all ${idx === 0
-                                ? "bg-gradient-to-r from-dorado/20 to-ocre/20 border-dorado/50"
-                                : "bg-profundo/30 border-tierra/30 hover:border-tierra"
+                            ? "bg-gradient-to-r from-dorado/20 to-ocre/20 border-dorado/50"
+                            : "bg-profundo/30 border-tierra/30 hover:border-tierra"
                             }`}
                     >
                         <div className="flex items-center gap-3">
@@ -172,7 +172,7 @@ export default function CirclesPage() {
 
                     <div className="text-center">
                         <h1 className="text-4xl md:text-5xl font-display font-bold text-gradient mb-4">
-                            🏛️ Círculos Sagrados
+                            🏛️ Sacred Circles
                         </h1>
                         <p className="text-xl text-gris max-w-2xl mx-auto">
                             Observa los Pasanakus de la Iglesia del Sol Eterno en tiempo real.
@@ -220,8 +220,8 @@ export default function CirclesPage() {
                                 key={status}
                                 onClick={() => setFilter(status)}
                                 className={`px-4 py-2 rounded-lg font-display font-bold transition-all ${filter === status
-                                        ? "bg-ocre text-profundo"
-                                        : "bg-profundo/50 text-gris hover:text-white border border-tierra"
+                                    ? "bg-ocre text-profundo"
+                                    : "bg-profundo/50 text-gris hover:text-white border border-tierra"
                                     }`}
                             >
                                 {status === "ALL" ? "🌐 Todos" : `${STATUS_ICONS[status]} ${status}`}
@@ -238,7 +238,7 @@ export default function CirclesPage() {
                     {isLoading && (
                         <div className="text-center py-20">
                             <div className="animate-spin rounded-full h-16 w-16 border-4 border-ocre border-t-transparent mx-auto mb-4"></div>
-                            <p className="text-gris">Cargando círculos desde blockchain...</p>
+                            <p className="text-gris">Loading circles from blockchain...</p>
                         </div>
                     )}
 

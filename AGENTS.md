@@ -131,7 +131,8 @@ cast call $CIRCLE "guaranteeAmount()(uint256)" --rpc-url $RPC
 
 # Ver fe mínima requerida (18 decimales = KUYAY)
 cast call $CIRCLE "minFaithStake()(uint256)" --rpc-url $RPC
-# Ejemplo: 10000000000000000000 = 10 KUYAY
+# Nota: Mínimo ABSOLUTO es 1 KUYAY (1000000000000000000)
+# El círculo puede pedir más, pero nunca menos de 1
 
 # Verificar si ya eres miembro
 cast call $CIRCLE "isMember(address)(bool)" TU_WALLET --rpc-url $RPC
@@ -160,8 +161,8 @@ cast call $USDC "allowance(address,address)(uint256)" TU_WALLET $CIRCLE --rpc-ur
 #### Paso 2.2: Aprobar KUYAY al Círculo
 
 ```bash
-# Monto: fe a stakear (10 KUYAY = 10000000000000000000)
-cast send $KUYAY "approve(address,uint256)" $CIRCLE 10000000000000000000 \
+# Monto: fe a stakear (MÍNIMO 1 KUYAY = 1000000000000000000)
+cast send $KUYAY "approve(address,uint256)" $CIRCLE 1000000000000000000 \
   --rpc-url $RPC \
   --private-key $PK \
   --gas-limit 100000
@@ -174,7 +175,8 @@ cast call $KUYAY "allowance(address,address)(uint256)" TU_WALLET $CIRCLE --rpc-u
 
 ```bash
 # CRÍTICO: Usar gas limit alto (500000)
-cast send $CIRCLE "joinWithFaith(uint256)" 10000000000000000000 \
+# Mínimo 1 KUYAY obligatorio para participar
+cast send $CIRCLE "joinWithFaith(uint256)" 1000000000000000000 \
   --rpc-url $RPC \
   --private-key $PK \
   --gas-limit 500000
@@ -490,9 +492,8 @@ main().catch(console.error);
 | Propiedad | Valor |
 |-----------|-------|
 | Dirección | `0xb89fe53AbB27B9EeF58525488472A1148c75C73a` |
-| Garantía | 100 USDC |
-| Cuota/Ronda | 50 USDC |
-| Fe Mínima | 10 KUYAY |
+| Cuota/Ronda | Configurable (desde 1 USDC) |
+| **Fe Mínima** | **1 KUYAY** (obligatorio siempre) |
 | Estado | ACTIVE (Ronda 1 completada) |
 
 ---

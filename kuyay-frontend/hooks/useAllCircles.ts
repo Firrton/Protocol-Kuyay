@@ -179,7 +179,7 @@ export interface FaithfulMember {
 }
 
 // Roles religiosos basados en Fe
-const FAITH_ROLES = [
+export const FAITH_ROLES = [
     { min: 1000,role: "Amawta Supremo",emoji: "👑" },
     { min: 500,role: "Sacerdote Mayor",emoji: "🌟" },
     { min: 100,role: "Sacerdote",emoji: "⭐" },
